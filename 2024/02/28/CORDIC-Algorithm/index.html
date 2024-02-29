@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"wangxianke123.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="CORDIC算法是一种用于计算三角函数、反三角函数和其他一些数学函数的迭代算法。CORDIC代表“Coordinate Rotation Digital Computer”，最初设计用于计算机数字化处理中的旋转操作，但后来被扩展用于更广泛的数学运算。该算法通过一系列迭代旋转和移位操作来逼近给定角度的三角函数值。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CORDIC Algorithm">
+<meta property="og:url" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/index.html">
+<meta property="og:site_name" content="花间一壶酒">
+<meta property="og:description" content="CORDIC算法是一种用于计算三角函数、反三角函数和其他一些数学函数的迭代算法。CORDIC代表“Coordinate Rotation Digital Computer”，最初设计用于计算机数字化处理中的旋转操作，但后来被扩展用于更广泛的数学运算。该算法通过一系列迭代旋转和移位操作来逼近给定角度的三角函数值。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-1.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-3.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-2.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-4.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-5.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-6.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-7.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-10.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-8.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-9.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-12.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-5.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-13.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-14.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-15.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-17.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-16.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-18.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-19.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-20.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-21.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-22.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-23.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-24.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-25.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-26.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-27.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-28.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-29.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-30.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-31.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-32.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image-33.png">
+<meta property="article:published_time" content="2024-02-28T04:43:55.000Z">
+<meta property="article:modified_time" content="2024-02-29T06:54:32.899Z">
+<meta property="article:author" content="Wang xianke">
+<meta property="article:tag" content="Hardware Algorithm">
+<meta property="article:tag" content="ICer">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/image.png">
+
+<link rel="canonical" href="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>CORDIC Algorithm | 花间一壶酒</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">花间一壶酒</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">举杯邀明月，对影成三人</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://wangxianke123.github.io/2024/02/28/CORDIC-Algorithm/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wang xianke">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="花间一壶酒">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          CORDIC Algorithm
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-02-28 12:43:55" itemprop="dateCreated datePublished" datetime="2024-02-28T12:43:55+08:00">2024-02-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-02-29 14:54:32" itemprop="dateModified" datetime="2024-02-29T14:54:32+08:00">2024-02-29</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>4.6k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>8 分钟</span>
+            </span>
+            <div class="post-description">CORDIC算法是一种用于计算三角函数、反三角函数和其他一些数学函数的迭代算法。CORDIC代表“Coordinate Rotation Digital Computer”，最初设计用于计算机数字化处理中的旋转操作，但后来被扩展用于更广泛的数学运算。该算法通过一系列迭代旋转和移位操作来逼近给定角度的三角函数值。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="Coordinate-Rotation-Dlgital-Computer-CORDIC-算法"><a href="#Coordinate-Rotation-Dlgital-Computer-CORDIC-算法" class="headerlink" title="Coordinate Rotation Dlgital Computer(CORDIC)算法"></a>Coordinate Rotation Dlgital Computer(CORDIC)算法</h1><p>参考：Computer Arithmetic: Algorithm and Hardware Design</p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><h3 id="角度模式"><a href="#角度模式" class="headerlink" title="角度模式"></a>角度模式</h3><p>考虑平面直角坐标系下的旋转，如图：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image.png" alt="basic"></p>
+<p>点$E^{(i)}$旋转$\alpha^{(i)}$后得到了点$E^{(i+1)}$</p>
+<p>那么假设$E^{(i)}$的坐标为：$E^{(i)}$:   $(x^{(i)},y^{(i)})&#x3D;(R^{(i)}cos\theta,R^{(i)}cos\theta)$</p>
+<p>$E^{(i+1)}$的坐标可以表示为：<br>$x^{(i)+1} &#x3D; R^{(i)}cos(\theta+\alpha) &#x3D; x^{(i)}cos\alpha - y^{(i)}sin\alpha \ &#x3D;\frac{ x^{(i)}-y^{(i)}tan\alpha}{\frac{1}{cos\alpha}}\ &#x3D; \frac{ x^{(i)}-y^{(i)}tan\alpha}{(1+tan^2\alpha)^{1&#x2F;2}}$</p>
+<p>同理有：<br>$y^{(i+1)} &#x3D; R^{(i)}sin(\theta+\alpha) &#x3D; x^{(i)}sin\alpha + y^{(i)}cos\alpha \ &#x3D;\frac{ x^{(i)}tan\alpha + y^{(i)} }{\frac{1}{cos\alpha}}\ &#x3D; \frac{  x^{(i)}tan\alpha + y^{(i)}}{(1+tan^2\alpha)^{1&#x2F;2}}$</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-1.png"></p>
+<p>上述公式是一个迭代式，<br>$ z^{(i)}$表示当前旋转之前向量与x轴的夹角，$ z^{(i+1)}$表示在旋转后与x轴的夹角（顺时针为正）。</p>
+<p>现在考虑一种图中的一种伪旋转，对公式2边同时除以$\cos\alpha^{(i)}$,得到$E’^{(i)}$的坐标：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-3.png"><br><img src="/2024/02/28/CORDIC-Algorithm/image-2.png"></p>
+<p>令$x^{(0)}&#x3D;x,  y^{(0)}&#x3D;y,  z^{(0)}&#x3D;z$，则对于一个m次迭代的真旋转，有：<br><img src="/2024/02/28/CORDIC-Algorithm/image-4.png"></p>
+<p>对伪旋转：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-5.png"></p>
+<p>考虑每次迭代的角度选取，如果使$tan\alpha$恰好等于 $2^{-i},i&#x3D;0,1,2,3…$则上式变为：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-6.png"></p>
+<p>其中$d_i \in {−1,1}$ </p>
+<p>则每次真旋转迭代的计算可以通过：1次查表，2次移位，3次加(减)法实现。</p>
+<p>对于伪旋转，由于每次的角度选取是固定值，因此K为常数，K &#x3D; 1.646 760 258 121….</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-7.png"></p>
+<p>考虑计算 $cosz$,可以令$x^{(0)}&#x3D;1,  y^{(0)}&#x3D;0,  \sum\alpha^{(i)}&#x3D;z$此时有：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-10.png"></p>
+<p>如果计算$cos30^\circ$,可以：<br><img src="/2024/02/28/CORDIC-Algorithm/image-8.png"></p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-9.png"></p>
+<p>由于表中的角度表示范围达到了$−99.7^\circ ≤ z ≤ 99.7^\circ$,因此可以通过上述方法加上基本三角变化求出任何角的正余弦值。</p>
+<h3 id="向量模式"><a href="#向量模式" class="headerlink" title="向量模式"></a>向量模式</h3><p>通过令$y\rightarrow 0$,可以计算反三角函数值$tan^{-1}y$,此时，</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-12.png"><br>带入</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-5.png"></p>
+<p>可得<br><img src="/2024/02/28/CORDIC-Algorithm/image-13.png"></p>
+<p>故可以取(1,y),将其旋转到x轴上，此时旋转过的角度即为$tan^{-1}y$</p>
+<h3 id="一个简单的python验证程序"><a href="#一个简单的python验证程序" class="headerlink" title="一个简单的python验证程序"></a>一个简单的python验证程序</h3><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line">lookuptable = &#123;&#125;</span><br><span class="line"></span><br><span class="line">lookuptable[<span class="number">0</span>]=<span class="number">45.0</span></span><br><span class="line">lookuptable[<span class="number">1</span>]=<span class="number">26.5650</span></span><br><span class="line">lookuptable[<span class="number">2</span>]=<span class="number">14.0362</span></span><br><span class="line">lookuptable[<span class="number">3</span>]=<span class="number">7.1250</span></span><br><span class="line">lookuptable[<span class="number">4</span>]=<span class="number">3.5763</span></span><br><span class="line">lookuptable[<span class="number">5</span>]=<span class="number">1.7899</span></span><br><span class="line">lookuptable[<span class="number">6</span>]=<span class="number">0.8951</span></span><br><span class="line">lookuptable[<span class="number">7</span>]=<span class="number">0.4476</span></span><br><span class="line">lookuptable[<span class="number">8</span>]=<span class="number">0.2238</span></span><br><span class="line">lookuptable[<span class="number">9</span>]=<span class="number">0.1119</span></span><br><span class="line">lookuptable[<span class="number">10</span>]=<span class="number">0.0230</span></span><br><span class="line">lookuptable[<span class="number">11</span>]=<span class="number">0.0140</span></span><br><span class="line">lookuptable[<span class="number">12</span>]=<span class="number">0.0070</span></span><br><span class="line">lookuptable[<span class="number">13</span>]=<span class="number">0.0035</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cordic</span>(<span class="params">value,  mode</span>):</span><br><span class="line">    z = <span class="number">0</span></span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">        x =  <span class="number">0.607252935</span></span><br><span class="line">        y = <span class="number">0.0</span> </span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">1</span>):</span><br><span class="line">        x = <span class="number">1</span></span><br><span class="line">        y = value</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">13</span>):</span><br><span class="line">        <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">            d = np.sign(value)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            d = -np.sign(y)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(d==<span class="number">0</span>):d = <span class="number">1</span></span><br><span class="line">        value -= d*lookuptable[i]</span><br><span class="line"></span><br><span class="line">        z -= d*lookuptable[i]</span><br><span class="line"></span><br><span class="line">        temp = x</span><br><span class="line">        x -= d * y * <span class="number">2.0</span>**(-i)</span><br><span class="line">        y +=  d* temp * <span class="number">2.0</span>**(-i)</span><br><span class="line">        <span class="comment"># print(&quot;y:&quot;,y)</span></span><br><span class="line">        <span class="comment"># print(&quot;x:&quot;,x)</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;sin:&quot;</span>,y)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;cos:&quot;</span>,x)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;theta:&quot;</span>,z)</span><br><span class="line"></span><br><span class="line">cordic(<span class="number">4</span>,<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h3><p>对一个n位的cordic运算，若采用纯硬件实现，每一位需要1次查表，2次移位，3次加法，其计算复杂度是$O(n)$这个量级的。</p>
+<p>考虑硬件实现，一个最简单的版本是这样的：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-14.png"></p>
+<p>在不考虑优化版本时，图中的加法器可以用串行进位的方式实现，此时，对于k位的操作数，计算需要的时钟周期为$O(k^2)$。</p>
+<h3 id="通用版本"><a href="#通用版本" class="headerlink" title="通用版本"></a>通用版本</h3><p><img src="/2024/02/28/CORDIC-Algorithm/image-15.png"></p>
+<p>CORDIC算法可以被拓展，用于线性和双曲函数的计算。其通用公式为：<br><img src="/2024/02/28/CORDIC-Algorithm/image-17.png"><br><img src="/2024/02/28/CORDIC-Algorithm/image-16.png"></p>
+<p>推理过程如下：<br>参考：（A unified algorithm for elementary functions）</p>
+<p>考虑一个从二维直角坐标系到极坐标的非线性映射：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-18.png"></p>
+<p>其中R是映射后的向量长度，A是其与坐标轴的夹角。</p>
+<p>显然当m取1时，该映射为从直角坐标系到极坐标系的坐标变换。<br>当m取0时， 该变换总是落在一条相同的直线上<br>当m&#x3D;-1时，该变换为落在一条双曲线$x^2-y^2&#x3D;1$上。</p>
+<p>事实上，如果将R看作特定曲线与x轴交点到原点的距离，根据上述定义，总是有：<br>$A &#x3D; \frac{2S}{R^2}$<br><img src="/2024/02/28/CORDIC-Algorithm/image-19.png"></p>
+<p>其中S为变换前的点P与点O,R围成的阴影部分面积。</p>
+<p>如果给出一个迭代式：<br><img src="/2024/02/28/CORDIC-Algorithm/image-20.png"></p>
+<p>其中$\delta_i$时任意值，而m是映射中的参数。那么每次迭代后的点经过非线性映射后，在极坐标下可以表示为：<br><img src="/2024/02/28/CORDIC-Algorithm/image-21.png"></p>
+<p>其中<br><img src="/2024/02/28/CORDIC-Algorithm/image-22.png"></p>
+<p>即每次迭代可以看作是一次旋转和放缩。对n次迭代，最后得到的长度和角度为：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-23.png"></p>
+<p>其中<img src="/2024/02/28/CORDIC-Algorithm/image-24.png"></p>
+<p>如果再定义一个新的变量<br><img src="/2024/02/28/CORDIC-Algorithm/image-25.png"></p>
+<p>则经过n次迭代后的点经过逆映射后，可以得到其在直角坐标系下的坐标：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-26.png"></p>
+<p>同样的，注意到当m&#x3D;1时，该迭代式与之前推出的角度模式下的伪旋转迭代式一模一样。</p>
+<p>而当m&#x3D;0时，分别让$y\rightarrow0$和$z\rightarrow 0$,可以得到如下不同的迭代结果：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-27.png"><br>且在m&#x3D;0时，多轮迭代后的缩放因子为1.</p>
+<p>上述公式说明，直线迭代可以用于计算乘法，除法或直接计算一个乘加、除加操作。</p>
+<p>而对双曲映射，迭代结果分别为：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-28.png"></p>
+<p>其中缩放因子<code>K&#39;=0.8281593609602</code>。</p>
+<p>上述公式说明，双曲映射可以被用来计算双曲正弦，双曲余弦和双曲正切函数。</p>
+<p>另外需要注意的是，对于双曲映射，并不总是收敛的，这是因为对于tan函数，总是有：<br> $tan^{−1}(2^{−(i+1)}) ≥ 0.5tan^{−1}(2^{−i})$</p>
+<p>而同样的关系:放在双曲正切中却并不总是成立。</p>
+<p>$tanh^{−1}(2^{−(i+1)}) ≥ 0.5tanh^{−1}(2^{−i})$</p>
+<p>一个简单的收敛方法为，当迭代次数为:$ i &#x3D; 4, 13, 40, 121, …,3j + 1$时，该次迭代必须再重复一遍。即：<br>1,2,3,4,4,5,6,7,8,9,10,11,12,13,13,14….<br>(收敛性分析在原论文中有比较严格的推导，我懒得手推一遍，这里就不重复了，直接使用其结果)</p>
+<p>计算范围为： <code>With these provisions, convergence in computing  hyperbolic sine and cosine functions is guaranteed for |z| &lt; 1.13 and in the case of the  tanh−1 function, for |y| &lt; 0.81.</code></p>
+<p>此外，以下函数也可以被间接计算出来：<br><img src="/2024/02/28/CORDIC-Algorithm/image-29.png"></p>
+<h3 id="收敛性仿真"><a href="#收敛性仿真" class="headerlink" title="收敛性仿真"></a>收敛性仿真</h3><p>写一个简单的双曲迭代来验证上述方法的收敛性：</p>
+<p>以cosh为例，以下是一段简单的python代码：</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">20</span>): </span><br><span class="line">    lookuptable_tanh[i] = math.atanh(<span class="number">2</span>**(-i))</span><br><span class="line">    <span class="built_in">print</span>(math.atanh(<span class="number">2</span>**(-i)))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_tanh</span>(<span class="params">value</span>):</span><br><span class="line">    k=<span class="number">0.8281593609602</span></span><br><span class="line">    x=<span class="number">1</span>/k</span><br><span class="line">    y=<span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">20</span>):</span><br><span class="line">        <span class="keyword">if</span>(value)&gt;<span class="number">0</span>:</span><br><span class="line">            d=<span class="number">1</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            d=-<span class="number">1</span></span><br><span class="line">        </span><br><span class="line">        value = value - d*lookuptable_tanh[i]</span><br><span class="line">        temp=x</span><br><span class="line">        x = x + d*y*<span class="number">2</span>**-i</span><br><span class="line">        y = y + d*temp*<span class="number">2</span>**-i</span><br><span class="line"></span><br><span class="line">        <span class="comment"># if(i==4 or i==13):</span></span><br><span class="line">        <span class="comment">#     if(value)&gt;0:</span></span><br><span class="line">        <span class="comment">#         d=1</span></span><br><span class="line">        <span class="comment">#     else:</span></span><br><span class="line">        <span class="comment">#         d=-1</span></span><br><span class="line">        <span class="comment">#     value = value - d*lookuptable_tanh[i]</span></span><br><span class="line">        <span class="comment">#     temp=x</span></span><br><span class="line">        <span class="comment">#     x = x + d*y*2**-i</span></span><br><span class="line">        <span class="comment">#     y = y + d*temp*2**-i</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_cosh:&quot;</span>,x)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_sinh:&quot;</span>,y)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_tanh:&quot;</span>,y/x)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span>(x,y,y/x)</span><br><span class="line"></span><br><span class="line">x = np.arange(-<span class="number">1</span>, <span class="number">1</span>, <span class="number">0.01</span>)</span><br><span class="line"><span class="comment"># 计算对应的 cosh 函数值</span></span><br><span class="line">y_numpy = np.cosh(x)</span><br><span class="line"></span><br><span class="line">y_custom=[]</span><br><span class="line"><span class="keyword">for</span> value <span class="keyword">in</span> x:</span><br><span class="line">    y,_,_ = my_tanh(value)</span><br><span class="line">    y_custom.append(y)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 绘制图形</span></span><br><span class="line">plt.plot(x, y_numpy, label=<span class="string">&#x27;numpy.cosh(x)&#x27;</span>)</span><br><span class="line">plt.plot(x, y_custom, label=<span class="string">&#x27;my_cosh(x)&#x27;</span>)</span><br><span class="line">plt.xlabel(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">plt.ylabel(<span class="string">&#x27;cosh(x)&#x27;</span>)</span><br><span class="line">plt.title(<span class="string">&#x27;Comparison of cosh(x) functions&#x27;</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.grid(<span class="literal">True</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+
+
+<p>在不用重复第4次和第13次迭代时，结果如下：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-30.png"></p>
+<p>可以看到蓝色线和橙色线不完全重合，局部放大后结果如下：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-31.png"></p>
+<p>取消对应注释，重复第4和第13次迭代，结果如下：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-32.png"></p>
+<p>可以看到蓝色线和橙色线基本完全重合，局部放大后结果如下：<br><img src="/2024/02/28/CORDIC-Algorithm/image-33.png"></p>
+<h3 id="硬件实现"><a href="#硬件实现" class="headerlink" title="硬件实现"></a>硬件实现</h3>
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Hardware-Algorithm/" rel="tag"># Hardware Algorithm</a>
+              <a href="/tags/ICer/" rel="tag"># ICer</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/" rel="prev" title="SoC设计方法(1)">
+      <i class="fa fa-chevron-left"></i> SoC设计方法(1)
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Coordinate-Rotation-Dlgital-Computer-CORDIC-%E7%AE%97%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">Coordinate Rotation Dlgital Computer(CORDIC)算法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%8E%9F%E7%90%86"><span class="nav-number">1.1.</span> <span class="nav-text">原理</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%A7%92%E5%BA%A6%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.1.1.</span> <span class="nav-text">角度模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%90%91%E9%87%8F%E6%A8%A1%E5%BC%8F"><span class="nav-number">1.1.2.</span> <span class="nav-text">向量模式</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%80%E4%B8%AA%E7%AE%80%E5%8D%95%E7%9A%84python%E9%AA%8C%E8%AF%81%E7%A8%8B%E5%BA%8F"><span class="nav-number">1.1.3.</span> <span class="nav-text">一个简单的python验证程序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A4%8D%E6%9D%82%E5%BA%A6%E5%88%86%E6%9E%90"><span class="nav-number">1.1.4.</span> <span class="nav-text">复杂度分析</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%9A%E7%94%A8%E7%89%88%E6%9C%AC"><span class="nav-number">1.1.5.</span> <span class="nav-text">通用版本</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%94%B6%E6%95%9B%E6%80%A7%E4%BB%BF%E7%9C%9F"><span class="nav-number">1.1.6.</span> <span class="nav-text">收敛性仿真</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A1%AC%E4%BB%B6%E5%AE%9E%E7%8E%B0"><span class="nav-number">1.1.7.</span> <span class="nav-text">硬件实现</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Wang xianke</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">4</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Wangxianke123" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Wangxianke123" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yourname@gmail.com" title="E-Mail → mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Wang xianke</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">77k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:20</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+      <script src="https://Wangxianke123.github.io/live2d/autoload.js"></script>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+
+</html>
