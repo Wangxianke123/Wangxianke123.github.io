@@ -1,6 +1,165 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>CORDIC Algorithm</title>
+    <url>/2024/02/28/CORDIC-Algorithm/</url>
+    <content><![CDATA[<h1 id="Coordinate-Rotation-Dlgital-Computer-CORDIC-算法"><a href="#Coordinate-Rotation-Dlgital-Computer-CORDIC-算法" class="headerlink" title="Coordinate Rotation Dlgital Computer(CORDIC)算法"></a>Coordinate Rotation Dlgital Computer(CORDIC)算法</h1><p>参考：Computer Arithmetic: Algorithm and Hardware Design</p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><h3 id="角度模式"><a href="#角度模式" class="headerlink" title="角度模式"></a>角度模式</h3><p>考虑平面直角坐标系下的旋转，如图：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image.png" alt="basic"></p>
+<p>点$E^{(i)}$旋转$\alpha^{(i)}$后得到了点$E^{(i+1)}$</p>
+<p>那么假设$E^{(i)}$的坐标为：$E^{(i)}$:   $(x^{(i)},y^{(i)})&#x3D;(R^{(i)}cos\theta,R^{(i)}cos\theta)$</p>
+<p>$E^{(i+1)}$的坐标可以表示为：<br>$x^{(i)+1} &#x3D; R^{(i)}cos(\theta+\alpha) &#x3D; x^{(i)}cos\alpha - y^{(i)}sin\alpha \ &#x3D;\frac{ x^{(i)}-y^{(i)}tan\alpha}{\frac{1}{cos\alpha}}\ &#x3D; \frac{ x^{(i)}-y^{(i)}tan\alpha}{(1+tan^2\alpha)^{1&#x2F;2}}$</p>
+<p>同理有：<br>$y^{(i+1)} &#x3D; R^{(i)}sin(\theta+\alpha) &#x3D; x^{(i)}sin\alpha + y^{(i)}cos\alpha \ &#x3D;\frac{ x^{(i)}tan\alpha + y^{(i)} }{\frac{1}{cos\alpha}}\ &#x3D; \frac{  x^{(i)}tan\alpha + y^{(i)}}{(1+tan^2\alpha)^{1&#x2F;2}}$</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-1.png"></p>
+<p>上述公式是一个迭代式，<br>$ z^{(i)}$表示当前旋转之前向量与x轴的夹角，$ z^{(i+1)}$表示在旋转后与x轴的夹角（顺时针为正）。</p>
+<p>现在考虑一种图中的一种伪旋转，对公式2边同时除以$\cos\alpha^{(i)}$,得到$E’^{(i)}$的坐标：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-3.png"><br><img src="/2024/02/28/CORDIC-Algorithm/image-2.png"></p>
+<p>令$x^{(0)}&#x3D;x,  y^{(0)}&#x3D;y,  z^{(0)}&#x3D;z$，则对于一个m次迭代的真旋转，有：<br><img src="/2024/02/28/CORDIC-Algorithm/image-4.png"></p>
+<p>对伪旋转：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-5.png"></p>
+<p>考虑每次迭代的角度选取，如果使$tan\alpha$恰好等于 $2^{-i},i&#x3D;0,1,2,3…$则上式变为：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-6.png"></p>
+<p>其中$d_i \in {−1,1}$ </p>
+<p>则每次真旋转迭代的计算可以通过：1次查表，2次移位，3次加(减)法实现。</p>
+<p>对于伪旋转，由于每次的角度选取是固定值，因此K为常数，K &#x3D; 1.646 760 258 121….</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-7.png"></p>
+<p>考虑计算 $cosz$,可以令$x^{(0)}&#x3D;1,  y^{(0)}&#x3D;0,  \sum\alpha^{(i)}&#x3D;z$此时有：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-10.png"></p>
+<p>如果计算$cos30^\circ$,可以：<br><img src="/2024/02/28/CORDIC-Algorithm/image-8.png"></p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-9.png"></p>
+<p>由于表中的角度表示范围达到了$−99.7^\circ ≤ z ≤ 99.7^\circ$,因此可以通过上述方法加上基本三角变化求出任何角的正余弦值。</p>
+<h3 id="向量模式"><a href="#向量模式" class="headerlink" title="向量模式"></a>向量模式</h3><p>通过令$y\rightarrow 0$,可以计算反三角函数值$tan^{-1}y$,此时，</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-12.png"><br>带入</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-5.png"></p>
+<p>可得<br><img src="/2024/02/28/CORDIC-Algorithm/image-13.png"></p>
+<p>故可以取(1,y),将其旋转到x轴上，此时旋转过的角度即为$tan^{-1}y$</p>
+<h3 id="一个简单的python验证程序"><a href="#一个简单的python验证程序" class="headerlink" title="一个简单的python验证程序"></a>一个简单的python验证程序</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line">lookuptable = &#123;&#125;</span><br><span class="line"></span><br><span class="line">lookuptable[<span class="number">0</span>]=<span class="number">45.0</span></span><br><span class="line">lookuptable[<span class="number">1</span>]=<span class="number">26.5650</span></span><br><span class="line">lookuptable[<span class="number">2</span>]=<span class="number">14.0362</span></span><br><span class="line">lookuptable[<span class="number">3</span>]=<span class="number">7.1250</span></span><br><span class="line">lookuptable[<span class="number">4</span>]=<span class="number">3.5763</span></span><br><span class="line">lookuptable[<span class="number">5</span>]=<span class="number">1.7899</span></span><br><span class="line">lookuptable[<span class="number">6</span>]=<span class="number">0.8951</span></span><br><span class="line">lookuptable[<span class="number">7</span>]=<span class="number">0.4476</span></span><br><span class="line">lookuptable[<span class="number">8</span>]=<span class="number">0.2238</span></span><br><span class="line">lookuptable[<span class="number">9</span>]=<span class="number">0.1119</span></span><br><span class="line">lookuptable[<span class="number">10</span>]=<span class="number">0.0230</span></span><br><span class="line">lookuptable[<span class="number">11</span>]=<span class="number">0.0140</span></span><br><span class="line">lookuptable[<span class="number">12</span>]=<span class="number">0.0070</span></span><br><span class="line">lookuptable[<span class="number">13</span>]=<span class="number">0.0035</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cordic</span>(<span class="params">value,  mode</span>):</span><br><span class="line">    z = <span class="number">0</span></span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">        x =  <span class="number">0.607252935</span></span><br><span class="line">        y = <span class="number">0.0</span> </span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">1</span>):</span><br><span class="line">        x = <span class="number">1</span></span><br><span class="line">        y = value</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">13</span>):</span><br><span class="line">        <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">            d = np.sign(value)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            d = -np.sign(y)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(d==<span class="number">0</span>):d = <span class="number">1</span></span><br><span class="line">        value -= d*lookuptable[i]</span><br><span class="line"></span><br><span class="line">        z -= d*lookuptable[i]</span><br><span class="line"></span><br><span class="line">        temp = x</span><br><span class="line">        x -= d * y * <span class="number">2.0</span>**(-i)</span><br><span class="line">        y +=  d* temp * <span class="number">2.0</span>**(-i)</span><br><span class="line">        <span class="comment"># print(&quot;y:&quot;,y)</span></span><br><span class="line">        <span class="comment"># print(&quot;x:&quot;,x)</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;sin:&quot;</span>,y)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;cos:&quot;</span>,x)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;theta:&quot;</span>,z)</span><br><span class="line"></span><br><span class="line">cordic(<span class="number">4</span>,<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h3><p>对一个n位的cordic运算，若采用纯硬件实现，每一位需要1次查表，2次移位，3次加法，其计算复杂度是$O(n)$这个量级的。</p>
+<p>考虑硬件实现，一个最简单的版本是这样的：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-14.png"></p>
+<p>在不考虑优化版本时，图中的加法器可以用串行进位的方式实现，此时，对于k位的操作数，计算需要的时钟周期为$O(k^2)$。</p>
+<h3 id="通用版本"><a href="#通用版本" class="headerlink" title="通用版本"></a>通用版本</h3><p><img src="/2024/02/28/CORDIC-Algorithm/image-15.png"></p>
+<p>CORDIC算法可以被拓展，用于线性和双曲函数的计算。其通用公式为：<br><img src="/2024/02/28/CORDIC-Algorithm/image-17.png"><br><img src="/2024/02/28/CORDIC-Algorithm/image-16.png"></p>
+<p>推理过程如下：<br>参考：（A unified algorithm for elementary functions）</p>
+<p>考虑一个从二维直角坐标系到极坐标的非线性映射：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-18.png"></p>
+<p>其中R是映射后的向量长度，A是其与坐标轴的夹角。</p>
+<p>显然当m取1时，该映射为从直角坐标系到极坐标系的坐标变换。<br>当m取0时， 该变换总是落在一条相同的直线上<br>当m&#x3D;-1时，该变换为落在一条双曲线$x^2-y^2&#x3D;1$上。</p>
+<p>事实上，如果将R看作特定曲线与x轴交点到原点的距离，根据上述定义，总是有：<br>$A &#x3D; \frac{2S}{R^2}$<br><img src="/2024/02/28/CORDIC-Algorithm/image-19.png"></p>
+<p>其中S为变换前的点P与点O,R围成的阴影部分面积。</p>
+<p>如果给出一个迭代式：<br><img src="/2024/02/28/CORDIC-Algorithm/image-20.png"></p>
+<p>其中$\delta_i$时任意值，而m是映射中的参数。那么每次迭代后的点经过非线性映射后，在极坐标下可以表示为：<br><img src="/2024/02/28/CORDIC-Algorithm/image-21.png"></p>
+<p>其中<br><img src="/2024/02/28/CORDIC-Algorithm/image-22.png"></p>
+<p>即每次迭代可以看作是一次旋转和放缩。对n次迭代，最后得到的长度和角度为：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-23.png"></p>
+<p>其中<img src="/2024/02/28/CORDIC-Algorithm/image-24.png"></p>
+<p>如果再定义一个新的变量<br><img src="/2024/02/28/CORDIC-Algorithm/image-25.png"></p>
+<p>则经过n次迭代后的点经过逆映射后，可以得到其在直角坐标系下的坐标：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-26.png"></p>
+<p>同样的，注意到当m&#x3D;1时，该迭代式与之前推出的角度模式下的伪旋转迭代式一模一样。</p>
+<p>而当m&#x3D;0时，分别让$y\rightarrow0$和$z\rightarrow 0$,可以得到如下不同的迭代结果：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-27.png"><br>且在m&#x3D;0时，多轮迭代后的缩放因子为1.</p>
+<p>上述公式说明，直线迭代可以用于计算乘法，除法或直接计算一个乘加、除加操作。</p>
+<p>而对双曲映射，迭代结果分别为：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-28.png"></p>
+<p>其中缩放因子<code>K&#39;=0.8281593609602</code>。</p>
+<p>上述公式说明，双曲映射可以被用来计算双曲正弦，双曲余弦和双曲正切函数。</p>
+<p>另外需要注意的是，对于双曲映射，并不总是收敛的，这是因为对于tan函数，总是有：<br> $tan^{−1}(2^{−(i+1)}) ≥ 0.5tan^{−1}(2^{−i})$</p>
+<p>而同样的关系:放在双曲正切中却并不总是成立。</p>
+<p>$tanh^{−1}(2^{−(i+1)}) ≥ 0.5tanh^{−1}(2^{−i})$</p>
+<p>一个简单的收敛方法为，当迭代次数为:$ i &#x3D; 4, 13, 40, 121, …,3j + 1$时，该次迭代必须再重复一遍。即：<br>1,2,3,4,4,5,6,7,8,9,10,11,12,13,13,14….<br>(收敛性分析在原论文中有比较严格的推导，我懒得手推一遍，这里就不重复了，直接使用其结果)</p>
+<p>计算范围为： <code>With these provisions, convergence in computing  hyperbolic sine and cosine functions is guaranteed for |z| &lt; 1.13 and in the case of the  tanh−1 function, for |y| &lt; 0.81.</code></p>
+<p>此外，以下函数也可以被间接计算出来：<br><img src="/2024/02/28/CORDIC-Algorithm/image-29.png"></p>
+<h3 id="收敛性仿真"><a href="#收敛性仿真" class="headerlink" title="收敛性仿真"></a>收敛性仿真</h3><p>写一个简单的双曲迭代来验证上述方法的收敛性：</p>
+<p>以cosh为例，以下是一段简单的python代码：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">20</span>): </span><br><span class="line">    lookuptable_tanh[i] = math.atanh(<span class="number">2</span>**(-i))</span><br><span class="line">    <span class="built_in">print</span>(math.atanh(<span class="number">2</span>**(-i)))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_tanh</span>(<span class="params">value</span>):</span><br><span class="line">    k=<span class="number">0.8281593609602</span></span><br><span class="line">    x=<span class="number">1</span>/k</span><br><span class="line">    y=<span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">20</span>):</span><br><span class="line">        <span class="keyword">if</span>(value)&gt;<span class="number">0</span>:</span><br><span class="line">            d=<span class="number">1</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            d=-<span class="number">1</span></span><br><span class="line">        </span><br><span class="line">        value = value - d*lookuptable_tanh[i]</span><br><span class="line">        temp=x</span><br><span class="line">        x = x + d*y*<span class="number">2</span>**-i</span><br><span class="line">        y = y + d*temp*<span class="number">2</span>**-i</span><br><span class="line"></span><br><span class="line">        <span class="comment"># if(i==4 or i==13):</span></span><br><span class="line">        <span class="comment">#     if(value)&gt;0:</span></span><br><span class="line">        <span class="comment">#         d=1</span></span><br><span class="line">        <span class="comment">#     else:</span></span><br><span class="line">        <span class="comment">#         d=-1</span></span><br><span class="line">        <span class="comment">#     value = value - d*lookuptable_tanh[i]</span></span><br><span class="line">        <span class="comment">#     temp=x</span></span><br><span class="line">        <span class="comment">#     x = x + d*y*2**-i</span></span><br><span class="line">        <span class="comment">#     y = y + d*temp*2**-i</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_cosh:&quot;</span>,x)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_sinh:&quot;</span>,y)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_tanh:&quot;</span>,y/x)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span>(x,y,y/x)</span><br><span class="line"></span><br><span class="line">x = np.arange(-<span class="number">1</span>, <span class="number">1</span>, <span class="number">0.01</span>)</span><br><span class="line"><span class="comment"># 计算对应的 cosh 函数值</span></span><br><span class="line">y_numpy = np.cosh(x)</span><br><span class="line"></span><br><span class="line">y_custom=[]</span><br><span class="line"><span class="keyword">for</span> value <span class="keyword">in</span> x:</span><br><span class="line">    y,_,_ = my_tanh(value)</span><br><span class="line">    y_custom.append(y)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 绘制图形</span></span><br><span class="line">plt.plot(x, y_numpy, label=<span class="string">&#x27;numpy.cosh(x)&#x27;</span>)</span><br><span class="line">plt.plot(x, y_custom, label=<span class="string">&#x27;my_cosh(x)&#x27;</span>)</span><br><span class="line">plt.xlabel(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">plt.ylabel(<span class="string">&#x27;cosh(x)&#x27;</span>)</span><br><span class="line">plt.title(<span class="string">&#x27;Comparison of cosh(x) functions&#x27;</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.grid(<span class="literal">True</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+
+
+<p>在不用重复第4次和第13次迭代时，结果如下：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-30.png"></p>
+<p>可以看到蓝色线和橙色线不完全重合，局部放大后结果如下：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-31.png"></p>
+<p>取消对应注释，重复第4和第13次迭代，结果如下：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-32.png"></p>
+<p>可以看到蓝色线和橙色线基本完全重合，局部放大后结果如下：<br><img src="/2024/02/28/CORDIC-Algorithm/image-33.png"></p>
+<h3 id="硬件实现"><a href="#硬件实现" class="headerlink" title="硬件实现"></a>硬件实现</h3>]]></content>
+      <tags>
+        <tag>Hardware Algorithm</tag>
+        <tag>ICer</tag>
+        <tag>数字集成电路</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>LearnPerl</title>
+    <url>/2024/05/08/LearnPerl/</url>
+    <content><![CDATA[<h1 id="Learn-Perl"><a href="#Learn-Perl" class="headerlink" title="Learn Perl"></a>Learn Perl</h1><h2 id="ch2-标量数据"><a href="#ch2-标量数据" class="headerlink" title="ch2 标量数据"></a>ch2 标量数据</h2><h3 id="第一个Helloword-程序"><a href="#第一个Helloword-程序" class="headerlink" title="第一个Helloword 程序"></a>第一个Helloword 程序</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">&quot;Hello, world!\n&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>perl是一种脚本语言，一般已经被内置在类unix系统中。类似的还有shell，bash,csh,tcl,python等。</p>
+<p>第一行的<code>#!</code>读作shell bang。shell bang 是一个用于指定脚本解释器的特殊字符组合。它由 <code>#</code>（井号）和 <code>!</code>（感叹号）组合而成，通常位于脚本的第一行。当一个脚本被执行时，系统会参考 shebang 指定的解释器来执行这个脚本。</p>
+<p>例如，如果一个脚本的第一行是 <code>#!/bin/bash</code>，那么这个脚本就会使用 Bash 作为其解释器。如果改为 <code>#!/usr/bin/python3</code>，那么这个脚本就会使用 Python 3 作为其解释器。</p>
+<p>linux默认的脚本解释器总是在&#x2F;usr&#x2F;bin目录下，如果解释器安装在其他目录下，则需要修改对应的路径。</p>
+<p>由于有shell bang的存在，perl程序不需要有特定的扩展名，而只需要是<strong>可执行</strong>的。（为了区分可以加上<code>.pl</code>）的后缀。</p>
+<p>此外也可以直接通过<code>perl</code>命令执行脚本。这2种方式大部分情况下是相同的，然而有时候也会产生不同的效果。</p>
+<p><img src="/2024/05/08/LearnPerl/image.png"><br>目前本人还没搞清楚这种情况出现的原因。</p>
+<p>反引号&#96;&#96;可以用于执行外部命令:</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"> @lines = <span class="string">`ls -a`</span>;</span><br><span class="line"> <span class="keyword">foreach</span> (@lines) &#123;</span><br><span class="line">  <span class="keyword">print</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="标量数据"><a href="#标量数据" class="headerlink" title="标量数据"></a>标量数据</h3><p>字符串，数字都被看做标量数据。</p>
+<p>perl会根据数据的操作符判断执行代数运算还是字符串操作。</p>
+<p>变量采用美元符号声明：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">$alef  = <span class="keyword">chr</span>( <span class="number">0x05D0</span> );</span><br><span class="line">$alpha = <span class="keyword">chr</span>( <span class="keyword">hex</span>(<span class="string">&#x27;03B1&#x27;</span>) );</span><br><span class="line">$omega = <span class="keyword">chr</span>( <span class="number">0x03C9</span> );</span><br><span class="line"></span><br><span class="line"><span class="keyword">say</span> <span class="string">&quot;alpha:&quot;</span>.$alpha;</span><br><span class="line"><span class="keyword">say</span> <span class="string">&quot;alef:&quot;</span>.$alef;</span><br><span class="line"><span class="keyword">say</span> <span class="string">&quot;omega:&quot;</span>.$omega;</span><br><span class="line"></span><br><span class="line">$code_point = <span class="keyword">ord</span>( <span class="string">&#x27;א&#x27;</span> );</span><br><span class="line"></span><br><span class="line"><span class="keyword">say</span> $code_point;</span><br></pre></td></tr></table></figure>
+<p><img src="/2024/05/08/LearnPerl/image2.png"><br>chr函数会将对应的ascii字符进行转换。ord则相反。</p>
+<p>使用<code>x</code>可以将字符串重复对应的次数。</p>
+<p><img src="/2024/05/08/LearnPerl/image1.png"></p>
+<p><code>say</code>和<code>print</code>类似，区别是会自动换行。（需要5.10以上的版本）</p>
+<p>使用<code>.</code>可以连接2个字符串。</p>
+<h3 id="其他特性"><a href="#其他特性" class="headerlink" title="其他特性"></a>其他特性</h3><p>获取标准输入：<code>&lt;STDIN&gt;</code></p>
+<p><img src="/2024/05/08/LearnPerl/image-1.png"></p>
+<p><img src="/2024/05/08/LearnPerl/image-2.png"></p>
+<p><code>chomp</code>的作用是去掉字符串末尾的换行符。</p>
+]]></content>
+      <categories>
+        <category>notes</category>
+      </categories>
+      <tags>
+        <tag>Programming Language</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>LFSR</title>
+    <url>/2024/04/18/LFSR/</url>
+    <content><![CDATA[<h1 id="LSFR"><a href="#LSFR" class="headerlink" title="LSFR"></a>LSFR</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>LFSR 全称为Linear Feedback Shift Register, 线性反馈移位寄存器。LFSR 可以用来<br>产生可重复的伪随机序列，从而被广泛使用在计数器，解码器，密码系统，BIST等方<br>面。<br>一般的LFSR分为2种，内部反馈型和外部反馈型的LFSR，如图2–1所示。其中内<br>部反馈型LFSR又称为伽罗瓦LFSR，而外部反馈型LFSR又称为斐波那契型LFSR。</p>
+<p><img src="/2024/04/18/LFSR/image.png" alt="2种不同类型的LFSR"></p>
+<p>由于伽罗瓦LFSR的逻辑门位于2级寄存器之间，理论上拥有更低的延迟和更高的<br>频率。</p>
+<p>LFSR可以生成具有固定周期的序列，当周期很长时，序列可以看作是近似随机的。</p>
+<h2 id="LFSR的周期"><a href="#LFSR的周期" class="headerlink" title="LFSR的周期"></a>LFSR的周期</h2><p>LFSR的一个重要特性是其生成序列的周期性。对于一个n位的LFSR，其周期最大为$2^n-1$,这是因为全0的状态会无限循环，从而需要将全0的序列从中剔除。</p>
+<p>一个LFSR的特性可以使用反馈多项式来描述。如图<br><img src="/2024/04/18/LFSR/image-1.png"></p>
+<p>这样的一个LFSR,其反馈多项式可以写作：<br>$$f(x)  &#x3D; 1 + h_1x+ h_2x^2+\dots +h_{n-1}x^{n-1}+h_nx^n$$</p>
+<p>之所以加上1， 是因为我们假设原始输入为0000..1,避免全0的状态。</p>
+<p>需要注意的是，反馈多项式和用二进制表示多项式的概念是不同的。</p>
+<p>反馈多项式代表LFSR的周期特征。具体来说，LFSR的周期数与其反馈多项式的阶数有关。<br>设$P_n(x)$为n次多项式，满足：<br>$$min{k:P_n(x)|(x^k+1)}$$<br>的整数称为多项式$P_n(x)$的阶。即多项式$P_n(x)$仅能被$x^k+1$整除，而对任何${x^m+1|m&lt;k}$,$P_n(x)$均不能被其整除。(这里的整除是GF(2)意义上的整除，在GF(2)域上，加法和减法都等价于模2运算。)</p>
+<p>进一步的，称阶数为$2^n-1$的不可约多项式$P(x)$为$GF(2^n)$域上的本原多项式。即本原多项式仅能被$x^{2^n-1}+1$整除，而不能被${x^m+1|m&lt;2^n-1}$整除。同时，本原多项式还无法被分解为$f(x)g(x)$的形式。不可约多项式有点类似于”素数”的概念，即不能被分解为更小的2个多项式的乘积。</p>
+<p>LFSR的周期数等于其反馈多项式的阶数。由此我们可以知道，为了构造具有最大周期数的LFSR,我们需要构造反馈多项式为本原多项式的LFSR。</p>
+<p>下面是一个寻找本原多项式的python程序：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> sympy</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">is_primitive_poly</span>(<span class="params">poly, field_size</span>):</span><br><span class="line">    x = sympy.Symbol(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> poly.degree() != field_size:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> poly.is_irreducible:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">2</span>**(field_size-<span class="number">1</span>),<span class="number">2</span>**(field_size)-<span class="number">1</span>):</span><br><span class="line">        level = sympy.Poly(x**i+<span class="number">1</span>, x, domain=<span class="string">&#x27;GF(2)&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> level.rem(poly).is_zero:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">integer_to_binary_list</span>(<span class="params">i</span>):</span><br><span class="line">    binary_string = <span class="built_in">bin</span>(i)[<span class="number">2</span>:]  </span><br><span class="line">    binary_list = [<span class="built_in">int</span>(bit) <span class="keyword">for</span> bit <span class="keyword">in</span> binary_string]  </span><br><span class="line">    <span class="keyword">return</span> binary_list</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">find_primitive_polys</span>(<span class="params">field_size</span>):</span><br><span class="line">    x = sympy.Symbol(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">    primitive_polys = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">2</span>**(field_size+<span class="number">1</span>)):</span><br><span class="line">        binary_list = integer_to_binary_list(i)</span><br><span class="line">        <span class="comment">#print(binary_list)</span></span><br><span class="line">        symb=<span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(binary_list)):</span><br><span class="line">            symb += binary_list[j]*x**(<span class="built_in">len</span>(binary_list)-j-<span class="number">1</span>)</span><br><span class="line">        </span><br><span class="line">        poly = sympy.Poly(symb, x, domain=<span class="string">&#x27;GF(2)&#x27;</span>)</span><br><span class="line">        <span class="comment">#print(poly)</span></span><br><span class="line">        <span class="keyword">if</span> is_primitive_poly(poly, field_size):</span><br><span class="line">            primitive_polys.append(poly)</span><br><span class="line">    <span class="keyword">return</span> primitive_polys</span><br><span class="line"></span><br><span class="line">field_size = <span class="number">9</span></span><br><span class="line">primitive_polys = find_primitive_polys(field_size)</span><br><span class="line"><span class="keyword">for</span> poly <span class="keyword">in</span> primitive_polys:</span><br><span class="line">    <span class="built_in">print</span>(poly)</span><br></pre></td></tr></table></figure>
+
+
+<p>该程序的时间复杂度是$O(2^n)$级别的，性能会随着field size设置的增大而急剧下降。</p>
+<p>一个更好的办法是利用前人的结果，通过查表寻找需要本原多项式。</p>
+<p>下面的网站给出了$GF(2^{10})$以内的所有本原多项式：</p>
+<p><a href="https://www.ece.unb.ca/tervo/ece4253/factors.shtml">https://www.ece.unb.ca/tervo/ece4253/factors.shtml</a></p>
+<p>部分结果如图：</p>
+<p><img src="/2024/04/18/LFSR/image-2.png"></p>
+<h2 id="LFSR的应用"><a href="#LFSR的应用" class="headerlink" title="LFSR的应用"></a>LFSR的应用</h2><p>(待续)</p>
+<h2 id><a href="#" class="headerlink" title></a></h2>]]></content>
+      <tags>
+        <tag>数字集成电路</tag>
+        <tag>Basic Module</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Computer Architecture</title>
     <url>/2024/02/16/Computer-Architecture/</url>
     <content><![CDATA[<h1 id="高等计算机体系结构课程笔记"><a href="#高等计算机体系结构课程笔记" class="headerlink" title="高等计算机体系结构课程笔记"></a>高等计算机体系结构课程笔记</h1><h2 id="chapter1-Overview-and-Fundamental"><a href="#chapter1-Overview-and-Fundamental" class="headerlink" title="chapter1 Overview and Fundamental"></a>chapter1 Overview and Fundamental</h2><p>1.什么是计算机体系结构(Computer Architecture)?<br>    CA &#x3D; 指令集+微架构+硬件实现  (不单单是指令集设计)</p>
@@ -748,96 +907,6 @@ RISC：(Reduced Instruction Set Computer)精简指令集计算机  代表：MIPS
       </tags>
   </entry>
   <entry>
-    <title>CORDIC Algorithm</title>
-    <url>/2024/02/28/CORDIC-Algorithm/</url>
-    <content><![CDATA[<h1 id="Coordinate-Rotation-Dlgital-Computer-CORDIC-算法"><a href="#Coordinate-Rotation-Dlgital-Computer-CORDIC-算法" class="headerlink" title="Coordinate Rotation Dlgital Computer(CORDIC)算法"></a>Coordinate Rotation Dlgital Computer(CORDIC)算法</h1><p>参考：Computer Arithmetic: Algorithm and Hardware Design</p>
-<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><h3 id="角度模式"><a href="#角度模式" class="headerlink" title="角度模式"></a>角度模式</h3><p>考虑平面直角坐标系下的旋转，如图：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image.png" alt="basic"></p>
-<p>点$E^{(i)}$旋转$\alpha^{(i)}$后得到了点$E^{(i+1)}$</p>
-<p>那么假设$E^{(i)}$的坐标为：$E^{(i)}$:   $(x^{(i)},y^{(i)})&#x3D;(R^{(i)}cos\theta,R^{(i)}cos\theta)$</p>
-<p>$E^{(i+1)}$的坐标可以表示为：<br>$x^{(i)+1} &#x3D; R^{(i)}cos(\theta+\alpha) &#x3D; x^{(i)}cos\alpha - y^{(i)}sin\alpha \ &#x3D;\frac{ x^{(i)}-y^{(i)}tan\alpha}{\frac{1}{cos\alpha}}\ &#x3D; \frac{ x^{(i)}-y^{(i)}tan\alpha}{(1+tan^2\alpha)^{1&#x2F;2}}$</p>
-<p>同理有：<br>$y^{(i+1)} &#x3D; R^{(i)}sin(\theta+\alpha) &#x3D; x^{(i)}sin\alpha + y^{(i)}cos\alpha \ &#x3D;\frac{ x^{(i)}tan\alpha + y^{(i)} }{\frac{1}{cos\alpha}}\ &#x3D; \frac{  x^{(i)}tan\alpha + y^{(i)}}{(1+tan^2\alpha)^{1&#x2F;2}}$</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-1.png"></p>
-<p>上述公式是一个迭代式，<br>$ z^{(i)}$表示当前旋转之前向量与x轴的夹角，$ z^{(i+1)}$表示在旋转后与x轴的夹角（顺时针为正）。</p>
-<p>现在考虑一种图中的一种伪旋转，对公式2边同时除以$\cos\alpha^{(i)}$,得到$E’^{(i)}$的坐标：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-3.png"><br><img src="/2024/02/28/CORDIC-Algorithm/image-2.png"></p>
-<p>令$x^{(0)}&#x3D;x,  y^{(0)}&#x3D;y,  z^{(0)}&#x3D;z$，则对于一个m次迭代的真旋转，有：<br><img src="/2024/02/28/CORDIC-Algorithm/image-4.png"></p>
-<p>对伪旋转：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-5.png"></p>
-<p>考虑每次迭代的角度选取，如果使$tan\alpha$恰好等于 $2^{-i},i&#x3D;0,1,2,3…$则上式变为：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-6.png"></p>
-<p>其中$d_i \in {−1,1}$ </p>
-<p>则每次真旋转迭代的计算可以通过：1次查表，2次移位，3次加(减)法实现。</p>
-<p>对于伪旋转，由于每次的角度选取是固定值，因此K为常数，K &#x3D; 1.646 760 258 121….</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-7.png"></p>
-<p>考虑计算 $cosz$,可以令$x^{(0)}&#x3D;1,  y^{(0)}&#x3D;0,  \sum\alpha^{(i)}&#x3D;z$此时有：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-10.png"></p>
-<p>如果计算$cos30^\circ$,可以：<br><img src="/2024/02/28/CORDIC-Algorithm/image-8.png"></p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-9.png"></p>
-<p>由于表中的角度表示范围达到了$−99.7^\circ ≤ z ≤ 99.7^\circ$,因此可以通过上述方法加上基本三角变化求出任何角的正余弦值。</p>
-<h3 id="向量模式"><a href="#向量模式" class="headerlink" title="向量模式"></a>向量模式</h3><p>通过令$y\rightarrow 0$,可以计算反三角函数值$tan^{-1}y$,此时，</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-12.png"><br>带入</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-5.png"></p>
-<p>可得<br><img src="/2024/02/28/CORDIC-Algorithm/image-13.png"></p>
-<p>故可以取(1,y),将其旋转到x轴上，此时旋转过的角度即为$tan^{-1}y$</p>
-<h3 id="一个简单的python验证程序"><a href="#一个简单的python验证程序" class="headerlink" title="一个简单的python验证程序"></a>一个简单的python验证程序</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line">lookuptable = &#123;&#125;</span><br><span class="line"></span><br><span class="line">lookuptable[<span class="number">0</span>]=<span class="number">45.0</span></span><br><span class="line">lookuptable[<span class="number">1</span>]=<span class="number">26.5650</span></span><br><span class="line">lookuptable[<span class="number">2</span>]=<span class="number">14.0362</span></span><br><span class="line">lookuptable[<span class="number">3</span>]=<span class="number">7.1250</span></span><br><span class="line">lookuptable[<span class="number">4</span>]=<span class="number">3.5763</span></span><br><span class="line">lookuptable[<span class="number">5</span>]=<span class="number">1.7899</span></span><br><span class="line">lookuptable[<span class="number">6</span>]=<span class="number">0.8951</span></span><br><span class="line">lookuptable[<span class="number">7</span>]=<span class="number">0.4476</span></span><br><span class="line">lookuptable[<span class="number">8</span>]=<span class="number">0.2238</span></span><br><span class="line">lookuptable[<span class="number">9</span>]=<span class="number">0.1119</span></span><br><span class="line">lookuptable[<span class="number">10</span>]=<span class="number">0.0230</span></span><br><span class="line">lookuptable[<span class="number">11</span>]=<span class="number">0.0140</span></span><br><span class="line">lookuptable[<span class="number">12</span>]=<span class="number">0.0070</span></span><br><span class="line">lookuptable[<span class="number">13</span>]=<span class="number">0.0035</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cordic</span>(<span class="params">value,  mode</span>):</span><br><span class="line">    z = <span class="number">0</span></span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">        x =  <span class="number">0.607252935</span></span><br><span class="line">        y = <span class="number">0.0</span> </span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">1</span>):</span><br><span class="line">        x = <span class="number">1</span></span><br><span class="line">        y = value</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">13</span>):</span><br><span class="line">        <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">            d = np.sign(value)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            d = -np.sign(y)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(d==<span class="number">0</span>):d = <span class="number">1</span></span><br><span class="line">        value -= d*lookuptable[i]</span><br><span class="line"></span><br><span class="line">        z -= d*lookuptable[i]</span><br><span class="line"></span><br><span class="line">        temp = x</span><br><span class="line">        x -= d * y * <span class="number">2.0</span>**(-i)</span><br><span class="line">        y +=  d* temp * <span class="number">2.0</span>**(-i)</span><br><span class="line">        <span class="comment"># print(&quot;y:&quot;,y)</span></span><br><span class="line">        <span class="comment"># print(&quot;x:&quot;,x)</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;sin:&quot;</span>,y)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;cos:&quot;</span>,x)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;theta:&quot;</span>,z)</span><br><span class="line"></span><br><span class="line">cordic(<span class="number">4</span>,<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
-
-<h3 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h3><p>对一个n位的cordic运算，若采用纯硬件实现，每一位需要1次查表，2次移位，3次加法，其计算复杂度是$O(n)$这个量级的。</p>
-<p>考虑硬件实现，一个最简单的版本是这样的：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-14.png"></p>
-<p>在不考虑优化版本时，图中的加法器可以用串行进位的方式实现，此时，对于k位的操作数，计算需要的时钟周期为$O(k^2)$。</p>
-<h3 id="通用版本"><a href="#通用版本" class="headerlink" title="通用版本"></a>通用版本</h3><p><img src="/2024/02/28/CORDIC-Algorithm/image-15.png"></p>
-<p>CORDIC算法可以被拓展，用于线性和双曲函数的计算。其通用公式为：<br><img src="/2024/02/28/CORDIC-Algorithm/image-17.png"><br><img src="/2024/02/28/CORDIC-Algorithm/image-16.png"></p>
-<p>推理过程如下：<br>参考：（A unified algorithm for elementary functions）</p>
-<p>考虑一个从二维直角坐标系到极坐标的非线性映射：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-18.png"></p>
-<p>其中R是映射后的向量长度，A是其与坐标轴的夹角。</p>
-<p>显然当m取1时，该映射为从直角坐标系到极坐标系的坐标变换。<br>当m取0时， 该变换总是落在一条相同的直线上<br>当m&#x3D;-1时，该变换为落在一条双曲线$x^2-y^2&#x3D;1$上。</p>
-<p>事实上，如果将R看作特定曲线与x轴交点到原点的距离，根据上述定义，总是有：<br>$A &#x3D; \frac{2S}{R^2}$<br><img src="/2024/02/28/CORDIC-Algorithm/image-19.png"></p>
-<p>其中S为变换前的点P与点O,R围成的阴影部分面积。</p>
-<p>如果给出一个迭代式：<br><img src="/2024/02/28/CORDIC-Algorithm/image-20.png"></p>
-<p>其中$\delta_i$时任意值，而m是映射中的参数。那么每次迭代后的点经过非线性映射后，在极坐标下可以表示为：<br><img src="/2024/02/28/CORDIC-Algorithm/image-21.png"></p>
-<p>其中<br><img src="/2024/02/28/CORDIC-Algorithm/image-22.png"></p>
-<p>即每次迭代可以看作是一次旋转和放缩。对n次迭代，最后得到的长度和角度为：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-23.png"></p>
-<p>其中<img src="/2024/02/28/CORDIC-Algorithm/image-24.png"></p>
-<p>如果再定义一个新的变量<br><img src="/2024/02/28/CORDIC-Algorithm/image-25.png"></p>
-<p>则经过n次迭代后的点经过逆映射后，可以得到其在直角坐标系下的坐标：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-26.png"></p>
-<p>同样的，注意到当m&#x3D;1时，该迭代式与之前推出的角度模式下的伪旋转迭代式一模一样。</p>
-<p>而当m&#x3D;0时，分别让$y\rightarrow0$和$z\rightarrow 0$,可以得到如下不同的迭代结果：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-27.png"><br>且在m&#x3D;0时，多轮迭代后的缩放因子为1.</p>
-<p>上述公式说明，直线迭代可以用于计算乘法，除法或直接计算一个乘加、除加操作。</p>
-<p>而对双曲映射，迭代结果分别为：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-28.png"></p>
-<p>其中缩放因子<code>K&#39;=0.8281593609602</code>。</p>
-<p>上述公式说明，双曲映射可以被用来计算双曲正弦，双曲余弦和双曲正切函数。</p>
-<p>另外需要注意的是，对于双曲映射，并不总是收敛的，这是因为对于tan函数，总是有：<br> $tan^{−1}(2^{−(i+1)}) ≥ 0.5tan^{−1}(2^{−i})$</p>
-<p>而同样的关系:放在双曲正切中却并不总是成立。</p>
-<p>$tanh^{−1}(2^{−(i+1)}) ≥ 0.5tanh^{−1}(2^{−i})$</p>
-<p>一个简单的收敛方法为，当迭代次数为:$ i &#x3D; 4, 13, 40, 121, …,3j + 1$时，该次迭代必须再重复一遍。即：<br>1,2,3,4,4,5,6,7,8,9,10,11,12,13,13,14….<br>(收敛性分析在原论文中有比较严格的推导，我懒得手推一遍，这里就不重复了，直接使用其结果)</p>
-<p>计算范围为： <code>With these provisions, convergence in computing  hyperbolic sine and cosine functions is guaranteed for |z| &lt; 1.13 and in the case of the  tanh−1 function, for |y| &lt; 0.81.</code></p>
-<p>此外，以下函数也可以被间接计算出来：<br><img src="/2024/02/28/CORDIC-Algorithm/image-29.png"></p>
-<h3 id="收敛性仿真"><a href="#收敛性仿真" class="headerlink" title="收敛性仿真"></a>收敛性仿真</h3><p>写一个简单的双曲迭代来验证上述方法的收敛性：</p>
-<p>以cosh为例，以下是一段简单的python代码：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">20</span>): </span><br><span class="line">    lookuptable_tanh[i] = math.atanh(<span class="number">2</span>**(-i))</span><br><span class="line">    <span class="built_in">print</span>(math.atanh(<span class="number">2</span>**(-i)))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_tanh</span>(<span class="params">value</span>):</span><br><span class="line">    k=<span class="number">0.8281593609602</span></span><br><span class="line">    x=<span class="number">1</span>/k</span><br><span class="line">    y=<span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">20</span>):</span><br><span class="line">        <span class="keyword">if</span>(value)&gt;<span class="number">0</span>:</span><br><span class="line">            d=<span class="number">1</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            d=-<span class="number">1</span></span><br><span class="line">        </span><br><span class="line">        value = value - d*lookuptable_tanh[i]</span><br><span class="line">        temp=x</span><br><span class="line">        x = x + d*y*<span class="number">2</span>**-i</span><br><span class="line">        y = y + d*temp*<span class="number">2</span>**-i</span><br><span class="line"></span><br><span class="line">        <span class="comment"># if(i==4 or i==13):</span></span><br><span class="line">        <span class="comment">#     if(value)&gt;0:</span></span><br><span class="line">        <span class="comment">#         d=1</span></span><br><span class="line">        <span class="comment">#     else:</span></span><br><span class="line">        <span class="comment">#         d=-1</span></span><br><span class="line">        <span class="comment">#     value = value - d*lookuptable_tanh[i]</span></span><br><span class="line">        <span class="comment">#     temp=x</span></span><br><span class="line">        <span class="comment">#     x = x + d*y*2**-i</span></span><br><span class="line">        <span class="comment">#     y = y + d*temp*2**-i</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_cosh:&quot;</span>,x)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_sinh:&quot;</span>,y)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_tanh:&quot;</span>,y/x)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span>(x,y,y/x)</span><br><span class="line"></span><br><span class="line">x = np.arange(-<span class="number">1</span>, <span class="number">1</span>, <span class="number">0.01</span>)</span><br><span class="line"><span class="comment"># 计算对应的 cosh 函数值</span></span><br><span class="line">y_numpy = np.cosh(x)</span><br><span class="line"></span><br><span class="line">y_custom=[]</span><br><span class="line"><span class="keyword">for</span> value <span class="keyword">in</span> x:</span><br><span class="line">    y,_,_ = my_tanh(value)</span><br><span class="line">    y_custom.append(y)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 绘制图形</span></span><br><span class="line">plt.plot(x, y_numpy, label=<span class="string">&#x27;numpy.cosh(x)&#x27;</span>)</span><br><span class="line">plt.plot(x, y_custom, label=<span class="string">&#x27;my_cosh(x)&#x27;</span>)</span><br><span class="line">plt.xlabel(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">plt.ylabel(<span class="string">&#x27;cosh(x)&#x27;</span>)</span><br><span class="line">plt.title(<span class="string">&#x27;Comparison of cosh(x) functions&#x27;</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.grid(<span class="literal">True</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
-
-
-<p>在不用重复第4次和第13次迭代时，结果如下：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-30.png"></p>
-<p>可以看到蓝色线和橙色线不完全重合，局部放大后结果如下：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-31.png"></p>
-<p>取消对应注释，重复第4和第13次迭代，结果如下：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-32.png"></p>
-<p>可以看到蓝色线和橙色线基本完全重合，局部放大后结果如下：<br><img src="/2024/02/28/CORDIC-Algorithm/image-33.png"></p>
-<h3 id="硬件实现"><a href="#硬件实现" class="headerlink" title="硬件实现"></a>硬件实现</h3>]]></content>
-      <tags>
-        <tag>Hardware Algorithm</tag>
-        <tag>ICer</tag>
-        <tag>数字集成电路</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>SoC设计方法(1)</title>
     <url>/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/</url>
     <content><![CDATA[<h1 id="Soc设计概述及流程"><a href="#Soc设计概述及流程" class="headerlink" title="Soc设计概述及流程"></a>Soc设计概述及流程</h1><h2 id="什么是SoC"><a href="#什么是SoC" class="headerlink" title="什么是SoC?"></a>什么是SoC?</h2><p>半导体产业模式及其基本分工：<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image.png" alt="半导体产业链"></p>
@@ -935,35 +1004,26 @@ RISC：(Reduced Instruction Set Computer)精简指令集计算机  代表：MIPS
       </tags>
   </entry>
   <entry>
-    <title>LFSR</title>
-    <url>/2024/04/18/LFSR/</url>
-    <content><![CDATA[<h1 id="LSFR"><a href="#LSFR" class="headerlink" title="LSFR"></a>LSFR</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>LFSR 全称为Linear Feedback Shift Register, 线性反馈移位寄存器。LFSR 可以用来<br>产生可重复的伪随机序列，从而被广泛使用在计数器，解码器，密码系统，BIST等方<br>面。<br>一般的LFSR分为2种，内部反馈型和外部反馈型的LFSR，如图2–1所示。其中内<br>部反馈型LFSR又称为伽罗瓦LFSR，而外部反馈型LFSR又称为斐波那契型LFSR。</p>
-<p><img src="/2024/04/18/LFSR/image.png" alt="2种不同类型的LFSR"></p>
-<p>由于伽罗瓦LFSR的逻辑门位于2级寄存器之间，理论上拥有更低的延迟和更高的<br>频率。</p>
-<p>LFSR可以生成具有固定周期的序列，当周期很长时，序列可以看作是近似随机的。</p>
-<h2 id="LFSR的周期"><a href="#LFSR的周期" class="headerlink" title="LFSR的周期"></a>LFSR的周期</h2><p>LFSR的一个重要特性是其生成序列的周期性。对于一个n位的LFSR，其周期最大为$2^n-1$,这是因为全0的状态会无限循环，从而需要将全0的序列从中剔除。</p>
-<p>一个LFSR的特性可以使用反馈多项式来描述。如图<br><img src="/2024/04/18/LFSR/image-1.png"></p>
-<p>这样的一个LFSR,其反馈多项式可以写作：<br>$$f(x)  &#x3D; 1 + h_1x+ h_2x^2+\dots +h_{n-1}x^{n-1}+h_nx^n$$</p>
-<p>之所以加上1， 是因为我们假设原始输入为0000..1,避免全0的状态。</p>
-<p>需要注意的是，反馈多项式和用二进制表示多项式的概念是不同的。</p>
-<p>反馈多项式代表LFSR的周期特征。具体来说，LFSR的周期数与其反馈多项式的阶数有关。<br>设$P_n(x)$为n次多项式，满足：<br>$$min{k:P_n(x)|(x^k+1)}$$<br>的整数称为多项式$P_n(x)$的阶。即多项式$P_n(x)$仅能被$x^k+1$整除，而对任何${x^m+1|m&lt;k}$,$P_n(x)$均不能被其整除。(这里的整除是GF(2)意义上的整除，在GF(2)域上，加法和减法都等价于模2运算。)</p>
-<p>进一步的，称阶数为$2^n-1$的不可约多项式$P(x)$为$GF(2^n)$域上的本原多项式。即本原多项式仅能被$x^{2^n-1}+1$整除，而不能被${x^m+1|m&lt;2^n-1}$整除。同时，本原多项式还无法被分解为$f(x)g(x)$的形式。不可约多项式有点类似于”素数”的概念，即不能被分解为更小的2个多项式的乘积。</p>
-<p>LFSR的周期数等于其反馈多项式的阶数。由此我们可以知道，为了构造具有最大周期数的LFSR,我们需要构造反馈多项式为本原多项式的LFSR。</p>
-<p>下面是一个寻找本原多项式的python程序：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> sympy</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">is_primitive_poly</span>(<span class="params">poly, field_size</span>):</span><br><span class="line">    x = sympy.Symbol(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> poly.degree() != field_size:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> poly.is_irreducible:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">2</span>**(field_size-<span class="number">1</span>),<span class="number">2</span>**(field_size)-<span class="number">1</span>):</span><br><span class="line">        level = sympy.Poly(x**i+<span class="number">1</span>, x, domain=<span class="string">&#x27;GF(2)&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> level.rem(poly).is_zero:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">integer_to_binary_list</span>(<span class="params">i</span>):</span><br><span class="line">    binary_string = <span class="built_in">bin</span>(i)[<span class="number">2</span>:]  </span><br><span class="line">    binary_list = [<span class="built_in">int</span>(bit) <span class="keyword">for</span> bit <span class="keyword">in</span> binary_string]  </span><br><span class="line">    <span class="keyword">return</span> binary_list</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">find_primitive_polys</span>(<span class="params">field_size</span>):</span><br><span class="line">    x = sympy.Symbol(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">    primitive_polys = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">2</span>**(field_size+<span class="number">1</span>)):</span><br><span class="line">        binary_list = integer_to_binary_list(i)</span><br><span class="line">        <span class="comment">#print(binary_list)</span></span><br><span class="line">        symb=<span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(binary_list)):</span><br><span class="line">            symb += binary_list[j]*x**(<span class="built_in">len</span>(binary_list)-j-<span class="number">1</span>)</span><br><span class="line">        </span><br><span class="line">        poly = sympy.Poly(symb, x, domain=<span class="string">&#x27;GF(2)&#x27;</span>)</span><br><span class="line">        <span class="comment">#print(poly)</span></span><br><span class="line">        <span class="keyword">if</span> is_primitive_poly(poly, field_size):</span><br><span class="line">            primitive_polys.append(poly)</span><br><span class="line">    <span class="keyword">return</span> primitive_polys</span><br><span class="line"></span><br><span class="line">field_size = <span class="number">9</span></span><br><span class="line">primitive_polys = find_primitive_polys(field_size)</span><br><span class="line"><span class="keyword">for</span> poly <span class="keyword">in</span> primitive_polys:</span><br><span class="line">    <span class="built_in">print</span>(poly)</span><br></pre></td></tr></table></figure>
+    <title>笨办法学C</title>
+    <url>/2024/04/19/%E7%AC%A8%E5%8A%9E%E6%B3%95%E5%AD%A6C/</url>
+    <content><![CDATA[<h1 id="Learn-C-the-hard-way"><a href="#Learn-C-the-hard-way" class="headerlink" title="Learn C the hard way"></a>Learn C the hard way</h1><h2 id="C语法"><a href="#C语法" class="headerlink" title="C语法"></a>C语法</h2><p>略</p>
+<h2 id="一些技巧"><a href="#一些技巧" class="headerlink" title="一些技巧"></a>一些技巧</h2><h3 id="语法糖"><a href="#语法糖" class="headerlink" title="语法糖"></a>语法糖</h3><p>使用宏定义构建语法糖。<br><code>&quot;语法糖&quot;是一种编程术语，用来描述那些没有给编程语言添加新功能，但是可以使代码更易读或易写的语法。这些语法通过提供更加方便、简洁的编写方式，使得程序员能够更加快速、更加直观地表达程序设计的意图。 在C语言中，也存在一些语法糖。例如，数组的下标运算就是一种语法糖。例如，array[i]实际上就是*(array + i)的简化写法。另一个例子是for循环，它实际上可以使用while循环和一些额外的语句来实现，但for循环提供了一种更加简洁、易读的方式来编写循环。 虽然语法糖可以使代码更简洁、易读，但并不会影响程序的功能或效率。使用或不使用语法糖，都不会影响程序的运行结果。</code></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 语法糖, 写入obj-&gt;_(N), 等价于 obj-&gt;proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> _(N) proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NEW(T, N) Object_new(sizeof(T), T##Proto, N)</span></span><br></pre></td></tr></table></figure>
 
 
-<p>该程序的时间复杂度是$O(2^n)$级别的，性能会随着field size设置的增大而急剧下降。</p>
-<p>一个更好的办法是利用前人的结果，通过查表寻找需要本原多项式。</p>
-<p>下面的网站给出了$GF(2^{10})$以内的所有本原多项式：</p>
-<p><a href="https://www.ece.unb.ca/tervo/ece4253/factors.shtml">https://www.ece.unb.ca/tervo/ece4253/factors.shtml</a></p>
-<p>部分结果如图：</p>
-<p><img src="/2024/04/18/LFSR/image-2.png"></p>
-<h2 id="LFSR的应用"><a href="#LFSR的应用" class="headerlink" title="LFSR的应用"></a>LFSR的应用</h2><p>(待续)</p>
-<h2 id><a href="#" class="headerlink" title></a></h2>]]></content>
+<h3 id="assert宏"><a href="#assert宏" class="headerlink" title="assert宏"></a>assert宏</h3><p>&lt;assert.h&gt; 是 C 语言的一个标准库，主要提供了一个名为 assert 的宏，用于在程序开发和调试过程中进行条件测试。<br>assert 宏允许程序员在代码中插入诊断信息。如果在运行时，assert 的条件测试失败（即，测试的表达式结果为假），那么程序会立即终止，并显示一条错误消息。这条消息通常包括文件名、源代码行号以及测试失败的表达式。</p>
+<p>例如：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> Person *<span class="title function_">Person_create</span><span class="params">(<span class="type">char</span> *name, <span class="type">int</span> age, <span class="type">int</span> height, <span class="type">int</span> weight)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Person</span> *<span class="title">who</span> =</span> <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> Person));</span><br><span class="line">    assert(who != <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    who-&gt;name = strdup(name);</span><br><span class="line">    who-&gt;age = age;</span><br><span class="line">    who-&gt;height = height;</span><br><span class="line">    who-&gt;weight = weight;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> who;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里使用assert宏来检查内存是否被成功分配。</p>
+<h3 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h3><p>众所周知C不支持面向对象，但是可以通过一些技巧实现类似继承的功能：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//定义一个基类 Object</span></span><br><span class="line"><span class="comment">//注意这里使用了函数指针，从而可以实现函数重载</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">char</span> *description;</span><br><span class="line">    <span class="type">int</span> (*init)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*describe)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*destroy)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> *(*move)(<span class="type">void</span> *self, Direction direction);</span><br><span class="line">    <span class="type">int</span> (*attack)(<span class="type">void</span> *self, <span class="type">int</span> damage);</span><br><span class="line">&#125; Object;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//基类的构造函数</span></span><br><span class="line"><span class="type">void</span> *<span class="title function_">Object_new</span><span class="params">(<span class="type">size_t</span> size, Object proto, <span class="type">char</span> *description)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// setup the default functions in case they aren&#x27;t set</span></span><br><span class="line">    <span class="keyword">if</span>(!proto.init) proto.init = Object_init;</span><br><span class="line">    <span class="keyword">if</span>(!proto.describe) proto.describe = Object_describe;</span><br><span class="line">    <span class="keyword">if</span>(!proto.destroy) proto.destroy = Object_destroy;</span><br><span class="line">    <span class="keyword">if</span>(!proto.attack) proto.attack = Object_attack;</span><br><span class="line">    <span class="keyword">if</span>(!proto.move) proto.move = Object_move;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// this seems weird, but we can make a struct of one size,</span></span><br><span class="line">    <span class="comment">// then point a different pointer at it to &quot;cast&quot; it</span></span><br><span class="line">    Object *el = <span class="built_in">calloc</span>(<span class="number">1</span>, size);</span><br><span class="line">    *el = proto;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// copy the description over</span></span><br><span class="line">    el-&gt;description = strdup(description);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// initialize it with whatever init we were given</span></span><br><span class="line">    <span class="keyword">if</span>(!el-&gt;init(el)) &#123;</span><br><span class="line">        <span class="comment">// looks like it didn&#x27;t initialize properly</span></span><br><span class="line">        el-&gt;destroy(el);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// all done, we made an object of any type</span></span><br><span class="line">        <span class="keyword">return</span> el;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//对每个需要继承基类的子类，用以下方法定义：</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Map</span> &#123;</span></span><br><span class="line">    Object proto;</span><br><span class="line">    Room *start;</span><br><span class="line">    Room *location;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//指定需要重载的方法：</span></span><br><span class="line">Object MapProto = &#123;</span><br><span class="line">    .init = Map_init,</span><br><span class="line">    .move = Map_move,</span><br><span class="line">    .attack = Map_attack</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//使用之前的语法糖进行初始化：</span></span><br><span class="line">Map *game = NEW(Map, <span class="string">&quot;The Hall of the Minotaur.&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>notes</category>
+      </categories>
       <tags>
-        <tag>数字集成电路</tag>
-        <tag>Basic Module</tag>
+        <tag>Programming Language</tag>
       </tags>
   </entry>
   <entry>
@@ -1634,66 +1694,6 @@ assert 将 property 应用于实际的硬件设计，以确保在运行时满足
       </categories>
       <tags>
         <tag>ICer</tag>
-        <tag>Programming Language</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>笨办法学C</title>
-    <url>/2024/04/19/%E7%AC%A8%E5%8A%9E%E6%B3%95%E5%AD%A6C/</url>
-    <content><![CDATA[<h1 id="Learn-C-the-hard-way"><a href="#Learn-C-the-hard-way" class="headerlink" title="Learn C the hard way"></a>Learn C the hard way</h1><h2 id="C语法"><a href="#C语法" class="headerlink" title="C语法"></a>C语法</h2><p>略</p>
-<h2 id="一些技巧"><a href="#一些技巧" class="headerlink" title="一些技巧"></a>一些技巧</h2><h3 id="语法糖"><a href="#语法糖" class="headerlink" title="语法糖"></a>语法糖</h3><p>使用宏定义构建语法糖。<br><code>&quot;语法糖&quot;是一种编程术语，用来描述那些没有给编程语言添加新功能，但是可以使代码更易读或易写的语法。这些语法通过提供更加方便、简洁的编写方式，使得程序员能够更加快速、更加直观地表达程序设计的意图。 在C语言中，也存在一些语法糖。例如，数组的下标运算就是一种语法糖。例如，array[i]实际上就是*(array + i)的简化写法。另一个例子是for循环，它实际上可以使用while循环和一些额外的语句来实现，但for循环提供了一种更加简洁、易读的方式来编写循环。 虽然语法糖可以使代码更简洁、易读，但并不会影响程序的功能或效率。使用或不使用语法糖，都不会影响程序的运行结果。</code></p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 语法糖, 写入obj-&gt;_(N), 等价于 obj-&gt;proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> _(N) proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NEW(T, N) Object_new(sizeof(T), T##Proto, N)</span></span><br></pre></td></tr></table></figure>
-
-
-<h3 id="assert宏"><a href="#assert宏" class="headerlink" title="assert宏"></a>assert宏</h3><p>&lt;assert.h&gt; 是 C 语言的一个标准库，主要提供了一个名为 assert 的宏，用于在程序开发和调试过程中进行条件测试。<br>assert 宏允许程序员在代码中插入诊断信息。如果在运行时，assert 的条件测试失败（即，测试的表达式结果为假），那么程序会立即终止，并显示一条错误消息。这条消息通常包括文件名、源代码行号以及测试失败的表达式。</p>
-<p>例如：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> Person *<span class="title function_">Person_create</span><span class="params">(<span class="type">char</span> *name, <span class="type">int</span> age, <span class="type">int</span> height, <span class="type">int</span> weight)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Person</span> *<span class="title">who</span> =</span> <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> Person));</span><br><span class="line">    assert(who != <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    who-&gt;name = strdup(name);</span><br><span class="line">    who-&gt;age = age;</span><br><span class="line">    who-&gt;height = height;</span><br><span class="line">    who-&gt;weight = weight;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> who;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里使用assert宏来检查内存是否被成功分配。</p>
-<h3 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h3><p>众所周知C不支持面向对象，但是可以通过一些技巧实现类似继承的功能：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//定义一个基类 Object</span></span><br><span class="line"><span class="comment">//注意这里使用了函数指针，从而可以实现函数重载</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">char</span> *description;</span><br><span class="line">    <span class="type">int</span> (*init)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*describe)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*destroy)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> *(*move)(<span class="type">void</span> *self, Direction direction);</span><br><span class="line">    <span class="type">int</span> (*attack)(<span class="type">void</span> *self, <span class="type">int</span> damage);</span><br><span class="line">&#125; Object;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//基类的构造函数</span></span><br><span class="line"><span class="type">void</span> *<span class="title function_">Object_new</span><span class="params">(<span class="type">size_t</span> size, Object proto, <span class="type">char</span> *description)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// setup the default functions in case they aren&#x27;t set</span></span><br><span class="line">    <span class="keyword">if</span>(!proto.init) proto.init = Object_init;</span><br><span class="line">    <span class="keyword">if</span>(!proto.describe) proto.describe = Object_describe;</span><br><span class="line">    <span class="keyword">if</span>(!proto.destroy) proto.destroy = Object_destroy;</span><br><span class="line">    <span class="keyword">if</span>(!proto.attack) proto.attack = Object_attack;</span><br><span class="line">    <span class="keyword">if</span>(!proto.move) proto.move = Object_move;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// this seems weird, but we can make a struct of one size,</span></span><br><span class="line">    <span class="comment">// then point a different pointer at it to &quot;cast&quot; it</span></span><br><span class="line">    Object *el = <span class="built_in">calloc</span>(<span class="number">1</span>, size);</span><br><span class="line">    *el = proto;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// copy the description over</span></span><br><span class="line">    el-&gt;description = strdup(description);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// initialize it with whatever init we were given</span></span><br><span class="line">    <span class="keyword">if</span>(!el-&gt;init(el)) &#123;</span><br><span class="line">        <span class="comment">// looks like it didn&#x27;t initialize properly</span></span><br><span class="line">        el-&gt;destroy(el);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// all done, we made an object of any type</span></span><br><span class="line">        <span class="keyword">return</span> el;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//对每个需要继承基类的子类，用以下方法定义：</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Map</span> &#123;</span></span><br><span class="line">    Object proto;</span><br><span class="line">    Room *start;</span><br><span class="line">    Room *location;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//指定需要重载的方法：</span></span><br><span class="line">Object MapProto = &#123;</span><br><span class="line">    .init = Map_init,</span><br><span class="line">    .move = Map_move,</span><br><span class="line">    .attack = Map_attack</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//使用之前的语法糖进行初始化：</span></span><br><span class="line">Map *game = NEW(Map, <span class="string">&quot;The Hall of the Minotaur.&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>notes</category>
-      </categories>
-      <tags>
-        <tag>Programming Language</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>LearnPerl</title>
-    <url>/2024/05/08/LearnPerl/</url>
-    <content><![CDATA[<h1 id="Learn-Perl"><a href="#Learn-Perl" class="headerlink" title="Learn Perl"></a>Learn Perl</h1><h2 id="ch2-标量数据"><a href="#ch2-标量数据" class="headerlink" title="ch2 标量数据"></a>ch2 标量数据</h2><h3 id="第一个Helloword-程序"><a href="#第一个Helloword-程序" class="headerlink" title="第一个Helloword 程序"></a>第一个Helloword 程序</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">&quot;Hello, world!\n&quot;</span>;</span><br></pre></td></tr></table></figure>
-
-<p>perl是一种脚本语言，一般已经被内置在类unix系统中。类似的还有shell，bash,csh,tcl,python等。</p>
-<p>第一行的<code>#!</code>读作shell bang。shell bang 是一个用于指定脚本解释器的特殊字符组合。它由 <code>#</code>（井号）和 <code>!</code>（感叹号）组合而成，通常位于脚本的第一行。当一个脚本被执行时，系统会参考 shebang 指定的解释器来执行这个脚本。</p>
-<p>例如，如果一个脚本的第一行是 <code>#!/bin/bash</code>，那么这个脚本就会使用 Bash 作为其解释器。如果改为 <code>#!/usr/bin/python3</code>，那么这个脚本就会使用 Python 3 作为其解释器。</p>
-<p>linux默认的脚本解释器总是在&#x2F;usr&#x2F;bin目录下，如果解释器安装在其他目录下，则需要修改对应的路径。</p>
-<p>由于有shell bang的存在，perl程序不需要有特定的扩展名，而只需要是<strong>可执行</strong>的。（为了区分可以加上<code>.pl</code>）的后缀。</p>
-<p>此外也可以直接通过<code>perl</code>命令执行脚本。这2种方式大部分情况下是相同的，然而有时候也会产生不同的效果。</p>
-<p><img src="/2024/05/08/LearnPerl/LearnPerl%5Cimage.png"><br>目前本人还没搞清楚这种情况出现的原因。</p>
-<p>反引号&#96;&#96;可以用于执行外部命令:</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"> @lines = <span class="string">`ls -a`</span>;</span><br><span class="line"> <span class="keyword">foreach</span> (@lines) &#123;</span><br><span class="line">  <span class="keyword">print</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<h3 id="标量数据"><a href="#标量数据" class="headerlink" title="标量数据"></a>标量数据</h3><p>字符串，数字都被看做标量数据。</p>
-<p>perl会根据数据的操作符判断执行代数运算还是字符串操作。</p>
-<p>变量采用美元符号声明：</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">$alef  = <span class="keyword">chr</span>( <span class="number">0x05D0</span> );</span><br><span class="line">$alpha = <span class="keyword">chr</span>( <span class="keyword">hex</span>(<span class="string">&#x27;03B1&#x27;</span>) );</span><br><span class="line">$omega = <span class="keyword">chr</span>( <span class="number">0x03C9</span> );</span><br><span class="line"></span><br><span class="line"><span class="keyword">say</span> <span class="string">&quot;alpha:&quot;</span>.$alpha;</span><br><span class="line"><span class="keyword">say</span> <span class="string">&quot;alef:&quot;</span>.$alef;</span><br><span class="line"><span class="keyword">say</span> <span class="string">&quot;omega:&quot;</span>.$omega;</span><br><span class="line"></span><br><span class="line">$code_point = <span class="keyword">ord</span>( <span class="string">&#x27;א&#x27;</span> );</span><br><span class="line"></span><br><span class="line"><span class="keyword">say</span> $code_point;</span><br></pre></td></tr></table></figure>
-<p><img src="/2024/05/08/LearnPerl/LearnPerl%5Cimage2.png"><br>chr函数会将对应的ascii字符进行转换。ord则相反。</p>
-<p>使用<code>x</code>可以将字符串重复对应的次数。</p>
-<p><img src="/2024/05/08/LearnPerl/LearnPerl%5Cimage1.png"></p>
-<p><code>say</code>和<code>print</code>类似，区别是会自动换行。（需要5.10以上的版本）</p>
-<p>使用<code>.</code>可以连接2个字符串。</p>
-<h3 id="其他特性"><a href="#其他特性" class="headerlink" title="其他特性"></a>其他特性</h3><p>获取标准输入：<code>&lt;STDIN&gt;</code></p>
-<p><img src="/2024/05/08/LearnPerl/LearnPerl%5Cimage-1.png"></p>
-<p><img src="/2024/05/08/LearnPerl/LearnPerl%5Cimage-2.png"></p>
-<p><code>chomp</code>的作用是去掉字符串末尾的换行符。</p>
-]]></content>
-      <categories>
-        <category>notes</category>
-      </categories>
-      <tags>
         <tag>Programming Language</tag>
       </tags>
   </entry>
