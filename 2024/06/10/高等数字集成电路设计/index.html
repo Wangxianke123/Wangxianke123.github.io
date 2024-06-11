@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"wangxianke123.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="上海交通大学《高等数字集成电路设计》的课程笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="高等数字集成电路设计">
+<meta property="og:url" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/index.html">
+<meta property="og:site_name" content="花间一壶酒">
+<meta property="og:description" content="上海交通大学《高等数字集成电路设计》的课程笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-1.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-2.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-3.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-6.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-4.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-5.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-7.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-8.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-9.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-10.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-11.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-12.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-13.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-14.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-15.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-16.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-17.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-18.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-19.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-20.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-21.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-22.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-23.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-24.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-25.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-26.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-27.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-28.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-29.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-30.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-31.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-32.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-33.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-34.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-35.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-36.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-37.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-38.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-39.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-40.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-41.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-42.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-43.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-44.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-45.png">
+<meta property="article:published_time" content="2024-06-10T05:23:06.000Z">
+<meta property="article:modified_time" content="2024-06-11T06:25:52.266Z">
+<meta property="article:author" content="Wang xianke">
+<meta property="article:tag" content="ICer">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image.png">
+
+<link rel="canonical" href="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>高等数字集成电路设计 | 花间一壶酒</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">花间一壶酒</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">举杯邀明月，对影成三人</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://wangxianke123.github.io/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wang xianke">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="花间一壶酒">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          高等数字集成电路设计
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-06-10 13:23:06" itemprop="dateCreated datePublished" datetime="2024-06-10T13:23:06+08:00">2024-06-10</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-06-11 14:25:52" itemprop="dateModified" datetime="2024-06-11T14:25:52+08:00">2024-06-11</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/notes/" itemprop="url" rel="index"><span itemprop="name">notes</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.8k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>11 分钟</span>
+            </span>
+            <div class="post-description">上海交通大学《高等数字集成电路设计》的课程笔记</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="高等数字集成电路设计"><a href="#高等数字集成电路设计" class="headerlink" title="高等数字集成电路设计"></a>高等数字集成电路设计</h1><h2 id="Lecture1-introduction"><a href="#Lecture1-introduction" class="headerlink" title="Lecture1 introduction"></a>Lecture1 introduction</h2><p>本节主要对IC产业的发展进行概述，以及介绍一些数字IC设计中的常用概念和基本指标。</p>
+<h3 id="IC产业概述"><a href="#IC产业概述" class="headerlink" title="IC产业概述"></a>IC产业概述</h3><p>集成电路行业是典型的高附加值行业，具有重资产，高技术附加值，和劳动力密集三重特点。其发展存在典型的周期性:<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image.png"></p>
+<p>半导体行业的细分领域如下：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-1.png"><br>对应中国的产业图谱为：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-2.png"></p>
+<p>在IC产业的发展历程中，摩尔定律起到核心的推动作用。从芯片制造的角度讲，晶体管尺寸的scaling down能够带来性能，成本和各方面的益处，如下图：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-3.png"></p>
+<p>然而随着器件尺寸逼近物理极限，IC工业面临的功耗墙，成本(主要是验证方面成本的急剧提高)及可靠性等各方面的挑战。<br>各工艺节点下的芯片制作成本如下：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-6.png"></p>
+<h3 id="数字IC设计概览"><a href="#数字IC设计概览" class="headerlink" title="数字IC设计概览"></a>数字IC设计概览</h3><h4 id="方法学"><a href="#方法学" class="headerlink" title="方法学"></a>方法学</h4><p>数字IC设计从业者分为不同层级：架构，逻辑，电路和物理层级，它们负责不同抽象层级的设计，使用不同的设计工具，如下图：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-4.png"></p>
+<p>在数字IC的实际实现过程中，又分为全定制设计和半定制设计。其中半定制设计包括标准单元库（standard cell 设计方法）、门阵列（gate array设计方法）。而全定制设计则在器件层面进行性能和功能的优化。半定制的方法在一定程度上降低了设计难度和优化难度，但可能在性能上略逊于全定制设计。如今的大部分IC设计都是基于半定制设计的。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-5.png"></p>
+<h4 id="封装"><a href="#封装" class="headerlink" title="封装"></a>封装</h4><p>生产出的芯片裸片并不能直接用于生产生活中的直接应用，而需要先进行封装，对芯片进行一定的物理保护，从而增加芯片的可靠性。芯片封装需要考虑以下几个因素：</p>
+<ol>
+<li>电气特性，引入尽量小的寄生效应</li>
+<li>机械特性：尽量高的稳定性和可靠性</li>
+<li>热特性：高效的散热能力</li>
+<li>经济性：尽量低的成本</li>
+</ol>
+<p>下图展示了封装过程中引入的寄生参数：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-7.png"></p>
+<p>并且，随着IC产业的发展，一些先进封装技术如SiP,3D stacking, Die to Die,Chiplet等技术，脱离了物理保护的范畴，在架构层面实现了芯片性能的提升，从而成为在设计阶段就需要考虑的因素之一。</p>
+<h4 id="DFT-defign-for-test"><a href="#DFT-defign-for-test" class="headerlink" title="DFT(defign for test)"></a>DFT(defign for test)</h4><p>如上所述，随着工艺尺寸的scaling down，IC设计面临测试和验证成本的急剧提升。为此引入了DFT技术。一些典型的DFT技术如扫描链(Scan chain)技术，内建自测试BIST(build-in self test),JTAG等。</p>
+<h5 id="SCAN-CHAIN"><a href="#SCAN-CHAIN" class="headerlink" title="SCAN CHAIN"></a>SCAN CHAIN</h5><p>扫描链技术如下图：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-8.png"></p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-9.png"></p>
+<p>在每个寄存器的输入端口加入一个mux,形成一种scan register,并将每个寄存器的输出端和scan in段串联。</p>
+<ol>
+<li>在常规模式下，电路正常工作</li>
+<li>在scan 模式下，电路相当于一个shift register,每个寄存器中保存的结果被逐位的移动至输出端口(scan out)，从而能够得到某一周期内电路的所有中间值，进行功能验证。</li>
+</ol>
+<h5 id="BIST"><a href="#BIST" class="headerlink" title="BIST"></a>BIST</h5><p>待补充</p>
+<h5 id="JTAG"><a href="#JTAG" class="headerlink" title="JTAG"></a>JTAG</h5><p>待补充</p>
+<h3 id="数字IC设计的关心的一些指标"><a href="#数字IC设计的关心的一些指标" class="headerlink" title="数字IC设计的关心的一些指标"></a>数字IC设计的关心的一些指标</h3><p>就IC设计而言，最关注的指标无疑是PPA(power,Performance,Area)。这三个指标往往相互约束，需要做出权衡取舍(trade-off)。</p>
+<p>而数字IC设计领域，影响PPA的细分指标也有很多，下面分别简要进行介绍。</p>
+<h4 id="Fan-in-和Fan-out"><a href="#Fan-in-和Fan-out" class="headerlink" title="Fan-in 和Fan-out"></a>Fan-in 和Fan-out</h4><p>fan in 指逻辑门连接的输入，fan-in越大，逻辑门本身的面积越大，同时性能也会越差。<img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-10.png" alt="alt text"></p>
+<p>fan-out 指逻辑门连接的输出。fan-out越大，逻辑门需要驱动的下级电路越大，从而速度变慢。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-11.png"></p>
+<h4 id="干扰-interference-及噪声-noise"><a href="#干扰-interference-及噪声-noise" class="headerlink" title="干扰(interference)及噪声(noise)"></a>干扰(interference)及噪声(noise)</h4><p>电路中那些预期之外的电压和电流信号被称为噪声，噪声往往影响电路的性能。</p>
+<p>噪声的形成原因多种多样，常见的有平行线路之间的电磁串扰，电容直接的耦合(coupling)等。这些都造成电路信号的不稳定。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-12.png"><br>同时，来自电源(VDD)和地(VSS)的噪声也会影响信号。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-13.png"></p>
+<h4 id="噪声容限-Noise-Margins"><a href="#噪声容限-Noise-Margins" class="headerlink" title="噪声容限 Noise Margins"></a>噪声容限 Noise Margins</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-14.png"></p>
+<p>噪声容限一般分为高电平噪声容限$NM_H$和低电平噪声容限$NM_L$,代表电路对噪声的承受能力。它们分别定义为:</p>
+<p>$$NM_H &#x3D; V_{OH}-V_{IH}$$<br>$$NM_L &#x3D; V_{IL}-V_{OL}$$</p>
+<p>其中$V_{IL}$,$V_{IH}$,$V_{OL}$,$V_{OH}$的定义分别为：</p>
+<ol>
+<li>$V_{IL}$（Input Low Voltage）：输入低电平电压。输入信号被识别为低电平（通常为“0”）的最大电压。</li>
+<li>$V_{IH}$（Input High Voltage）：输入高电平电压。输入信号被识别为高电平（通常为“1”）的最小电压。</li>
+<li>$V_{OL}$（Output Low Voltage）：输出低电平电压。输出信号被识别为低电平（通常为“0”）时的最大电压。</li>
+<li>$V_{OH}$（Output High Voltage）：输出高电平电压。输出信号被识别为高电平（通常为“1”）时的最小电压。</li>
+</ol>
+<h4 id="传输延迟-Delay"><a href="#传输延迟-Delay" class="headerlink" title="传输延迟 Delay"></a>传输延迟 Delay</h4><p>电路的传输延迟参数定义如下图：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-15.png"></p>
+<ol>
+<li>$t_r$：电路从高电平的10%上升为高电平的90%所需要的时间。</li>
+<li>$t_f$：电路从高电平的90%下降为高电平的10%所需要的时间。</li>
+<li>$t_{pHL}$：输入信号上升为高电平的50%到输出信号下降为高电平的50%所需要的时间。</li>
+<li>$t_{pLH}$：输入信号下降为高电平的50%到输出信号上升为高电平的50%所需要的时间。</li>
+<li>$t_p$： $t_{pHL}$和$t_{pLH}$的平均值。</li>
+</ol>
+<h4 id="能效指标：PDP和EDP"><a href="#能效指标：PDP和EDP" class="headerlink" title="能效指标：PDP和EDP"></a>能效指标：PDP和EDP</h4><p>PDP(power delay product)：电路发生翻转期间的平均功耗与传输延迟的乘积,用于衡量电路完成一次计算所消化的能量。单位为焦耳($W\times s$)。</p>
+<p>$PDP &#x3D; P_{av}\times t_p$</p>
+<p>EDP(Energy delay product):有时，一个具有低PDP的电路，传输延迟（$t_p$）仍然有可能很大。为了找到在功耗和性能之间的最佳平衡点，可以将Power与Delay的平方相乘。即:</p>
+<p>$PEP &#x3D; P_{av}\times t_p^2 &#x3D; PDP \times t_p$</p>
+<p>在CMOS电路中，PEP一般与电源电压VDD成正比，较低的电压下往往能得到更好的EDP。</p>
+<h2 id="Lecture2-Device-Model"><a href="#Lecture2-Device-Model" class="headerlink" title="Lecture2 Device&amp;Model"></a>Lecture2 Device&amp;Model</h2><p>本节主要介绍集成电路中的基本器件：二极管和晶体管，以及对其进行分析的基本模型。</p>
+<h3 id="二极管Diode"><a href="#二极管Diode" class="headerlink" title="二极管Diode"></a>二极管Diode</h3><h4 id="掺杂"><a href="#掺杂" class="headerlink" title="掺杂"></a>掺杂</h4><p>硅原子具有4个外层电子，在形成单质(单晶硅)时，每个晶格硅原子与周围的4个硅原子相连，形成正四面体结构：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-16.png"></p>
+<p>如果对硅单质中掺入少量的3价元素（如硼B），则在一个晶格中存在一个硅原子，其原子核周围缺少一个电子，或者说形成了一个带正电的空穴(free hole)。进行这类掺杂(doping)的半导体材料具有获得电子的特性(acceptors)，称为P(posetive)型半导体。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-17.png"></p>
+<p>如果对硅单质中掺入少量的5价元素(如磷P,砷As),则在一个晶格中存在一个硅原子，其原子核周围多出一个自由电子(free electron)。进行这类掺杂(doping)的半导体材料具有失去电子的特性(donater),称为N(negetive)型半导体。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-18.png"></p>
+<h4 id="PN结"><a href="#PN结" class="headerlink" title="PN结"></a>PN结</h4><p>在将一块P型半导体和N型半导体进行接触之后，由于载流子浓度的不同，N型半导体中的自由电子便会自发向P型半导体的区域进行扩散(diffusion)，对其中的空穴进行填充，形成扩散电流(diffusion current)<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-19.png"></p>
+<p>在这个过程中，N型半导体由于失去电子而带正电，P型半导体由于得到电子而带负电，从而在PN结内部形成一个从N指向P的内建电场。在内建电场的作用下，P区的电子反过来向N区运动，形成漂移电流(drift diffusion)</p>
+<p>在自然条件下，PN结附近的扩散电流和漂移电流达到动态平衡。那些自发失去和得到电子的区域称为耗尽区(depletion region)。</p>
+<p>在扩散作用达到平衡后形成的耗尽区具有如下特点：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-20.png"></p>
+<ol>
+<li>电子&#x2F;空穴的密度均匀分布。</li>
+<li>由于场强是电荷密度的积分，电子&#x2F;空穴的均匀分布引起电场强调的线性分布。</li>
+<li>由于电势是场强的积分，PN结中内建电势随坐标呈现递增分布。</li>
+</ol>
+<p>耗尽区中内建电势的存在，会阻止载流子的运动，从宏观上看，降低了材料的导电能力。</p>
+<h4 id="偏置"><a href="#偏置" class="headerlink" title="偏置"></a>偏置</h4><p>二级结的构成为一个PN结和连接它们的金属，如下图：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-21.png"></p>
+<p>其电路符号为一个顶端带有一横线的三角，横线画在N型半导体的位置。</p>
+<h5 id="正偏"><a href="#正偏" class="headerlink" title="正偏"></a>正偏</h5><p>将二极管的P区连接电源的正极，N区连接电源的负极时，称为正偏(forward bias):<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-22.png"></p>
+<p>正偏后， 施加使得PN结内部的内建电势下降，耗尽区的宽度减小，从而减小了载流子通行的难度。P区的大量空穴和N区的大量电子(这是由掺杂浓度决定的，即空穴在N中为多子，电子在P中也为多子)能够成功穿过耗尽区，从而形成电流。此时占据主导的是扩散电流,导电主要由器件中的多子完成，电流较大。</p>
+<h5 id="反偏"><a href="#反偏" class="headerlink" title="反偏"></a>反偏</h5><p>将二极管的P端连接电源负极，N端连接电源正极，称为反偏(reverse bias):<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-23.png"></p>
+<p>反偏后，外加电源强化了二极管内部的内建电场，从而使载流子穿过耗尽区的难度增加，只有P区中的少数电子和N区中的少数空穴在电场作用下穿过耗尽区，形成电流。此时占据主导的是漂移电流，导电主要由器件中的少子完成，电流较小。</p>
+<h5 id="I-V特性"><a href="#I-V特性" class="headerlink" title="I-V特性"></a>I-V特性</h5><p>二极管的电流公式为：<br>$$ I_D &#x3D; I_s(e^{\frac{V_D}{\phi_T}}-1)$$</p>
+<p>其中$\phi_T&#x3D;\frac{kT}{q}&#x3D;26mV$</p>
+<p>$I_s$为饱和电流，与二极管的掺杂，PN结面面积有关。</p>
+<p>在一定情况下也可作一阶近似：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-24.png"></p>
+<h5 id="结电容"><a href="#结电容" class="headerlink" title="结电容"></a>结电容</h5><p>PN结电容公式为：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-25.png"></p>
+<p>通过对上述公式定性分析可知：施加正偏电压，$C_j$的分母减小，整体结电容增大。一种理解角度是，正偏后耗尽区减小，相当于减小了平行板电容器的间距，从而增大了电容。</p>
+<h3 id="MOS晶体管的静态模型"><a href="#MOS晶体管的静态模型" class="headerlink" title="MOS晶体管的静态模型"></a>MOS晶体管的静态模型</h3><p>MOS器件的剖面图如下：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-26.png"></p>
+<p>一个晶体管一般可以抽象成一个开关，当gate端施加足够大的电压(超过阈值电压)，则开关打开。</p>
+<h4 id="阈值电压"><a href="#阈值电压" class="headerlink" title="阈值电压"></a>阈值电压</h4><p>晶体管的gate端可以看作一个平板电容，当施加电压足够高时，在下方的衬底中感应出一定的电荷，形成导电沟道。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-27.png"></p>
+<p>阈值电压的计算公式：<br>$$V_T &#x3D; V_{T0} + \gamma (\sqrt{|-2\phi_F+V_{SB}|}-\sqrt{\phi_F})$$</p>
+<p>其中：$V_{SB}$是源和沉底之间的电压，$V_{T0}$是$V_{SB}&#x3D;0$时的阈值电压，由制作工艺决定。$\phi_F$是费米能级。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-28.png"></p>
+<h5 id="体偏效应"><a href="#体偏效应" class="headerlink" title="体偏效应"></a>体偏效应</h5><p>通过上述公式我们可以知道，阈值电压与体源电压有关，从而可以通过条件body端的电压实现阈值电压的条件。这样的方法常被用于低功耗技术中。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-29.png"></p>
+<h5 id="短沟道效应-short-channel-effet"><a href="#短沟道效应-short-channel-effet" class="headerlink" title="短沟道效应 short channel effet"></a>短沟道效应 short channel effet</h5><p>随着晶体管尺寸的scaling down,器件的沟道长度逐渐缩短，由于工艺导致源漏之间的耗尽区变得接近，使得阈值电压降低，影响晶体管的开关特性。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-30.png"></p>
+<h5 id="漏致势垒降低效应（DIBL）"><a href="#漏致势垒降低效应（DIBL）" class="headerlink" title="漏致势垒降低效应（DIBL）"></a>漏致势垒降低效应（DIBL）</h5><p>Drain-induced barrier lowering：在经典的长沟道器件中，阈值电压的值与漏区电压无关。然而在短沟道器件中，由于晶体管在工作时会给漏级施加电压，从而在D-B之间形成了一个反偏的二极管。这个反偏的二极管增大了漏极的耗尽区宽度，使其与源极的耗尽区进一步接近，从而进一步缩小了导电沟道的长度，使得阈值电压下降。</p>
+<p>DIBL本质也是一种短沟道效应。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-31.png"></p>
+<h5 id="窄沟道效应-narrow-channel-effet"><a href="#窄沟道效应-narrow-channel-effet" class="headerlink" title="窄沟道效应 narrow channel effet"></a>窄沟道效应 narrow channel effet</h5><p>不同于短沟道效应，窄沟道效应是指当晶体管的沟道宽度(不是长度)变窄时，阈值电压增大的一种现象。这是由于窄沟道的gate端容易与场氧化层重叠，形成更大的GATE电容。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-32.png"></p>
+<h4 id="对晶体管的建模"><a href="#对晶体管的建模" class="headerlink" title="对晶体管的建模"></a>对晶体管的建模</h4><p>晶体管可以被看做是个 G,S,D,B的3端器件。在使用时，一般NMOS的衬底默认会接VSS,PMOS的衬底接VDD，从而简化为一个G,S,D的3端器件。在G S间的电压负责控制晶体管的开关，DS间的电压负责控制管子电流的流通。</p>
+<h5 id="线性区"><a href="#线性区" class="headerlink" title="线性区"></a>线性区</h5><p>当晶体管满足：</p>
+<p>$$V_{GS}&gt; V_T$$<br>$$V_{DS}&lt; V_{GS}-V_T$$</p>
+<p>管子工作在线性区，此时晶体管的电流大小满足：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-33.png"></p>
+<h5 id="饱和区"><a href="#饱和区" class="headerlink" title="饱和区"></a>饱和区</h5><p>当晶体管满足：<br>$$V_{GS}&gt; V_T$$<br>$$V_{DS}\geq V_{GS}-V_T$$</p>
+<p>电流不再随$V_{DS}$增大而增大，而是只与$V_{GS}$有关：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-34.png"></p>
+<p>此时的晶体管可以被看做是一个理想电流源。</p>
+<h5 id="沟道长度调制-Channel-Length-Modulation"><a href="#沟道长度调制-Channel-Length-Modulation" class="headerlink" title="沟道长度调制 Channel Length Modulation"></a>沟道长度调制 Channel Length Modulation</h5><p>如下图，当$V_{DS} &gt; V_{GS}-V_T$时，靠近漏区部分的沟道实际上会无法感应出反型电荷而产生夹断(pinch-off)。这将导致晶体管的有效沟道长度减小。而晶体管的电流与沟道长度L成反比。因此实际的电流会增大。通过添加一个参数$\lambda$来修正这种沟道长度调制效应：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-35.png"></p>
+<h5 id="速度饱和-Velocity-Saturation"><a href="#速度饱和-Velocity-Saturation" class="headerlink" title="速度饱和 Velocity Saturation"></a>速度饱和 Velocity Saturation</h5><p>一般来说，载流子的速度正比于电场强度，但是当速度过大时，会因为载流子间的散射效应而趋于饱和，不再满足线性关系。在源漏电压不变的情况下，沟道越短，沟道间的电场强度越大，从而越容易达到速度饱和。</p>
+<p>而对同一器件，则存在一个饱和电压$V_{DSAT}$,当源漏电压大于该值是，出现速度饱和。速度饱和会降低饱和区电流。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-36.png"></p>
+<h5 id="电流公式"><a href="#电流公式" class="headerlink" title="电流公式"></a>电流公式</h5><p>结合上述分析，可以分别得到长沟道器件和短沟道器件的电流公式：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-37.png"></p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-38.png"></p>
+<h5 id="电阻计算"><a href="#电阻计算" class="headerlink" title="电阻计算"></a>电阻计算</h5><p>MOS器件的等效电阻可以用如下公式计算：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-39.png"></p>
+<p>可以看到，同样的器件，在VDD减小的情况下，等效电阻急剧增大。这也是阻止器件的VDD无法随器件尺寸同步scaling down的一个原因。</p>
+<h3 id="晶体管的动态模型"><a href="#晶体管的动态模型" class="headerlink" title="晶体管的动态模型"></a>晶体管的动态模型</h3><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-40.png"><br>作为一个4端器件，MOS管的电容主要由3部分组成：</p>
+<ol>
+<li>结构电容</li>
+<li>沟道电容</li>
+<li>结电容</li>
+</ol>
+<p>下面依次进行分析：</p>
+<h4 id="结构电容"><a href="#结构电容" class="headerlink" title="结构电容"></a>结构电容</h4><p>这部分的主要成因是MOS管在实际生产时，源和漏会向栅下方扩展一个$x_d$的长度，引起了栅和源漏之间的寄生电容：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-41.png"></p>
+<h4 id="沟道电容"><a href="#沟道电容" class="headerlink" title="沟道电容"></a>沟道电容</h4><p>向栅极施加电压，在下方形成导电沟道，这个过程也是电容充电的过程。在这个过程中，gate 端与S,D,B间形成的电容大小与晶体管的工作状态有关，总结如下：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-42.png"></p>
+<h4 id="结电容-扩散电容"><a href="#结电容-扩散电容" class="headerlink" title="结电容&#x2F;扩散电容"></a>结电容&#x2F;扩散电容</h4><p>最后一部分电容的形成原因如下：考虑一个NMOS，其制造是在一个P衬底上挖出2个N well,这样源漏和衬底之间实际上存在一个PN结，这个PN结在D极施加电压时是反向导通的，但是也具有一定的电容。此外因为MOS管实际是一个立体的结构，源漏区除了与底板之外，与侧壁之间也会形成PN结。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-43.png"></p>
+<p>总结上述电容，就可以得到晶体管的电容模型：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-44.png"></p>
+<h4 id="源-漏电阻"><a href="#源-漏电阻" class="headerlink" title="源-漏电阻"></a>源-漏电阻</h4><p>晶体管的电阻可能进一步受到源漏电阻的影响：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-45.png"></p>
+<h3 id="先进器件"><a href="#先进器件" class="headerlink" title="先进器件"></a>先进器件</h3><p>略</p>
+<h3 id="Lecture3-Inverter"><a href="#Lecture3-Inverter" class="headerlink" title="Lecture3 Inverter"></a>Lecture3 Inverter</h3><p>反相器是连接器件到电路的桥梁，因此对反相器的研究可以起到很好的承上启下的作用。</p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ICer/" rel="tag"># ICer</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/05/08/LearnPerl/" rel="prev" title="LearnPerl">
+      <i class="fa fa-chevron-left"></i> LearnPerl
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1"><span class="nav-number">1.</span> <span class="nav-text">高等数字集成电路设计</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Lecture1-introduction"><span class="nav-number">1.1.</span> <span class="nav-text">Lecture1 introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#IC%E4%BA%A7%E4%B8%9A%E6%A6%82%E8%BF%B0"><span class="nav-number">1.1.1.</span> <span class="nav-text">IC产业概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E5%AD%97IC%E8%AE%BE%E8%AE%A1%E6%A6%82%E8%A7%88"><span class="nav-number">1.1.2.</span> <span class="nav-text">数字IC设计概览</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%96%B9%E6%B3%95%E5%AD%A6"><span class="nav-number">1.1.2.1.</span> <span class="nav-text">方法学</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B0%81%E8%A3%85"><span class="nav-number">1.1.2.2.</span> <span class="nav-text">封装</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#DFT-defign-for-test"><span class="nav-number">1.1.2.3.</span> <span class="nav-text">DFT(defign for test)</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#SCAN-CHAIN"><span class="nav-number">1.1.2.3.1.</span> <span class="nav-text">SCAN CHAIN</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#BIST"><span class="nav-number">1.1.2.3.2.</span> <span class="nav-text">BIST</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#JTAG"><span class="nav-number">1.1.2.3.3.</span> <span class="nav-text">JTAG</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E5%AD%97IC%E8%AE%BE%E8%AE%A1%E7%9A%84%E5%85%B3%E5%BF%83%E7%9A%84%E4%B8%80%E4%BA%9B%E6%8C%87%E6%A0%87"><span class="nav-number">1.1.3.</span> <span class="nav-text">数字IC设计的关心的一些指标</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Fan-in-%E5%92%8CFan-out"><span class="nav-number">1.1.3.1.</span> <span class="nav-text">Fan-in 和Fan-out</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%B9%B2%E6%89%B0-interference-%E5%8F%8A%E5%99%AA%E5%A3%B0-noise"><span class="nav-number">1.1.3.2.</span> <span class="nav-text">干扰(interference)及噪声(noise)</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%99%AA%E5%A3%B0%E5%AE%B9%E9%99%90-Noise-Margins"><span class="nav-number">1.1.3.3.</span> <span class="nav-text">噪声容限 Noise Margins</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E5%BB%B6%E8%BF%9F-Delay"><span class="nav-number">1.1.3.4.</span> <span class="nav-text">传输延迟 Delay</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%83%BD%E6%95%88%E6%8C%87%E6%A0%87%EF%BC%9APDP%E5%92%8CEDP"><span class="nav-number">1.1.3.5.</span> <span class="nav-text">能效指标：PDP和EDP</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Lecture2-Device-Model"><span class="nav-number">1.2.</span> <span class="nav-text">Lecture2 Device&amp;Model</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%8C%E6%9E%81%E7%AE%A1Diode"><span class="nav-number">1.2.1.</span> <span class="nav-text">二极管Diode</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%8E%BA%E6%9D%82"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">掺杂</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#PN%E7%BB%93"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">PN结</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%81%8F%E7%BD%AE"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">偏置</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%AD%A3%E5%81%8F"><span class="nav-number">1.2.1.3.1.</span> <span class="nav-text">正偏</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E5%8F%8D%E5%81%8F"><span class="nav-number">1.2.1.3.2.</span> <span class="nav-text">反偏</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#I-V%E7%89%B9%E6%80%A7"><span class="nav-number">1.2.1.3.3.</span> <span class="nav-text">I-V特性</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%BB%93%E7%94%B5%E5%AE%B9"><span class="nav-number">1.2.1.3.4.</span> <span class="nav-text">结电容</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#MOS%E6%99%B6%E4%BD%93%E7%AE%A1%E7%9A%84%E9%9D%99%E6%80%81%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.2.2.</span> <span class="nav-text">MOS晶体管的静态模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%98%88%E5%80%BC%E7%94%B5%E5%8E%8B"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">阈值电压</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E4%BD%93%E5%81%8F%E6%95%88%E5%BA%94"><span class="nav-number">1.2.2.1.1.</span> <span class="nav-text">体偏效应</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%9F%AD%E6%B2%9F%E9%81%93%E6%95%88%E5%BA%94-short-channel-effet"><span class="nav-number">1.2.2.1.2.</span> <span class="nav-text">短沟道效应 short channel effet</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%BC%8F%E8%87%B4%E5%8A%BF%E5%9E%92%E9%99%8D%E4%BD%8E%E6%95%88%E5%BA%94%EF%BC%88DIBL%EF%BC%89"><span class="nav-number">1.2.2.1.3.</span> <span class="nav-text">漏致势垒降低效应（DIBL）</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%AA%84%E6%B2%9F%E9%81%93%E6%95%88%E5%BA%94-narrow-channel-effet"><span class="nav-number">1.2.2.1.4.</span> <span class="nav-text">窄沟道效应 narrow channel effet</span></a></li></ol></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AF%B9%E6%99%B6%E4%BD%93%E7%AE%A1%E7%9A%84%E5%BB%BA%E6%A8%A1"><span class="nav-number">1.2.2.2.</span> <span class="nav-text">对晶体管的建模</span></a><ol class="nav-child"><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%BA%BF%E6%80%A7%E5%8C%BA"><span class="nav-number">1.2.2.2.1.</span> <span class="nav-text">线性区</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%A5%B1%E5%92%8C%E5%8C%BA"><span class="nav-number">1.2.2.2.2.</span> <span class="nav-text">饱和区</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E6%B2%9F%E9%81%93%E9%95%BF%E5%BA%A6%E8%B0%83%E5%88%B6-Channel-Length-Modulation"><span class="nav-number">1.2.2.2.3.</span> <span class="nav-text">沟道长度调制 Channel Length Modulation</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E9%80%9F%E5%BA%A6%E9%A5%B1%E5%92%8C-Velocity-Saturation"><span class="nav-number">1.2.2.2.4.</span> <span class="nav-text">速度饱和 Velocity Saturation</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%94%B5%E6%B5%81%E5%85%AC%E5%BC%8F"><span class="nav-number">1.2.2.2.5.</span> <span class="nav-text">电流公式</span></a></li><li class="nav-item nav-level-5"><a class="nav-link" href="#%E7%94%B5%E9%98%BB%E8%AE%A1%E7%AE%97"><span class="nav-number">1.2.2.2.6.</span> <span class="nav-text">电阻计算</span></a></li></ol></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%99%B6%E4%BD%93%E7%AE%A1%E7%9A%84%E5%8A%A8%E6%80%81%E6%A8%A1%E5%9E%8B"><span class="nav-number">1.2.3.</span> <span class="nav-text">晶体管的动态模型</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%93%E6%9E%84%E7%94%B5%E5%AE%B9"><span class="nav-number">1.2.3.1.</span> <span class="nav-text">结构电容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B2%9F%E9%81%93%E7%94%B5%E5%AE%B9"><span class="nav-number">1.2.3.2.</span> <span class="nav-text">沟道电容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%BB%93%E7%94%B5%E5%AE%B9-%E6%89%A9%E6%95%A3%E7%94%B5%E5%AE%B9"><span class="nav-number">1.2.3.3.</span> <span class="nav-text">结电容&#x2F;扩散电容</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%BA%90-%E6%BC%8F%E7%94%B5%E9%98%BB"><span class="nav-number">1.2.3.4.</span> <span class="nav-text">源-漏电阻</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%88%E8%BF%9B%E5%99%A8%E4%BB%B6"><span class="nav-number">1.2.4.</span> <span class="nav-text">先进器件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Lecture3-Inverter"><span class="nav-number">1.2.5.</span> <span class="nav-text">Lecture3 Inverter</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Wang xianke</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Wangxianke123" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Wangxianke123" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yourname@gmail.com" title="E-Mail → mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Wang xianke</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">89k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">2:41</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+      <script src="https://Wangxianke123.github.io/live2d/autoload.js"></script>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+
+</html>

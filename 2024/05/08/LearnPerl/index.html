@@ -33,7 +33,7 @@
 <meta property="og:image" content="https://wangxianke123.github.io/2024/05/08/LearnPerl/image-1.png">
 <meta property="og:image" content="https://wangxianke123.github.io/2024/05/08/LearnPerl/image-2.png">
 <meta property="article:published_time" content="2024-05-08T05:56:47.000Z">
-<meta property="article:modified_time" content="2024-05-08T06:49:21.537Z">
+<meta property="article:modified_time" content="2024-06-10T05:23:44.448Z">
 <meta property="article:author" content="Wang xianke">
 <meta property="article:tag" content="Programming Language">
 <meta name="twitter:card" content="summary">
@@ -226,10 +226,16 @@
                 <i class="far fa-calendar"></i>
               </span>
               <span class="post-meta-item-text">发表于</span>
-              
 
-              <time title="创建时间：2024-05-08 13:56:47 / 修改时间：14:49:21" itemprop="dateCreated datePublished" datetime="2024-05-08T13:56:47+08:00">2024-05-08</time>
+              <time title="创建时间：2024-05-08 13:56:47" itemprop="dateCreated datePublished" datetime="2024-05-08T13:56:47+08:00">2024-05-08</time>
             </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-06-10 13:23:44" itemprop="dateModified" datetime="2024-06-10T13:23:44+08:00">2024-06-10</time>
+              </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
                 <i class="far fa-folder"></i>
@@ -246,7 +252,7 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>1.1k</span>
+              <span>1.4k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
@@ -292,7 +298,13 @@
 <p><img src="/2024/05/08/LearnPerl/image-1.png"></p>
 <p><img src="/2024/05/08/LearnPerl/image-2.png"></p>
 <p><code>chomp</code>的作用是去掉字符串末尾的换行符。</p>
+<h2 id="ch3"><a href="#ch3" class="headerlink" title="ch3"></a>ch3</h2><h3 id="list"><a href="#list" class="headerlink" title="list"></a>list</h3><p>数组和标量的声明方式完全相同。</p>
+<figure class="highlight perl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">10</span>;</span><br><span class="line">$word[<span class="number">0</span>]= <span class="string">&quot;s&quot;</span>;</span><br><span class="line"></span><br><span class="line">$word[<span class="number">1</span>]= <span class="string">&quot;h&quot;</span>;</span><br><span class="line">$word[<span class="number">2</span>]= <span class="string">&quot;i&quot;</span>;</span><br><span class="line">$word[<span class="number">3</span>]= <span class="string">&quot;t&quot;</span>;</span><br><span class="line"></span><br><span class="line">$a = $#word;</span><br><span class="line"><span class="keyword">say</span> $a;</span><br><span class="line"><span class="keyword">say</span>  $word[-<span class="number">4</span>].$word[-<span class="number">3</span>].$word[-<span class="number">2</span>].$word[-<span class="number">1</span>];</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">wenkai@LAPTOP-36N49UJG:~/perl/ex3$ ./array</span><br><span class="line">3</span><br><span class="line">shit</span><br></pre></td></tr></table></figure>
 
+
+<p><code>$#</code>得到数组的长度(减一)</p>
+<h3 id="array"><a href="#array" class="headerlink" title="array"></a>array</h3>
     </div>
 
     
@@ -313,7 +325,10 @@
     <a href="/2024/04/19/%E7%AC%A8%E5%8A%9E%E6%B3%95%E5%AD%A6C/" rel="prev" title="笨办法学C">
       <i class="fa fa-chevron-left"></i> 笨办法学C
     </a></div>
-      <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/" rel="next" title="高等数字集成电路设计">
+      高等数字集成电路设计 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -372,7 +387,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Learn-Perl"><span class="nav-number">1.</span> <span class="nav-text">Learn Perl</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ch2-%E6%A0%87%E9%87%8F%E6%95%B0%E6%8D%AE"><span class="nav-number">1.1.</span> <span class="nav-text">ch2 标量数据</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E4%B8%AAHelloword-%E7%A8%8B%E5%BA%8F"><span class="nav-number">1.1.1.</span> <span class="nav-text">第一个Helloword 程序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E9%87%8F%E6%95%B0%E6%8D%AE"><span class="nav-number">1.1.2.</span> <span class="nav-text">标量数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E7%89%B9%E6%80%A7"><span class="nav-number">1.1.3.</span> <span class="nav-text">其他特性</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#Learn-Perl"><span class="nav-number">1.</span> <span class="nav-text">Learn Perl</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#ch2-%E6%A0%87%E9%87%8F%E6%95%B0%E6%8D%AE"><span class="nav-number">1.1.</span> <span class="nav-text">ch2 标量数据</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E4%B8%AAHelloword-%E7%A8%8B%E5%BA%8F"><span class="nav-number">1.1.1.</span> <span class="nav-text">第一个Helloword 程序</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A0%87%E9%87%8F%E6%95%B0%E6%8D%AE"><span class="nav-number">1.1.2.</span> <span class="nav-text">标量数据</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B6%E4%BB%96%E7%89%B9%E6%80%A7"><span class="nav-number">1.1.3.</span> <span class="nav-text">其他特性</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ch3"><span class="nav-number">1.2.</span> <span class="nav-text">ch3</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#list"><span class="nav-number">1.2.1.</span> <span class="nav-text">list</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#array"><span class="nav-number">1.2.2.</span> <span class="nav-text">array</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -386,7 +401,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">7</span>
+          <span class="site-state-item-count">8</span>
           <span class="site-state-item-name">日志</span>
         </a>
       </div>
@@ -443,12 +458,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">82k</span>
+    <span title="站点总字数">89k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">2:30</span>
+    <span title="站点阅读时长">2:41</span>
 </div>
 
         
