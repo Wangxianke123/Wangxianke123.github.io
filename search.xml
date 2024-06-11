@@ -91,6 +91,182 @@
       </tags>
   </entry>
   <entry>
+    <title>LFSR</title>
+    <url>/2024/04/18/LFSR/</url>
+    <content><![CDATA[<h1 id="LSFR"><a href="#LSFR" class="headerlink" title="LSFR"></a>LSFR</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>LFSR 全称为Linear Feedback Shift Register, 线性反馈移位寄存器。LFSR 可以用来<br>产生可重复的伪随机序列，从而被广泛使用在计数器，解码器，密码系统，BIST等方<br>面。<br>一般的LFSR分为2种，内部反馈型和外部反馈型的LFSR，如图2–1所示。其中内<br>部反馈型LFSR又称为伽罗瓦LFSR，而外部反馈型LFSR又称为斐波那契型LFSR。</p>
+<p><img src="/2024/04/18/LFSR/image.png" alt="2种不同类型的LFSR"></p>
+<p>由于伽罗瓦LFSR的逻辑门位于2级寄存器之间，理论上拥有更低的延迟和更高的<br>频率。</p>
+<p>LFSR可以生成具有固定周期的序列，当周期很长时，序列可以看作是近似随机的。</p>
+<h2 id="LFSR的周期"><a href="#LFSR的周期" class="headerlink" title="LFSR的周期"></a>LFSR的周期</h2><p>LFSR的一个重要特性是其生成序列的周期性。对于一个n位的LFSR，其周期最大为$2^n-1$,这是因为全0的状态会无限循环，从而需要将全0的序列从中剔除。</p>
+<p>一个LFSR的特性可以使用反馈多项式来描述。如图<br><img src="/2024/04/18/LFSR/image-1.png"></p>
+<p>这样的一个LFSR,其反馈多项式可以写作：<br>$$f(x)  &#x3D; 1 + h_1x+ h_2x^2+\dots +h_{n-1}x^{n-1}+h_nx^n$$</p>
+<p>之所以加上1， 是因为我们假设原始输入为0000..1,避免全0的状态。</p>
+<p>需要注意的是，反馈多项式和用二进制表示多项式的概念是不同的。</p>
+<p>反馈多项式代表LFSR的周期特征。具体来说，LFSR的周期数与其反馈多项式的阶数有关。<br>设$P_n(x)$为n次多项式，满足：<br>$$min{k:P_n(x)|(x^k+1)}$$<br>的整数称为多项式$P_n(x)$的阶。即多项式$P_n(x)$仅能被$x^k+1$整除，而对任何${x^m+1|m&lt;k}$,$P_n(x)$均不能被其整除。(这里的整除是GF(2)意义上的整除，在GF(2)域上，加法和减法都等价于模2运算。)</p>
+<p>进一步的，称阶数为$2^n-1$的不可约多项式$P(x)$为$GF(2^n)$域上的本原多项式。即本原多项式仅能被$x^{2^n-1}+1$整除，而不能被${x^m+1|m&lt;2^n-1}$整除。同时，本原多项式还无法被分解为$f(x)g(x)$的形式。不可约多项式有点类似于”素数”的概念，即不能被分解为更小的2个多项式的乘积。</p>
+<p>LFSR的周期数等于其反馈多项式的阶数。由此我们可以知道，为了构造具有最大周期数的LFSR,我们需要构造反馈多项式为本原多项式的LFSR。</p>
+<p>下面是一个寻找本原多项式的python程序：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> sympy</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">is_primitive_poly</span>(<span class="params">poly, field_size</span>):</span><br><span class="line">    x = sympy.Symbol(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> poly.degree() != field_size:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> poly.is_irreducible:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">2</span>**(field_size-<span class="number">1</span>),<span class="number">2</span>**(field_size)-<span class="number">1</span>):</span><br><span class="line">        level = sympy.Poly(x**i+<span class="number">1</span>, x, domain=<span class="string">&#x27;GF(2)&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> level.rem(poly).is_zero:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">integer_to_binary_list</span>(<span class="params">i</span>):</span><br><span class="line">    binary_string = <span class="built_in">bin</span>(i)[<span class="number">2</span>:]  </span><br><span class="line">    binary_list = [<span class="built_in">int</span>(bit) <span class="keyword">for</span> bit <span class="keyword">in</span> binary_string]  </span><br><span class="line">    <span class="keyword">return</span> binary_list</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">find_primitive_polys</span>(<span class="params">field_size</span>):</span><br><span class="line">    x = sympy.Symbol(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">    primitive_polys = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">2</span>**(field_size+<span class="number">1</span>)):</span><br><span class="line">        binary_list = integer_to_binary_list(i)</span><br><span class="line">        <span class="comment">#print(binary_list)</span></span><br><span class="line">        symb=<span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(binary_list)):</span><br><span class="line">            symb += binary_list[j]*x**(<span class="built_in">len</span>(binary_list)-j-<span class="number">1</span>)</span><br><span class="line">        </span><br><span class="line">        poly = sympy.Poly(symb, x, domain=<span class="string">&#x27;GF(2)&#x27;</span>)</span><br><span class="line">        <span class="comment">#print(poly)</span></span><br><span class="line">        <span class="keyword">if</span> is_primitive_poly(poly, field_size):</span><br><span class="line">            primitive_polys.append(poly)</span><br><span class="line">    <span class="keyword">return</span> primitive_polys</span><br><span class="line"></span><br><span class="line">field_size = <span class="number">9</span></span><br><span class="line">primitive_polys = find_primitive_polys(field_size)</span><br><span class="line"><span class="keyword">for</span> poly <span class="keyword">in</span> primitive_polys:</span><br><span class="line">    <span class="built_in">print</span>(poly)</span><br></pre></td></tr></table></figure>
+
+
+<p>该程序的时间复杂度是$O(2^n)$级别的，性能会随着field size设置的增大而急剧下降。</p>
+<p>一个更好的办法是利用前人的结果，通过查表寻找需要本原多项式。</p>
+<p>下面的网站给出了$GF(2^{10})$以内的所有本原多项式：</p>
+<p><a href="https://www.ece.unb.ca/tervo/ece4253/factors.shtml">https://www.ece.unb.ca/tervo/ece4253/factors.shtml</a></p>
+<p>部分结果如图：</p>
+<p><img src="/2024/04/18/LFSR/image-2.png"></p>
+<h2 id="LFSR的应用"><a href="#LFSR的应用" class="headerlink" title="LFSR的应用"></a>LFSR的应用</h2><p>(待续)</p>
+<h2 id><a href="#" class="headerlink" title></a></h2>]]></content>
+      <tags>
+        <tag>数字集成电路</tag>
+        <tag>Basic Module</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SoC设计方法</title>
+    <url>/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/</url>
+    <content><![CDATA[<h1 id="SoC设计方法"><a href="#SoC设计方法" class="headerlink" title="SoC设计方法"></a>SoC设计方法</h1><h2 id="Soc设计概述及流程"><a href="#Soc设计概述及流程" class="headerlink" title="Soc设计概述及流程"></a>Soc设计概述及流程</h2><h3 id="什么是SoC"><a href="#什么是SoC" class="headerlink" title="什么是SoC?"></a>什么是SoC?</h3><p>半导体产业模式及其基本分工：<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image.png" alt="半导体产业链"></p>
+<h4 id="SoC的基本概念："><a href="#SoC的基本概念：" class="headerlink" title="SoC的基本概念："></a>SoC的基本概念：</h4><pre><code>SoC(System on Chip)：系统级芯片，片上系统
+</code></pre>
+<p>SoC的诞生是集成电路领域发展的必然趋势。SoC的应用场景：<br>➢高性能计算<br>➢智能手机<br>➢汽车主控<br>➢物联网设备</p>
+<h4 id="SoC的优势"><a href="#SoC的优势" class="headerlink" title="SoC的优势"></a>SoC的优势</h4><ol>
+<li>有利于复杂系统的集成</li>
+<li>缩短设计时间</li>
+<li>可靠性更高</li>
+<li>延迟更低(内部连线短，传输延迟更小。内部晶体管阻抗低，较小的门延迟)</li>
+<li>低能耗</li>
+<li>低成本（IP复用）</li>
+</ol>
+<h4 id="SoC发展的挑战"><a href="#SoC发展的挑战" class="headerlink" title="SoC发展的挑战"></a>SoC发展的挑战</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-1.png" alt="设计成本"></p>
+<ol>
+<li><p>随着工艺节点的迭代，研发费用指数上升。</p>
+</li>
+<li><p>软硬件功能的划分（通用vs专用）<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-2.png" alt="不同划分带来不同成本占比"></p>
+</li>
+<li><p>复杂性提升导致的验证难度提升</p>
+</li>
+<li><p>制造成本高（7nm工艺下，$400mm^2$的芯片良率只有大约55%），设计错误不可接受</p>
+</li>
+</ol>
+<h4 id="新型SoC-Chiplet"><a href="#新型SoC-Chiplet" class="headerlink" title="新型SoC: Chiplet"></a>新型SoC: Chiplet</h4><p>芯粒(Chiplet):将功能丰富面积较大的裸片（die）拆分成多个芯粒（chiplet）通过先进封装组合在一起形成一个系统芯片</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-3.png"></p>
+<h4 id="SoC设计总结"><a href="#SoC设计总结" class="headerlink" title="SoC设计总结"></a>SoC设计总结</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-4.png"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-5.png"></p>
+<h3 id="SoC设计流程"><a href="#SoC设计流程" class="headerlink" title="SoC设计流程"></a>SoC设计流程</h3><p>SoC系统是软件和硬件的结合，需要综合评估系统的性能，设计相应的硬件和软件架构：</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-6.png" alt="SoC的软硬件协同设计流程"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-7.png" alt="SoC的软件设计流程"></p>
+<h4 id="SoC的硬件设计流程"><a href="#SoC的硬件设计流程" class="headerlink" title="SoC的硬件设计流程"></a>SoC的硬件设计流程</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-8.png" alt="SoC硬件设计流程-前端部分"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-9.png" alt="SoC硬件设计流程-后端部分"></p>
+<p>步骤基本可以分为： </p>
+<ol>
+<li><strong>设计规范（spec）</strong>：确定芯片的顶层架构，规格参数，划分模块定义</li>
+<li>模块设计与IP复用，顶端集成</li>
+<li>前仿真：验证设计逻辑的正确性</li>
+<li>验证</li>
+<li>逻辑综合：代码翻译为电路（理想器件）</li>
+<li>静态时序分析：检查设计是否符合时序要求，有无违例</li>
+</ol>
+<p>其中电路的抽象层次如下：</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-19.png"></p>
+<p>分别为：</p>
+<ol>
+<li>系统级</li>
+<li>RTL级</li>
+<li>门级(gate level)</li>
+<li>集体管级(transistor level)</li>
+<li>版图级 (lay-out level)</li>
+</ol>
+<h3 id="静态时序分析"><a href="#静态时序分析" class="headerlink" title="静态时序分析"></a>静态时序分析</h3><h4 id="setup-time-建立时间"><a href="#setup-time-建立时间" class="headerlink" title="setup time 建立时间"></a>setup time 建立时间</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-10.png" alt="建立时间"></p>
+<p>在时钟信号到来之前，数据需要提前一段时间准备好。这个时间称为建立时间</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-11.png" alt="建立时间与时钟周期的关系"></p>
+<p>如图，$t_{pcq}$指从时钟信号变化(50%)开始，到q端信号变化所需的时间(由寄存器本身的特性决定)；</p>
+<p>$t_{pd}$是组合逻辑的传输延迟。</p>
+<p>由于在下一个时钟到来之前，下一级寄存器的输入数据应当准备好，因此有：<br>$T_c \geq t_{pcq} + t_{pd} + t_{setup}$</p>
+<h4 id="hold-time-保持时间"><a href="#hold-time-保持时间" class="headerlink" title="hold time 保持时间"></a>hold time 保持时间</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-12.png" alt="保持时间"></p>
+<p>在时钟信号变化之后，输入如数据不能立马跳变，而是需要保持原来的值一定时间，保证数据被完全写入寄存器。这个时间称为保持时间。</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-13.png" alt="保持时间的时序约束"></p>
+<p>如图，对于理想时钟，clk总是同时到达。</p>
+<p>$t_{ccq}$是时钟信号变化（50%）后，q1变化的时间。 </p>
+<p>$t_{cd}$是组合逻辑的传播延时，则从时钟变化后，经过$t_{ccq}+t_{cd}$的时间，D2的数据会发生变化。</p>
+<p>按照保持时间的定义，需满足：</p>
+<p>$t_{ccq}+t_{cd} \geq t_{hold}$</p>
+<h4 id="recovery-removal-time"><a href="#recovery-removal-time" class="headerlink" title="recovery&#x2F;removal time"></a>recovery&#x2F;removal time</h4><p>异步电路的复位信号，需要满足的时序关系：</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-14.png" alt="alt text"></p>
+<h4 id="时钟偏斜-time-skew"><a href="#时钟偏斜-time-skew" class="headerlink" title="时钟偏斜 time skew"></a>时钟偏斜 time skew</h4><p>理论上clk对每个寄存器的clk端都应该相同，但实际上时钟到达每个元件的时间会有偏差，这个偏差称作time skew<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-15.png" alt="alt text"></p>
+<p>可以通过插入buffer的办法尽量消除时钟偏向(时钟树综合)</p>
+<h4 id="data-arrival-time-和-clk-arrival-time"><a href="#data-arrival-time-和-clk-arrival-time" class="headerlink" title="data arrival time 和 clk arrival  time"></a>data arrival time 和 clk arrival  time</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-16.png" alt="data arrival time"></p>
+<p>分析第二个寄存器的D端，数据到达需要经过：</p>
+<ol>
+<li>时钟启动时间(launch edge)</li>
+<li>clk1相对于时钟源的延迟$T_{clk1}$</li>
+<li>寄存器的内部延迟（时钟变化到数据变化需要的时间）$T_{co}$</li>
+<li>组合逻辑的数据延迟 $T_{data}$</li>
+</ol>
+<p>分析第二个寄存器的时钟到达时间：<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-17.png" alt="clk arrival time"></p>
+<ol>
+<li>时钟启动时间(launch edge)</li>
+<li>clk2相对于时钟源的延迟$T_{clk2}$</li>
+</ol>
+<p>根据建立时间，数据需要提前于时钟到达，并保持稳定：</p>
+<p>$data\  required\  time（setup）  &#x3D; clk\  arrival \ time - t_{setup} - setup\ uncertainty$</p>
+<p>根据保持时间的定义，在时钟到达后，数据需要保持稳定一段时间：</p>
+<p>$data\  required\  time（hold）  &#x3D; clk\  arrival \ time + t_{hold} + hold\ uncertainty$</p>
+<h4 id="时间裕量-time-slack"><a href="#时间裕量-time-slack" class="headerlink" title="时间裕量 time slack"></a>时间裕量 time slack</h4><p>对建立时间来说，由于数据应该提前到达，并保持一定时间的裕量，有：</p>
+<p>$data \ arrival \ time(setup) + setup \ slack &#x3D; data \ required \ time$<br>$setup \ slack &#x3D; data \ required \ time - data \ arrival \ time \<br>  &#x3D;  clk\  arrival \ time - data \ arrival \ time - t_{setup} - setup\ uncertainty  $</p>
+<p>set up slack应当大于0，才能保证时序正确</p>
+<p>对保持时间，时钟到达后数据需要保持一定的时间裕量，有：<br>$ data \ required \ time(hold) + hold \ slack &#x3D;data \ arrival \ time$</p>
+<p>$hold \ slack &#x3D; data \ arrival \ time - data \ required \ time(hold)\<br> &#x3D;data \ arrival \ time -  clk\  arrival \ time - t_{hold} - hold\ uncertainty$</p>
+<h4 id="例"><a href="#例" class="headerlink" title="例"></a>例</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-18.png"></p>
+<p>计算最大工作频率。 考虑建立时间，使 setup slack为0：</p>
+<p>$T{clk_1}+ T_{co} + T_{data} + T_{setup} &#x3D;T_{c} + T_{clk2}$</p>
+<p>$f_{max} &#x3D; \frac{1}{T_{co} + T_{data} + T_{setup} + T{clk_1} - T_{clk2}}$</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-20.png"></p>
+<h2 id="SoC架构"><a href="#SoC架构" class="headerlink" title="SoC架构"></a>SoC架构</h2><h3 id="SoC架构概述"><a href="#SoC架构概述" class="headerlink" title="SoC架构概述"></a>SoC架构概述</h3><p>一个典型的SoC架构如下图：<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-21.png"></p>
+<p>SoC的同样遵循冯诺依曼架构，分别包括：</p>
+<ol>
+<li>中央处理器(计算，控制)</li>
+<li>存储系统</li>
+<li>总线</li>
+<li>外设 (I&#x2F;O)</li>
+<li>协处理器(可选，用于异构计算)</li>
+</ol>
+<h3 id="中央处理器CPU"><a href="#中央处理器CPU" class="headerlink" title="中央处理器CPU"></a>中央处理器CPU</h3><p>略</p>
+<h3 id="系统总线"><a href="#系统总线" class="headerlink" title="系统总线"></a>系统总线</h3><p>在SoC（System-on-a-Chip）系统中，总线是用来连接各个组件和模块，实现数据、地址和控制信号的传输。</p>
+<p>常见的总线包括ARM公司的AMBA（advanced microcontroller Bus Architecture）, 包括：</p>
+<ol>
+<li>AHB (Advanced High-performance Bus)</li>
+<li>AXI (Advanced eXtensibleInterface)</li>
+<li>APB (Advanced Peripheral Bus)</li>
+</ol>
+<h4 id="APB总线协议"><a href="#APB总线协议" class="headerlink" title="APB总线协议"></a>APB总线协议</h4><p>(待补充)</p>
+<h4 id="AHB总线协议"><a href="#AHB总线协议" class="headerlink" title="AHB总线协议"></a>AHB总线协议</h4><p>(待补充)</p>
+<h4 id="AXI总线协议"><a href="#AXI总线协议" class="headerlink" title="AXI总线协议"></a>AXI总线协议</h4><p>(待补充)</p>
+<h3 id="接口控制模块"><a href="#接口控制模块" class="headerlink" title="接口控制模块"></a>接口控制模块</h3><p>SoC一般包含多种不同的串&#x2F;并接口，常见的有:</p>
+<ol>
+<li>SPI</li>
+<li>UART</li>
+<li>USB</li>
+<li>PCIe</li>
+</ol>
+<p>此外还包括：</p>
+<ol>
+<li>中断控制器(Interrupt Controller, INTC)</li>
+<li>实时时钟(Real Time Clock, RTC) 、Timer、Watchdog</li>
+<li>功耗管理模块(Power Management Controller, PMC)</li>
+</ol>
+<p>等功能模块。</p>
+<h4 id="串-并行通信接口"><a href="#串-并行通信接口" class="headerlink" title="串&#x2F;并行通信接口"></a>串&#x2F;并行通信接口</h4><h5 id="串行-解串器"><a href="#串行-解串器" class="headerlink" title="串行&#x2F;解串器"></a>串行&#x2F;解串器</h5><h5 id="PCIe-Peripheral-Component-Interconnect-Express"><a href="#PCIe-Peripheral-Component-Interconnect-Express" class="headerlink" title="PCIe (Peripheral Component Interconnect Express)"></a>PCIe (Peripheral Component Interconnect Express)</h5><h5 id="SPI-Serial-Peripheral-Interface"><a href="#SPI-Serial-Peripheral-Interface" class="headerlink" title="SPI (Serial Peripheral Interface)"></a>SPI (Serial Peripheral Interface)</h5><h5 id="UART-Universal-Asynchronous-Receiver-Transmitter"><a href="#UART-Universal-Asynchronous-Receiver-Transmitter" class="headerlink" title="UART (Universal Asynchronous Receiver&#x2F;Transmitter)"></a>UART (Universal Asynchronous Receiver&#x2F;Transmitter)</h5><h5 id="USB-Universal-Serial-Bus"><a href="#USB-Universal-Serial-Bus" class="headerlink" title="USB (Universal Serial Bus)"></a>USB (Universal Serial Bus)</h5><h4 id="中断控制模块"><a href="#中断控制模块" class="headerlink" title="中断控制模块"></a>中断控制模块</h4><p>(待补充)</p>
+<h4 id="时钟外设"><a href="#时钟外设" class="headerlink" title="时钟外设"></a>时钟外设</h4><p>(待补充)</p>
+<h4 id="功耗管理模块"><a href="#功耗管理模块" class="headerlink" title="功耗管理模块"></a>功耗管理模块</h4><p>(待补充)</p>
+<h2 id="Lecture-3"><a href="#Lecture-3" class="headerlink" title="Lecture 3"></a>Lecture 3</h2>]]></content>
+      <categories>
+        <category>notes</category>
+      </categories>
+      <tags>
+        <tag>SoC</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>LearnPerl</title>
     <url>/2024/05/08/LearnPerl/</url>
     <content><![CDATA[<h1 id="Learn-Perl"><a href="#Learn-Perl" class="headerlink" title="Learn Perl"></a>Learn Perl</h1><h2 id="ch2-标量数据"><a href="#ch2-标量数据" class="headerlink" title="ch2 标量数据"></a>ch2 标量数据</h2><h3 id="第一个Helloword-程序"><a href="#第一个Helloword-程序" class="headerlink" title="第一个Helloword 程序"></a>第一个Helloword 程序</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">&quot;Hello, world!\n&quot;</span>;</span><br></pre></td></tr></table></figure>
@@ -131,38 +307,6 @@
       </categories>
       <tags>
         <tag>Programming Language</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>LFSR</title>
-    <url>/2024/04/18/LFSR/</url>
-    <content><![CDATA[<h1 id="LSFR"><a href="#LSFR" class="headerlink" title="LSFR"></a>LSFR</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>LFSR 全称为Linear Feedback Shift Register, 线性反馈移位寄存器。LFSR 可以用来<br>产生可重复的伪随机序列，从而被广泛使用在计数器，解码器，密码系统，BIST等方<br>面。<br>一般的LFSR分为2种，内部反馈型和外部反馈型的LFSR，如图2–1所示。其中内<br>部反馈型LFSR又称为伽罗瓦LFSR，而外部反馈型LFSR又称为斐波那契型LFSR。</p>
-<p><img src="/2024/04/18/LFSR/image.png" alt="2种不同类型的LFSR"></p>
-<p>由于伽罗瓦LFSR的逻辑门位于2级寄存器之间，理论上拥有更低的延迟和更高的<br>频率。</p>
-<p>LFSR可以生成具有固定周期的序列，当周期很长时，序列可以看作是近似随机的。</p>
-<h2 id="LFSR的周期"><a href="#LFSR的周期" class="headerlink" title="LFSR的周期"></a>LFSR的周期</h2><p>LFSR的一个重要特性是其生成序列的周期性。对于一个n位的LFSR，其周期最大为$2^n-1$,这是因为全0的状态会无限循环，从而需要将全0的序列从中剔除。</p>
-<p>一个LFSR的特性可以使用反馈多项式来描述。如图<br><img src="/2024/04/18/LFSR/image-1.png"></p>
-<p>这样的一个LFSR,其反馈多项式可以写作：<br>$$f(x)  &#x3D; 1 + h_1x+ h_2x^2+\dots +h_{n-1}x^{n-1}+h_nx^n$$</p>
-<p>之所以加上1， 是因为我们假设原始输入为0000..1,避免全0的状态。</p>
-<p>需要注意的是，反馈多项式和用二进制表示多项式的概念是不同的。</p>
-<p>反馈多项式代表LFSR的周期特征。具体来说，LFSR的周期数与其反馈多项式的阶数有关。<br>设$P_n(x)$为n次多项式，满足：<br>$$min{k:P_n(x)|(x^k+1)}$$<br>的整数称为多项式$P_n(x)$的阶。即多项式$P_n(x)$仅能被$x^k+1$整除，而对任何${x^m+1|m&lt;k}$,$P_n(x)$均不能被其整除。(这里的整除是GF(2)意义上的整除，在GF(2)域上，加法和减法都等价于模2运算。)</p>
-<p>进一步的，称阶数为$2^n-1$的不可约多项式$P(x)$为$GF(2^n)$域上的本原多项式。即本原多项式仅能被$x^{2^n-1}+1$整除，而不能被${x^m+1|m&lt;2^n-1}$整除。同时，本原多项式还无法被分解为$f(x)g(x)$的形式。不可约多项式有点类似于”素数”的概念，即不能被分解为更小的2个多项式的乘积。</p>
-<p>LFSR的周期数等于其反馈多项式的阶数。由此我们可以知道，为了构造具有最大周期数的LFSR,我们需要构造反馈多项式为本原多项式的LFSR。</p>
-<p>下面是一个寻找本原多项式的python程序：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> sympy</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">is_primitive_poly</span>(<span class="params">poly, field_size</span>):</span><br><span class="line">    x = sympy.Symbol(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> poly.degree() != field_size:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> poly.is_irreducible:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">2</span>**(field_size-<span class="number">1</span>),<span class="number">2</span>**(field_size)-<span class="number">1</span>):</span><br><span class="line">        level = sympy.Poly(x**i+<span class="number">1</span>, x, domain=<span class="string">&#x27;GF(2)&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> level.rem(poly).is_zero:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">integer_to_binary_list</span>(<span class="params">i</span>):</span><br><span class="line">    binary_string = <span class="built_in">bin</span>(i)[<span class="number">2</span>:]  </span><br><span class="line">    binary_list = [<span class="built_in">int</span>(bit) <span class="keyword">for</span> bit <span class="keyword">in</span> binary_string]  </span><br><span class="line">    <span class="keyword">return</span> binary_list</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">find_primitive_polys</span>(<span class="params">field_size</span>):</span><br><span class="line">    x = sympy.Symbol(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">    primitive_polys = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">2</span>**(field_size+<span class="number">1</span>)):</span><br><span class="line">        binary_list = integer_to_binary_list(i)</span><br><span class="line">        <span class="comment">#print(binary_list)</span></span><br><span class="line">        symb=<span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(binary_list)):</span><br><span class="line">            symb += binary_list[j]*x**(<span class="built_in">len</span>(binary_list)-j-<span class="number">1</span>)</span><br><span class="line">        </span><br><span class="line">        poly = sympy.Poly(symb, x, domain=<span class="string">&#x27;GF(2)&#x27;</span>)</span><br><span class="line">        <span class="comment">#print(poly)</span></span><br><span class="line">        <span class="keyword">if</span> is_primitive_poly(poly, field_size):</span><br><span class="line">            primitive_polys.append(poly)</span><br><span class="line">    <span class="keyword">return</span> primitive_polys</span><br><span class="line"></span><br><span class="line">field_size = <span class="number">9</span></span><br><span class="line">primitive_polys = find_primitive_polys(field_size)</span><br><span class="line"><span class="keyword">for</span> poly <span class="keyword">in</span> primitive_polys:</span><br><span class="line">    <span class="built_in">print</span>(poly)</span><br></pre></td></tr></table></figure>
-
-
-<p>该程序的时间复杂度是$O(2^n)$级别的，性能会随着field size设置的增大而急剧下降。</p>
-<p>一个更好的办法是利用前人的结果，通过查表寻找需要本原多项式。</p>
-<p>下面的网站给出了$GF(2^{10})$以内的所有本原多项式：</p>
-<p><a href="https://www.ece.unb.ca/tervo/ece4253/factors.shtml">https://www.ece.unb.ca/tervo/ece4253/factors.shtml</a></p>
-<p>部分结果如图：</p>
-<p><img src="/2024/04/18/LFSR/image-2.png"></p>
-<h2 id="LFSR的应用"><a href="#LFSR的应用" class="headerlink" title="LFSR的应用"></a>LFSR的应用</h2><p>(待续)</p>
-<h2 id><a href="#" class="headerlink" title></a></h2>]]></content>
-      <tags>
-        <tag>数字集成电路</tag>
-        <tag>Basic Module</tag>
       </tags>
   </entry>
   <entry>
@@ -913,135 +1057,6 @@ RISC：(Reduced Instruction Set Computer)精简指令集计算机  代表：MIPS
       </tags>
   </entry>
   <entry>
-    <title>SoC设计方法(1)</title>
-    <url>/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/</url>
-    <content><![CDATA[<h2 id="Soc设计概述及流程"><a href="#Soc设计概述及流程" class="headerlink" title="Soc设计概述及流程"></a>Soc设计概述及流程</h2><h2 id="什么是SoC"><a href="#什么是SoC" class="headerlink" title="什么是SoC?"></a>什么是SoC?</h2><p>半导体产业模式及其基本分工：<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image.png" alt="半导体产业链"></p>
-<h3 id="SoC的基本概念："><a href="#SoC的基本概念：" class="headerlink" title="SoC的基本概念："></a>SoC的基本概念：</h3><pre><code>SoC(System on Chip)：系统级芯片，片上系统
-</code></pre>
-<p>SoC的诞生是集成电路领域发展的必然趋势。SoC的应用场景：<br>➢高性能计算<br>➢智能手机<br>➢汽车主控<br>➢物联网设备</p>
-<h3 id="SoC的优势"><a href="#SoC的优势" class="headerlink" title="SoC的优势"></a>SoC的优势</h3><ol>
-<li>有利于复杂系统的集成</li>
-<li>缩短设计时间</li>
-<li>可靠性更高</li>
-<li>延迟更低(内部连线短，传输延迟更小。内部晶体管阻抗低，较小的门延迟)</li>
-<li>低能耗</li>
-<li>低成本（IP复用）</li>
-</ol>
-<h3 id="SoC发展的挑战"><a href="#SoC发展的挑战" class="headerlink" title="SoC发展的挑战"></a>SoC发展的挑战</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-1.png" alt="设计成本"></p>
-<ol>
-<li><p>随着工艺节点的迭代，研发费用指数上升。</p>
-</li>
-<li><p>软硬件功能的划分（通用vs专用）<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-2.png" alt="不同划分带来不同成本占比"></p>
-</li>
-<li><p>复杂性提升导致的验证难度提升</p>
-</li>
-<li><p>制造成本高（7nm工艺下，$400mm^2$的芯片良率只有大约55%），设计错误不可接受</p>
-</li>
-</ol>
-<h3 id="新型SoC-Chiplet"><a href="#新型SoC-Chiplet" class="headerlink" title="新型SoC: Chiplet"></a>新型SoC: Chiplet</h3><p>芯粒(Chiplet):将功能丰富面积较大的裸片（die）拆分成多个芯粒（chiplet）通过先进封装组合在一起形成一个系统芯片</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-3.png"></p>
-<h3 id="SoC设计总结"><a href="#SoC设计总结" class="headerlink" title="SoC设计总结"></a>SoC设计总结</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-4.png"></p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-5.png"></p>
-<h2 id="SoC设计流程"><a href="#SoC设计流程" class="headerlink" title="SoC设计流程"></a>SoC设计流程</h2><p>SoC系统是软件和硬件的结合，需要综合评估系统的性能，设计相应的硬件和软件架构：</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-6.png" alt="SoC的软硬件协同设计流程"></p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-7.png" alt="SoC的软件设计流程"></p>
-<h3 id="SoC的硬件设计流程"><a href="#SoC的硬件设计流程" class="headerlink" title="SoC的硬件设计流程"></a>SoC的硬件设计流程</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-8.png" alt="SoC硬件设计流程-前端部分"></p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-9.png" alt="SoC硬件设计流程-后端部分"></p>
-<p>步骤基本可以分为： </p>
-<ol>
-<li><strong>设计规范（spec）</strong>：确定芯片的顶层架构，规格参数，划分模块定义</li>
-<li>模块设计与IP复用，顶端集成</li>
-<li>前仿真：验证设计逻辑的正确性</li>
-<li>验证</li>
-<li>逻辑综合：代码翻译为电路（理想器件）</li>
-<li>静态时序分析：检查设计是否符合时序要求，有无违例</li>
-</ol>
-<p>其中电路的抽象层次如下：</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-19.png"></p>
-<p>分别为：</p>
-<ol>
-<li>系统级</li>
-<li>RTL级</li>
-<li>门级(gate level)</li>
-<li>集体管级(transistor level)</li>
-<li>版图级 (lay-out level)</li>
-</ol>
-<h3 id="静态时序分析"><a href="#静态时序分析" class="headerlink" title="静态时序分析"></a>静态时序分析</h3><h4 id="setup-time-建立时间"><a href="#setup-time-建立时间" class="headerlink" title="setup time 建立时间"></a>setup time 建立时间</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-10.png" alt="建立时间"></p>
-<p>在时钟信号到来之前，数据需要提前一段时间准备好。这个时间称为建立时间</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-11.png" alt="建立时间与时钟周期的关系"></p>
-<p>如图，$t_{pcq}$指从时钟信号变化(50%)开始，到q端信号变化所需的时间(由寄存器本身的特性决定)；</p>
-<p>$t_{pd}$是组合逻辑的传输延迟。</p>
-<p>由于在下一个时钟到来之前，下一级寄存器的输入数据应当准备好，因此有：<br>$T_c \geq t_{pcq} + t_{pd} + t_{setup}$</p>
-<h4 id="hold-time-保持时间"><a href="#hold-time-保持时间" class="headerlink" title="hold time 保持时间"></a>hold time 保持时间</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-12.png" alt="保持时间"></p>
-<p>在时钟信号变化之后，输入如数据不能立马跳变，而是需要保持原来的值一定时间，保证数据被完全写入寄存器。这个时间称为保持时间。</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-13.png" alt="保持时间的时序约束"></p>
-<p>如图，对于理想时钟，clk总是同时到达。</p>
-<p>$t_{ccq}$是时钟信号变化（50%）后，q1变化的时间。 </p>
-<p>$t_{cd}$是组合逻辑的传播延时，则从时钟变化后，经过$t_{ccq}+t_{cd}$的时间，D2的数据会发生变化。</p>
-<p>按照保持时间的定义，需满足：</p>
-<p>$t_{ccq}+t_{cd} \geq t_{hold}$</p>
-<h4 id="recovery-removal-time"><a href="#recovery-removal-time" class="headerlink" title="recovery&#x2F;removal time"></a>recovery&#x2F;removal time</h4><p>异步电路的复位信号，需要满足的时序关系：</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-14.png" alt="alt text"></p>
-<h4 id="时钟偏斜-time-skew"><a href="#时钟偏斜-time-skew" class="headerlink" title="时钟偏斜 time skew"></a>时钟偏斜 time skew</h4><p>理论上clk对每个寄存器的clk端都应该相同，但实际上时钟到达每个元件的时间会有偏差，这个偏差称作time skew<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-15.png" alt="alt text"></p>
-<p>可以通过插入buffer的办法尽量消除时钟偏向(时钟树综合)</p>
-<h4 id="data-arrival-time-和-clk-arrival-time"><a href="#data-arrival-time-和-clk-arrival-time" class="headerlink" title="data arrival time 和 clk arrival  time"></a>data arrival time 和 clk arrival  time</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-16.png" alt="data arrival time"></p>
-<p>分析第二个寄存器的D端，数据到达需要经过：</p>
-<ol>
-<li>时钟启动时间(launch edge)</li>
-<li>clk1相对于时钟源的延迟$T_{clk1}$</li>
-<li>寄存器的内部延迟（时钟变化到数据变化需要的时间）$T_{co}$</li>
-<li>组合逻辑的数据延迟 $T_{data}$</li>
-</ol>
-<p>分析第二个寄存器的时钟到达时间：<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-17.png" alt="clk arrival time"></p>
-<ol>
-<li>时钟启动时间(launch edge)</li>
-<li>clk2相对于时钟源的延迟$T_{clk2}$</li>
-</ol>
-<p>根据建立时间，数据需要提前于时钟到达，并保持稳定：</p>
-<p>$data\  required\  time（setup）  &#x3D; clk\  arrival \ time - t_{setup} - setup\ uncertainty$</p>
-<p>根据保持时间的定义，在时钟到达后，数据需要保持稳定一段时间：</p>
-<p>$data\  required\  time（hold）  &#x3D; clk\  arrival \ time + t_{hold} + hold\ uncertainty$</p>
-<h4 id="时间裕量-time-slack"><a href="#时间裕量-time-slack" class="headerlink" title="时间裕量 time slack"></a>时间裕量 time slack</h4><p>对建立时间来说，由于数据应该提前到达，并保持一定时间的裕量，有：</p>
-<p>$data \ arrival \ time(setup) + setup \ slack &#x3D; data \ required \ time$<br>$setup \ slack &#x3D; data \ required \ time - data \ arrival \ time \<br>  &#x3D;  clk\  arrival \ time - data \ arrival \ time - t_{setup} - setup\ uncertainty  $</p>
-<p>set up slack应当大于0，才能保证时序正确</p>
-<p>对保持时间，时钟到达后数据需要保持一定的时间裕量，有：<br>$ data \ required \ time(hold) + hold \ slack &#x3D;data \ arrival \ time$</p>
-<p>$hold \ slack &#x3D; data \ arrival \ time - data \ required \ time(hold)\<br> &#x3D;data \ arrival \ time -  clk\  arrival \ time - t_{hold} - hold\ uncertainty$</p>
-<h4 id="例"><a href="#例" class="headerlink" title="例"></a>例</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-18.png"></p>
-<p>计算最大工作频率。 考虑建立时间，使 setup slack为0：</p>
-<p>$T{clk_1}+ T_{co} + T_{data} + T_{setup} &#x3D;T_{c} + T_{clk2}$</p>
-<p>$f_{max} &#x3D; \frac{1}{T_{co} + T_{data} + T_{setup} + T{clk_1} - T_{clk2}}$</p>
-]]></content>
-      <categories>
-        <category>notes</category>
-      </categories>
-      <tags>
-        <tag>SoC</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>笨办法学C</title>
-    <url>/2024/04/19/%E7%AC%A8%E5%8A%9E%E6%B3%95%E5%AD%A6C/</url>
-    <content><![CDATA[<h1 id="Learn-C-the-hard-way"><a href="#Learn-C-the-hard-way" class="headerlink" title="Learn C the hard way"></a>Learn C the hard way</h1><h2 id="C语法"><a href="#C语法" class="headerlink" title="C语法"></a>C语法</h2><p>略</p>
-<h2 id="一些技巧"><a href="#一些技巧" class="headerlink" title="一些技巧"></a>一些技巧</h2><h3 id="语法糖"><a href="#语法糖" class="headerlink" title="语法糖"></a>语法糖</h3><p>使用宏定义构建语法糖。<br><code>&quot;语法糖&quot;是一种编程术语，用来描述那些没有给编程语言添加新功能，但是可以使代码更易读或易写的语法。这些语法通过提供更加方便、简洁的编写方式，使得程序员能够更加快速、更加直观地表达程序设计的意图。 在C语言中，也存在一些语法糖。例如，数组的下标运算就是一种语法糖。例如，array[i]实际上就是*(array + i)的简化写法。另一个例子是for循环，它实际上可以使用while循环和一些额外的语句来实现，但for循环提供了一种更加简洁、易读的方式来编写循环。 虽然语法糖可以使代码更简洁、易读，但并不会影响程序的功能或效率。使用或不使用语法糖，都不会影响程序的运行结果。</code></p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 语法糖, 写入obj-&gt;_(N), 等价于 obj-&gt;proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> _(N) proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NEW(T, N) Object_new(sizeof(T), T##Proto, N)</span></span><br></pre></td></tr></table></figure>
-
-
-<h3 id="assert宏"><a href="#assert宏" class="headerlink" title="assert宏"></a>assert宏</h3><p>&lt;assert.h&gt; 是 C 语言的一个标准库，主要提供了一个名为 assert 的宏，用于在程序开发和调试过程中进行条件测试。<br>assert 宏允许程序员在代码中插入诊断信息。如果在运行时，assert 的条件测试失败（即，测试的表达式结果为假），那么程序会立即终止，并显示一条错误消息。这条消息通常包括文件名、源代码行号以及测试失败的表达式。</p>
-<p>例如：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> Person *<span class="title function_">Person_create</span><span class="params">(<span class="type">char</span> *name, <span class="type">int</span> age, <span class="type">int</span> height, <span class="type">int</span> weight)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Person</span> *<span class="title">who</span> =</span> <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> Person));</span><br><span class="line">    assert(who != <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    who-&gt;name = strdup(name);</span><br><span class="line">    who-&gt;age = age;</span><br><span class="line">    who-&gt;height = height;</span><br><span class="line">    who-&gt;weight = weight;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> who;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里使用assert宏来检查内存是否被成功分配。</p>
-<h3 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h3><p>众所周知C不支持面向对象，但是可以通过一些技巧实现类似继承的功能：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//定义一个基类 Object</span></span><br><span class="line"><span class="comment">//注意这里使用了函数指针，从而可以实现函数重载</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">char</span> *description;</span><br><span class="line">    <span class="type">int</span> (*init)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*describe)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*destroy)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> *(*move)(<span class="type">void</span> *self, Direction direction);</span><br><span class="line">    <span class="type">int</span> (*attack)(<span class="type">void</span> *self, <span class="type">int</span> damage);</span><br><span class="line">&#125; Object;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//基类的构造函数</span></span><br><span class="line"><span class="type">void</span> *<span class="title function_">Object_new</span><span class="params">(<span class="type">size_t</span> size, Object proto, <span class="type">char</span> *description)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// setup the default functions in case they aren&#x27;t set</span></span><br><span class="line">    <span class="keyword">if</span>(!proto.init) proto.init = Object_init;</span><br><span class="line">    <span class="keyword">if</span>(!proto.describe) proto.describe = Object_describe;</span><br><span class="line">    <span class="keyword">if</span>(!proto.destroy) proto.destroy = Object_destroy;</span><br><span class="line">    <span class="keyword">if</span>(!proto.attack) proto.attack = Object_attack;</span><br><span class="line">    <span class="keyword">if</span>(!proto.move) proto.move = Object_move;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// this seems weird, but we can make a struct of one size,</span></span><br><span class="line">    <span class="comment">// then point a different pointer at it to &quot;cast&quot; it</span></span><br><span class="line">    Object *el = <span class="built_in">calloc</span>(<span class="number">1</span>, size);</span><br><span class="line">    *el = proto;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// copy the description over</span></span><br><span class="line">    el-&gt;description = strdup(description);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// initialize it with whatever init we were given</span></span><br><span class="line">    <span class="keyword">if</span>(!el-&gt;init(el)) &#123;</span><br><span class="line">        <span class="comment">// looks like it didn&#x27;t initialize properly</span></span><br><span class="line">        el-&gt;destroy(el);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// all done, we made an object of any type</span></span><br><span class="line">        <span class="keyword">return</span> el;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//对每个需要继承基类的子类，用以下方法定义：</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Map</span> &#123;</span></span><br><span class="line">    Object proto;</span><br><span class="line">    Room *start;</span><br><span class="line">    Room *location;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//指定需要重载的方法：</span></span><br><span class="line">Object MapProto = &#123;</span><br><span class="line">    .init = Map_init,</span><br><span class="line">    .move = Map_move,</span><br><span class="line">    .attack = Map_attack</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//使用之前的语法糖进行初始化：</span></span><br><span class="line">Map *game = NEW(Map, <span class="string">&quot;The Hall of the Minotaur.&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>notes</category>
-      </categories>
-      <tags>
-        <tag>Programming Language</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>System Verilog Notes</title>
     <url>/2024/02/12/System-Verilog-Notes/</url>
     <content><![CDATA[<h1 id="System-Verilog期末复习"><a href="#System-Verilog期末复习" class="headerlink" title="System Verilog期末复习"></a>System Verilog期末复习</h1><p><strong>题型：<br>简答（填空、代码解析、电路图、波形）<br>编程<br>共20题</strong></p>
@@ -1709,6 +1724,29 @@ assert 将 property 应用于实际的硬件设计，以确保在运行时满足
       </categories>
       <tags>
         <tag>ICer</tag>
+        <tag>Programming Language</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>笨办法学C</title>
+    <url>/2024/04/19/%E7%AC%A8%E5%8A%9E%E6%B3%95%E5%AD%A6C/</url>
+    <content><![CDATA[<h1 id="Learn-C-the-hard-way"><a href="#Learn-C-the-hard-way" class="headerlink" title="Learn C the hard way"></a>Learn C the hard way</h1><h2 id="C语法"><a href="#C语法" class="headerlink" title="C语法"></a>C语法</h2><p>略</p>
+<h2 id="一些技巧"><a href="#一些技巧" class="headerlink" title="一些技巧"></a>一些技巧</h2><h3 id="语法糖"><a href="#语法糖" class="headerlink" title="语法糖"></a>语法糖</h3><p>使用宏定义构建语法糖。<br><code>&quot;语法糖&quot;是一种编程术语，用来描述那些没有给编程语言添加新功能，但是可以使代码更易读或易写的语法。这些语法通过提供更加方便、简洁的编写方式，使得程序员能够更加快速、更加直观地表达程序设计的意图。 在C语言中，也存在一些语法糖。例如，数组的下标运算就是一种语法糖。例如，array[i]实际上就是*(array + i)的简化写法。另一个例子是for循环，它实际上可以使用while循环和一些额外的语句来实现，但for循环提供了一种更加简洁、易读的方式来编写循环。 虽然语法糖可以使代码更简洁、易读，但并不会影响程序的功能或效率。使用或不使用语法糖，都不会影响程序的运行结果。</code></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 语法糖, 写入obj-&gt;_(N), 等价于 obj-&gt;proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> _(N) proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NEW(T, N) Object_new(sizeof(T), T##Proto, N)</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="assert宏"><a href="#assert宏" class="headerlink" title="assert宏"></a>assert宏</h3><p>&lt;assert.h&gt; 是 C 语言的一个标准库，主要提供了一个名为 assert 的宏，用于在程序开发和调试过程中进行条件测试。<br>assert 宏允许程序员在代码中插入诊断信息。如果在运行时，assert 的条件测试失败（即，测试的表达式结果为假），那么程序会立即终止，并显示一条错误消息。这条消息通常包括文件名、源代码行号以及测试失败的表达式。</p>
+<p>例如：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> Person *<span class="title function_">Person_create</span><span class="params">(<span class="type">char</span> *name, <span class="type">int</span> age, <span class="type">int</span> height, <span class="type">int</span> weight)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Person</span> *<span class="title">who</span> =</span> <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> Person));</span><br><span class="line">    assert(who != <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    who-&gt;name = strdup(name);</span><br><span class="line">    who-&gt;age = age;</span><br><span class="line">    who-&gt;height = height;</span><br><span class="line">    who-&gt;weight = weight;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> who;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里使用assert宏来检查内存是否被成功分配。</p>
+<h3 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h3><p>众所周知C不支持面向对象，但是可以通过一些技巧实现类似继承的功能：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//定义一个基类 Object</span></span><br><span class="line"><span class="comment">//注意这里使用了函数指针，从而可以实现函数重载</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">char</span> *description;</span><br><span class="line">    <span class="type">int</span> (*init)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*describe)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*destroy)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> *(*move)(<span class="type">void</span> *self, Direction direction);</span><br><span class="line">    <span class="type">int</span> (*attack)(<span class="type">void</span> *self, <span class="type">int</span> damage);</span><br><span class="line">&#125; Object;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//基类的构造函数</span></span><br><span class="line"><span class="type">void</span> *<span class="title function_">Object_new</span><span class="params">(<span class="type">size_t</span> size, Object proto, <span class="type">char</span> *description)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// setup the default functions in case they aren&#x27;t set</span></span><br><span class="line">    <span class="keyword">if</span>(!proto.init) proto.init = Object_init;</span><br><span class="line">    <span class="keyword">if</span>(!proto.describe) proto.describe = Object_describe;</span><br><span class="line">    <span class="keyword">if</span>(!proto.destroy) proto.destroy = Object_destroy;</span><br><span class="line">    <span class="keyword">if</span>(!proto.attack) proto.attack = Object_attack;</span><br><span class="line">    <span class="keyword">if</span>(!proto.move) proto.move = Object_move;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// this seems weird, but we can make a struct of one size,</span></span><br><span class="line">    <span class="comment">// then point a different pointer at it to &quot;cast&quot; it</span></span><br><span class="line">    Object *el = <span class="built_in">calloc</span>(<span class="number">1</span>, size);</span><br><span class="line">    *el = proto;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// copy the description over</span></span><br><span class="line">    el-&gt;description = strdup(description);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// initialize it with whatever init we were given</span></span><br><span class="line">    <span class="keyword">if</span>(!el-&gt;init(el)) &#123;</span><br><span class="line">        <span class="comment">// looks like it didn&#x27;t initialize properly</span></span><br><span class="line">        el-&gt;destroy(el);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// all done, we made an object of any type</span></span><br><span class="line">        <span class="keyword">return</span> el;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//对每个需要继承基类的子类，用以下方法定义：</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Map</span> &#123;</span></span><br><span class="line">    Object proto;</span><br><span class="line">    Room *start;</span><br><span class="line">    Room *location;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//指定需要重载的方法：</span></span><br><span class="line">Object MapProto = &#123;</span><br><span class="line">    .init = Map_init,</span><br><span class="line">    .move = Map_move,</span><br><span class="line">    .attack = Map_attack</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//使用之前的语法糖进行初始化：</span></span><br><span class="line">Map *game = NEW(Map, <span class="string">&quot;The Hall of the Minotaur.&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>notes</category>
+      </categories>
+      <tags>
         <tag>Programming Language</tag>
       </tags>
   </entry>
