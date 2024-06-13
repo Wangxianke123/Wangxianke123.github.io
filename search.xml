@@ -1,93 +1,35 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>CORDIC Algorithm</title>
-    <url>/2024/02/28/CORDIC-Algorithm/</url>
-    <content><![CDATA[<h1 id="Coordinate-Rotation-Dlgital-Computer-CORDIC-算法"><a href="#Coordinate-Rotation-Dlgital-Computer-CORDIC-算法" class="headerlink" title="Coordinate Rotation Dlgital Computer(CORDIC)算法"></a>Coordinate Rotation Dlgital Computer(CORDIC)算法</h1><p>参考：Computer Arithmetic: Algorithm and Hardware Design</p>
-<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><h3 id="角度模式"><a href="#角度模式" class="headerlink" title="角度模式"></a>角度模式</h3><p>考虑平面直角坐标系下的旋转，如图：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image.png" alt="basic"></p>
-<p>点$E^{(i)}$旋转$\alpha^{(i)}$后得到了点$E^{(i+1)}$</p>
-<p>那么假设$E^{(i)}$的坐标为：$E^{(i)}$:   $(x^{(i)},y^{(i)})&#x3D;(R^{(i)}cos\theta,R^{(i)}cos\theta)$</p>
-<p>$E^{(i+1)}$的坐标可以表示为：<br>$x^{(i)+1} &#x3D; R^{(i)}cos(\theta+\alpha) &#x3D; x^{(i)}cos\alpha - y^{(i)}sin\alpha \ &#x3D;\frac{ x^{(i)}-y^{(i)}tan\alpha}{\frac{1}{cos\alpha}}\ &#x3D; \frac{ x^{(i)}-y^{(i)}tan\alpha}{(1+tan^2\alpha)^{1&#x2F;2}}$</p>
-<p>同理有：<br>$y^{(i+1)} &#x3D; R^{(i)}sin(\theta+\alpha) &#x3D; x^{(i)}sin\alpha + y^{(i)}cos\alpha \ &#x3D;\frac{ x^{(i)}tan\alpha + y^{(i)} }{\frac{1}{cos\alpha}}\ &#x3D; \frac{  x^{(i)}tan\alpha + y^{(i)}}{(1+tan^2\alpha)^{1&#x2F;2}}$</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-1.png"></p>
-<p>上述公式是一个迭代式，<br>$ z^{(i)}$表示当前旋转之前向量与x轴的夹角，$ z^{(i+1)}$表示在旋转后与x轴的夹角（顺时针为正）。</p>
-<p>现在考虑一种图中的一种伪旋转，对公式2边同时除以$\cos\alpha^{(i)}$,得到$E’^{(i)}$的坐标：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-3.png"><br><img src="/2024/02/28/CORDIC-Algorithm/image-2.png"></p>
-<p>令$x^{(0)}&#x3D;x,  y^{(0)}&#x3D;y,  z^{(0)}&#x3D;z$，则对于一个m次迭代的真旋转，有：<br><img src="/2024/02/28/CORDIC-Algorithm/image-4.png"></p>
-<p>对伪旋转：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-5.png"></p>
-<p>考虑每次迭代的角度选取，如果使$tan\alpha$恰好等于 $2^{-i},i&#x3D;0,1,2,3…$则上式变为：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-6.png"></p>
-<p>其中$d_i \in {−1,1}$ </p>
-<p>则每次真旋转迭代的计算可以通过：1次查表，2次移位，3次加(减)法实现。</p>
-<p>对于伪旋转，由于每次的角度选取是固定值，因此K为常数，K &#x3D; 1.646 760 258 121….</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-7.png"></p>
-<p>考虑计算 $cosz$,可以令$x^{(0)}&#x3D;1,  y^{(0)}&#x3D;0,  \sum\alpha^{(i)}&#x3D;z$此时有：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-10.png"></p>
-<p>如果计算$cos30^\circ$,可以：<br><img src="/2024/02/28/CORDIC-Algorithm/image-8.png"></p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-9.png"></p>
-<p>由于表中的角度表示范围达到了$−99.7^\circ ≤ z ≤ 99.7^\circ$,因此可以通过上述方法加上基本三角变化求出任何角的正余弦值。</p>
-<h3 id="向量模式"><a href="#向量模式" class="headerlink" title="向量模式"></a>向量模式</h3><p>通过令$y\rightarrow 0$,可以计算反三角函数值$tan^{-1}y$,此时，</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-12.png"><br>带入</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-5.png"></p>
-<p>可得<br><img src="/2024/02/28/CORDIC-Algorithm/image-13.png"></p>
-<p>故可以取(1,y),将其旋转到x轴上，此时旋转过的角度即为$tan^{-1}y$</p>
-<h3 id="一个简单的python验证程序"><a href="#一个简单的python验证程序" class="headerlink" title="一个简单的python验证程序"></a>一个简单的python验证程序</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line">lookuptable = &#123;&#125;</span><br><span class="line"></span><br><span class="line">lookuptable[<span class="number">0</span>]=<span class="number">45.0</span></span><br><span class="line">lookuptable[<span class="number">1</span>]=<span class="number">26.5650</span></span><br><span class="line">lookuptable[<span class="number">2</span>]=<span class="number">14.0362</span></span><br><span class="line">lookuptable[<span class="number">3</span>]=<span class="number">7.1250</span></span><br><span class="line">lookuptable[<span class="number">4</span>]=<span class="number">3.5763</span></span><br><span class="line">lookuptable[<span class="number">5</span>]=<span class="number">1.7899</span></span><br><span class="line">lookuptable[<span class="number">6</span>]=<span class="number">0.8951</span></span><br><span class="line">lookuptable[<span class="number">7</span>]=<span class="number">0.4476</span></span><br><span class="line">lookuptable[<span class="number">8</span>]=<span class="number">0.2238</span></span><br><span class="line">lookuptable[<span class="number">9</span>]=<span class="number">0.1119</span></span><br><span class="line">lookuptable[<span class="number">10</span>]=<span class="number">0.0230</span></span><br><span class="line">lookuptable[<span class="number">11</span>]=<span class="number">0.0140</span></span><br><span class="line">lookuptable[<span class="number">12</span>]=<span class="number">0.0070</span></span><br><span class="line">lookuptable[<span class="number">13</span>]=<span class="number">0.0035</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cordic</span>(<span class="params">value,  mode</span>):</span><br><span class="line">    z = <span class="number">0</span></span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">        x =  <span class="number">0.607252935</span></span><br><span class="line">        y = <span class="number">0.0</span> </span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">1</span>):</span><br><span class="line">        x = <span class="number">1</span></span><br><span class="line">        y = value</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">13</span>):</span><br><span class="line">        <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">            d = np.sign(value)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            d = -np.sign(y)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(d==<span class="number">0</span>):d = <span class="number">1</span></span><br><span class="line">        value -= d*lookuptable[i]</span><br><span class="line"></span><br><span class="line">        z -= d*lookuptable[i]</span><br><span class="line"></span><br><span class="line">        temp = x</span><br><span class="line">        x -= d * y * <span class="number">2.0</span>**(-i)</span><br><span class="line">        y +=  d* temp * <span class="number">2.0</span>**(-i)</span><br><span class="line">        <span class="comment"># print(&quot;y:&quot;,y)</span></span><br><span class="line">        <span class="comment"># print(&quot;x:&quot;,x)</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;sin:&quot;</span>,y)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;cos:&quot;</span>,x)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;theta:&quot;</span>,z)</span><br><span class="line"></span><br><span class="line">cordic(<span class="number">4</span>,<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
-
-<h3 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h3><p>对一个n位的cordic运算，若采用纯硬件实现，每一位需要1次查表，2次移位，3次加法，其计算复杂度是$O(n)$这个量级的。</p>
-<p>考虑硬件实现，一个最简单的版本是这样的：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-14.png"></p>
-<p>在不考虑优化版本时，图中的加法器可以用串行进位的方式实现，此时，对于k位的操作数，计算需要的时钟周期为$O(k^2)$。</p>
-<h3 id="通用版本"><a href="#通用版本" class="headerlink" title="通用版本"></a>通用版本</h3><p><img src="/2024/02/28/CORDIC-Algorithm/image-15.png"></p>
-<p>CORDIC算法可以被拓展，用于线性和双曲函数的计算。其通用公式为：<br><img src="/2024/02/28/CORDIC-Algorithm/image-17.png"><br><img src="/2024/02/28/CORDIC-Algorithm/image-16.png"></p>
-<p>推理过程如下：<br>参考：（A unified algorithm for elementary functions）</p>
-<p>考虑一个从二维直角坐标系到极坐标的非线性映射：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-18.png"></p>
-<p>其中R是映射后的向量长度，A是其与坐标轴的夹角。</p>
-<p>显然当m取1时，该映射为从直角坐标系到极坐标系的坐标变换。<br>当m取0时， 该变换总是落在一条相同的直线上<br>当m&#x3D;-1时，该变换为落在一条双曲线$x^2-y^2&#x3D;1$上。</p>
-<p>事实上，如果将R看作特定曲线与x轴交点到原点的距离，根据上述定义，总是有：<br>$A &#x3D; \frac{2S}{R^2}$<br><img src="/2024/02/28/CORDIC-Algorithm/image-19.png"></p>
-<p>其中S为变换前的点P与点O,R围成的阴影部分面积。</p>
-<p>如果给出一个迭代式：<br><img src="/2024/02/28/CORDIC-Algorithm/image-20.png"></p>
-<p>其中$\delta_i$时任意值，而m是映射中的参数。那么每次迭代后的点经过非线性映射后，在极坐标下可以表示为：<br><img src="/2024/02/28/CORDIC-Algorithm/image-21.png"></p>
-<p>其中<br><img src="/2024/02/28/CORDIC-Algorithm/image-22.png"></p>
-<p>即每次迭代可以看作是一次旋转和放缩。对n次迭代，最后得到的长度和角度为：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-23.png"></p>
-<p>其中<img src="/2024/02/28/CORDIC-Algorithm/image-24.png"></p>
-<p>如果再定义一个新的变量<br><img src="/2024/02/28/CORDIC-Algorithm/image-25.png"></p>
-<p>则经过n次迭代后的点经过逆映射后，可以得到其在直角坐标系下的坐标：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-26.png"></p>
-<p>同样的，注意到当m&#x3D;1时，该迭代式与之前推出的角度模式下的伪旋转迭代式一模一样。</p>
-<p>而当m&#x3D;0时，分别让$y\rightarrow0$和$z\rightarrow 0$,可以得到如下不同的迭代结果：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-27.png"><br>且在m&#x3D;0时，多轮迭代后的缩放因子为1.</p>
-<p>上述公式说明，直线迭代可以用于计算乘法，除法或直接计算一个乘加、除加操作。</p>
-<p>而对双曲映射，迭代结果分别为：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-28.png"></p>
-<p>其中缩放因子<code>K&#39;=0.8281593609602</code>。</p>
-<p>上述公式说明，双曲映射可以被用来计算双曲正弦，双曲余弦和双曲正切函数。</p>
-<p>另外需要注意的是，对于双曲映射，并不总是收敛的，这是因为对于tan函数，总是有：<br> $tan^{−1}(2^{−(i+1)}) ≥ 0.5tan^{−1}(2^{−i})$</p>
-<p>而同样的关系:放在双曲正切中却并不总是成立。</p>
-<p>$tanh^{−1}(2^{−(i+1)}) ≥ 0.5tanh^{−1}(2^{−i})$</p>
-<p>一个简单的收敛方法为，当迭代次数为:$ i &#x3D; 4, 13, 40, 121, …,3j + 1$时，该次迭代必须再重复一遍。即：<br>1,2,3,4,4,5,6,7,8,9,10,11,12,13,13,14….<br>(收敛性分析在原论文中有比较严格的推导，我懒得手推一遍，这里就不重复了，直接使用其结果)</p>
-<p>计算范围为： <code>With these provisions, convergence in computing  hyperbolic sine and cosine functions is guaranteed for |z| &lt; 1.13 and in the case of the  tanh−1 function, for |y| &lt; 0.81.</code></p>
-<p>此外，以下函数也可以被间接计算出来：<br><img src="/2024/02/28/CORDIC-Algorithm/image-29.png"></p>
-<h3 id="收敛性仿真"><a href="#收敛性仿真" class="headerlink" title="收敛性仿真"></a>收敛性仿真</h3><p>写一个简单的双曲迭代来验证上述方法的收敛性：</p>
-<p>以cosh为例，以下是一段简单的python代码：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">20</span>): </span><br><span class="line">    lookuptable_tanh[i] = math.atanh(<span class="number">2</span>**(-i))</span><br><span class="line">    <span class="built_in">print</span>(math.atanh(<span class="number">2</span>**(-i)))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_tanh</span>(<span class="params">value</span>):</span><br><span class="line">    k=<span class="number">0.8281593609602</span></span><br><span class="line">    x=<span class="number">1</span>/k</span><br><span class="line">    y=<span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">20</span>):</span><br><span class="line">        <span class="keyword">if</span>(value)&gt;<span class="number">0</span>:</span><br><span class="line">            d=<span class="number">1</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            d=-<span class="number">1</span></span><br><span class="line">        </span><br><span class="line">        value = value - d*lookuptable_tanh[i]</span><br><span class="line">        temp=x</span><br><span class="line">        x = x + d*y*<span class="number">2</span>**-i</span><br><span class="line">        y = y + d*temp*<span class="number">2</span>**-i</span><br><span class="line"></span><br><span class="line">        <span class="comment"># if(i==4 or i==13):</span></span><br><span class="line">        <span class="comment">#     if(value)&gt;0:</span></span><br><span class="line">        <span class="comment">#         d=1</span></span><br><span class="line">        <span class="comment">#     else:</span></span><br><span class="line">        <span class="comment">#         d=-1</span></span><br><span class="line">        <span class="comment">#     value = value - d*lookuptable_tanh[i]</span></span><br><span class="line">        <span class="comment">#     temp=x</span></span><br><span class="line">        <span class="comment">#     x = x + d*y*2**-i</span></span><br><span class="line">        <span class="comment">#     y = y + d*temp*2**-i</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_cosh:&quot;</span>,x)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_sinh:&quot;</span>,y)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_tanh:&quot;</span>,y/x)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span>(x,y,y/x)</span><br><span class="line"></span><br><span class="line">x = np.arange(-<span class="number">1</span>, <span class="number">1</span>, <span class="number">0.01</span>)</span><br><span class="line"><span class="comment"># 计算对应的 cosh 函数值</span></span><br><span class="line">y_numpy = np.cosh(x)</span><br><span class="line"></span><br><span class="line">y_custom=[]</span><br><span class="line"><span class="keyword">for</span> value <span class="keyword">in</span> x:</span><br><span class="line">    y,_,_ = my_tanh(value)</span><br><span class="line">    y_custom.append(y)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 绘制图形</span></span><br><span class="line">plt.plot(x, y_numpy, label=<span class="string">&#x27;numpy.cosh(x)&#x27;</span>)</span><br><span class="line">plt.plot(x, y_custom, label=<span class="string">&#x27;my_cosh(x)&#x27;</span>)</span><br><span class="line">plt.xlabel(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">plt.ylabel(<span class="string">&#x27;cosh(x)&#x27;</span>)</span><br><span class="line">plt.title(<span class="string">&#x27;Comparison of cosh(x) functions&#x27;</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.grid(<span class="literal">True</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+    <title>LFSR</title>
+    <url>/2024/04/18/LFSR/</url>
+    <content><![CDATA[<h1 id="LSFR"><a href="#LSFR" class="headerlink" title="LSFR"></a>LSFR</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>LFSR 全称为Linear Feedback Shift Register, 线性反馈移位寄存器。LFSR 可以用来<br>产生可重复的伪随机序列，从而被广泛使用在计数器，解码器，密码系统，BIST等方<br>面。<br>一般的LFSR分为2种，内部反馈型和外部反馈型的LFSR，如图2–1所示。其中内<br>部反馈型LFSR又称为伽罗瓦LFSR，而外部反馈型LFSR又称为斐波那契型LFSR。</p>
+<p><img src="/2024/04/18/LFSR/image.png" alt="2种不同类型的LFSR"></p>
+<p>由于伽罗瓦LFSR的逻辑门位于2级寄存器之间，理论上拥有更低的延迟和更高的<br>频率。</p>
+<p>LFSR可以生成具有固定周期的序列，当周期很长时，序列可以看作是近似随机的。</p>
+<h2 id="LFSR的周期"><a href="#LFSR的周期" class="headerlink" title="LFSR的周期"></a>LFSR的周期</h2><p>LFSR的一个重要特性是其生成序列的周期性。对于一个n位的LFSR，其周期最大为$2^n-1$,这是因为全0的状态会无限循环，从而需要将全0的序列从中剔除。</p>
+<p>一个LFSR的特性可以使用反馈多项式来描述。如图<br><img src="/2024/04/18/LFSR/image-1.png"></p>
+<p>这样的一个LFSR,其反馈多项式可以写作：<br>$$f(x)  &#x3D; 1 + h_1x+ h_2x^2+\dots +h_{n-1}x^{n-1}+h_nx^n$$</p>
+<p>之所以加上1， 是因为我们假设原始输入为0000..1,避免全0的状态。</p>
+<p>需要注意的是，反馈多项式和用二进制表示多项式的概念是不同的。</p>
+<p>反馈多项式代表LFSR的周期特征。具体来说，LFSR的周期数与其反馈多项式的阶数有关。<br>设$P_n(x)$为n次多项式，满足：<br>$$min{k:P_n(x)|(x^k+1)}$$<br>的整数称为多项式$P_n(x)$的阶。即多项式$P_n(x)$仅能被$x^k+1$整除，而对任何${x^m+1|m&lt;k}$,$P_n(x)$均不能被其整除。(这里的整除是GF(2)意义上的整除，在GF(2)域上，加法和减法都等价于模2运算。)</p>
+<p>进一步的，称阶数为$2^n-1$的不可约多项式$P(x)$为$GF(2^n)$域上的本原多项式。即本原多项式仅能被$x^{2^n-1}+1$整除，而不能被${x^m+1|m&lt;2^n-1}$整除。同时，本原多项式还无法被分解为$f(x)g(x)$的形式。不可约多项式有点类似于”素数”的概念，即不能被分解为更小的2个多项式的乘积。</p>
+<p>LFSR的周期数等于其反馈多项式的阶数。由此我们可以知道，为了构造具有最大周期数的LFSR,我们需要构造反馈多项式为本原多项式的LFSR。</p>
+<p>下面是一个寻找本原多项式的python程序：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> sympy</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">is_primitive_poly</span>(<span class="params">poly, field_size</span>):</span><br><span class="line">    x = sympy.Symbol(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> poly.degree() != field_size:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> poly.is_irreducible:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">2</span>**(field_size-<span class="number">1</span>),<span class="number">2</span>**(field_size)-<span class="number">1</span>):</span><br><span class="line">        level = sympy.Poly(x**i+<span class="number">1</span>, x, domain=<span class="string">&#x27;GF(2)&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> level.rem(poly).is_zero:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">integer_to_binary_list</span>(<span class="params">i</span>):</span><br><span class="line">    binary_string = <span class="built_in">bin</span>(i)[<span class="number">2</span>:]  </span><br><span class="line">    binary_list = [<span class="built_in">int</span>(bit) <span class="keyword">for</span> bit <span class="keyword">in</span> binary_string]  </span><br><span class="line">    <span class="keyword">return</span> binary_list</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">find_primitive_polys</span>(<span class="params">field_size</span>):</span><br><span class="line">    x = sympy.Symbol(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">    primitive_polys = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">2</span>**(field_size+<span class="number">1</span>)):</span><br><span class="line">        binary_list = integer_to_binary_list(i)</span><br><span class="line">        <span class="comment">#print(binary_list)</span></span><br><span class="line">        symb=<span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(binary_list)):</span><br><span class="line">            symb += binary_list[j]*x**(<span class="built_in">len</span>(binary_list)-j-<span class="number">1</span>)</span><br><span class="line">        </span><br><span class="line">        poly = sympy.Poly(symb, x, domain=<span class="string">&#x27;GF(2)&#x27;</span>)</span><br><span class="line">        <span class="comment">#print(poly)</span></span><br><span class="line">        <span class="keyword">if</span> is_primitive_poly(poly, field_size):</span><br><span class="line">            primitive_polys.append(poly)</span><br><span class="line">    <span class="keyword">return</span> primitive_polys</span><br><span class="line"></span><br><span class="line">field_size = <span class="number">9</span></span><br><span class="line">primitive_polys = find_primitive_polys(field_size)</span><br><span class="line"><span class="keyword">for</span> poly <span class="keyword">in</span> primitive_polys:</span><br><span class="line">    <span class="built_in">print</span>(poly)</span><br></pre></td></tr></table></figure>
 
 
-<p>在不用重复第4次和第13次迭代时，结果如下：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-30.png"></p>
-<p>可以看到蓝色线和橙色线不完全重合，局部放大后结果如下：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-31.png"></p>
-<p>取消对应注释，重复第4和第13次迭代，结果如下：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-32.png"></p>
-<p>可以看到蓝色线和橙色线基本完全重合，局部放大后结果如下：<br><img src="/2024/02/28/CORDIC-Algorithm/image-33.png"></p>
-<h3 id="硬件实现"><a href="#硬件实现" class="headerlink" title="硬件实现"></a>硬件实现</h3>]]></content>
+<p>该程序的时间复杂度是$O(2^n)$级别的，性能会随着field size设置的增大而急剧下降。</p>
+<p>一个更好的办法是利用前人的结果，通过查表寻找需要本原多项式。</p>
+<p>下面的网站给出了$GF(2^{10})$以内的所有本原多项式：</p>
+<p><a href="https://www.ece.unb.ca/tervo/ece4253/factors.shtml">https://www.ece.unb.ca/tervo/ece4253/factors.shtml</a></p>
+<p>部分结果如图：</p>
+<p><img src="/2024/04/18/LFSR/image-2.png"></p>
+<h2 id="LFSR的应用"><a href="#LFSR的应用" class="headerlink" title="LFSR的应用"></a>LFSR的应用</h2><p>(待续)</p>
+<h2 id><a href="#" class="headerlink" title></a></h2>]]></content>
       <tags>
-        <tag>Hardware Algorithm</tag>
-        <tag>ICer</tag>
         <tag>数字集成电路</tag>
+        <tag>Basic Module</tag>
       </tags>
   </entry>
   <entry>
@@ -838,81 +780,6 @@ RISC：(Reduced Instruction Set Computer)精简指令集计算机  代表：MIPS
       </tags>
   </entry>
   <entry>
-    <title>LearnPerl</title>
-    <url>/2024/05/08/LearnPerl/</url>
-    <content><![CDATA[<h1 id="Learn-Perl"><a href="#Learn-Perl" class="headerlink" title="Learn Perl"></a>Learn Perl</h1><h2 id="ch2-标量数据"><a href="#ch2-标量数据" class="headerlink" title="ch2 标量数据"></a>ch2 标量数据</h2><h3 id="第一个Helloword-程序"><a href="#第一个Helloword-程序" class="headerlink" title="第一个Helloword 程序"></a>第一个Helloword 程序</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">&quot;Hello, world!\n&quot;</span>;</span><br></pre></td></tr></table></figure>
-
-<p>perl是一种脚本语言，一般已经被内置在类unix系统中。类似的还有shell，bash,csh,tcl,python等。</p>
-<p>第一行的<code>#!</code>读作shell bang。shell bang 是一个用于指定脚本解释器的特殊字符组合。它由 <code>#</code>（井号）和 <code>!</code>（感叹号）组合而成，通常位于脚本的第一行。当一个脚本被执行时，系统会参考 shebang 指定的解释器来执行这个脚本。</p>
-<p>例如，如果一个脚本的第一行是 <code>#!/bin/bash</code>，那么这个脚本就会使用 Bash 作为其解释器。如果改为 <code>#!/usr/bin/python3</code>，那么这个脚本就会使用 Python 3 作为其解释器。</p>
-<p>linux默认的脚本解释器总是在&#x2F;usr&#x2F;bin目录下，如果解释器安装在其他目录下，则需要修改对应的路径。</p>
-<p>由于有shell bang的存在，perl程序不需要有特定的扩展名，而只需要是<strong>可执行</strong>的。（为了区分可以加上<code>.pl</code>）的后缀。</p>
-<p>此外也可以直接通过<code>perl</code>命令执行脚本。这2种方式大部分情况下是相同的，然而有时候也会产生不同的效果。</p>
-<p><img src="/2024/05/08/LearnPerl/image.png"><br>目前本人还没搞清楚这种情况出现的原因。</p>
-<p>反引号&#96;&#96;可以用于执行外部命令:</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"> @lines = <span class="string">`ls -a`</span>;</span><br><span class="line"> <span class="keyword">foreach</span> (@lines) &#123;</span><br><span class="line">  <span class="keyword">print</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<h3 id="标量数据"><a href="#标量数据" class="headerlink" title="标量数据"></a>标量数据</h3><p>字符串，数字都被看做标量数据。</p>
-<p>perl会根据数据的操作符判断执行代数运算还是字符串操作。</p>
-<p>变量采用美元符号声明：</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">$alef  = <span class="keyword">chr</span>( <span class="number">0x05D0</span> );</span><br><span class="line">$alpha = <span class="keyword">chr</span>( <span class="keyword">hex</span>(<span class="string">&#x27;03B1&#x27;</span>) );</span><br><span class="line">$omega = <span class="keyword">chr</span>( <span class="number">0x03C9</span> );</span><br><span class="line"></span><br><span class="line"><span class="keyword">say</span> <span class="string">&quot;alpha:&quot;</span>.$alpha;</span><br><span class="line"><span class="keyword">say</span> <span class="string">&quot;alef:&quot;</span>.$alef;</span><br><span class="line"><span class="keyword">say</span> <span class="string">&quot;omega:&quot;</span>.$omega;</span><br><span class="line"></span><br><span class="line">$code_point = <span class="keyword">ord</span>( <span class="string">&#x27;א&#x27;</span> );</span><br><span class="line"></span><br><span class="line"><span class="keyword">say</span> $code_point;</span><br></pre></td></tr></table></figure>
-<p><img src="/2024/05/08/LearnPerl/image2.png"><br>chr函数会将对应的ascii字符进行转换。ord则相反。</p>
-<p>使用<code>x</code>可以将字符串重复对应的次数。</p>
-<p><img src="/2024/05/08/LearnPerl/image1.png"></p>
-<p><code>say</code>和<code>print</code>类似，区别是会自动换行。（需要5.10以上的版本）</p>
-<p>使用<code>.</code>可以连接2个字符串。</p>
-<h3 id="其他特性"><a href="#其他特性" class="headerlink" title="其他特性"></a>其他特性</h3><p>获取标准输入：<code>&lt;STDIN&gt;</code></p>
-<p><img src="/2024/05/08/LearnPerl/image-1.png"></p>
-<p><img src="/2024/05/08/LearnPerl/image-2.png"></p>
-<p><code>chomp</code>的作用是去掉字符串末尾的换行符。</p>
-<h2 id="ch3"><a href="#ch3" class="headerlink" title="ch3"></a>ch3</h2><h3 id="list"><a href="#list" class="headerlink" title="list"></a>list</h3><p>数组和标量的声明方式完全相同。</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">10</span>;</span><br><span class="line">$word[<span class="number">0</span>]= <span class="string">&quot;s&quot;</span>;</span><br><span class="line"></span><br><span class="line">$word[<span class="number">1</span>]= <span class="string">&quot;h&quot;</span>;</span><br><span class="line">$word[<span class="number">2</span>]= <span class="string">&quot;i&quot;</span>;</span><br><span class="line">$word[<span class="number">3</span>]= <span class="string">&quot;t&quot;</span>;</span><br><span class="line"></span><br><span class="line">$a = $#word;</span><br><span class="line"><span class="keyword">say</span> $a;</span><br><span class="line"><span class="keyword">say</span>  $word[-<span class="number">4</span>].$word[-<span class="number">3</span>].$word[-<span class="number">2</span>].$word[-<span class="number">1</span>];</span><br></pre></td></tr></table></figure>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">wenkai@LAPTOP-36N49UJG:~/perl/ex3$ ./array</span><br><span class="line">3</span><br><span class="line">shit</span><br></pre></td></tr></table></figure>
-
-
-<p><code>$#</code>得到数组的长度(减一)</p>
-<h3 id="array"><a href="#array" class="headerlink" title="array"></a>array</h3>]]></content>
-      <categories>
-        <category>notes</category>
-      </categories>
-      <tags>
-        <tag>Programming Language</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>LFSR</title>
-    <url>/2024/04/18/LFSR/</url>
-    <content><![CDATA[<h1 id="LSFR"><a href="#LSFR" class="headerlink" title="LSFR"></a>LSFR</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>LFSR 全称为Linear Feedback Shift Register, 线性反馈移位寄存器。LFSR 可以用来<br>产生可重复的伪随机序列，从而被广泛使用在计数器，解码器，密码系统，BIST等方<br>面。<br>一般的LFSR分为2种，内部反馈型和外部反馈型的LFSR，如图2–1所示。其中内<br>部反馈型LFSR又称为伽罗瓦LFSR，而外部反馈型LFSR又称为斐波那契型LFSR。</p>
-<p><img src="/2024/04/18/LFSR/image.png" alt="2种不同类型的LFSR"></p>
-<p>由于伽罗瓦LFSR的逻辑门位于2级寄存器之间，理论上拥有更低的延迟和更高的<br>频率。</p>
-<p>LFSR可以生成具有固定周期的序列，当周期很长时，序列可以看作是近似随机的。</p>
-<h2 id="LFSR的周期"><a href="#LFSR的周期" class="headerlink" title="LFSR的周期"></a>LFSR的周期</h2><p>LFSR的一个重要特性是其生成序列的周期性。对于一个n位的LFSR，其周期最大为$2^n-1$,这是因为全0的状态会无限循环，从而需要将全0的序列从中剔除。</p>
-<p>一个LFSR的特性可以使用反馈多项式来描述。如图<br><img src="/2024/04/18/LFSR/image-1.png"></p>
-<p>这样的一个LFSR,其反馈多项式可以写作：<br>$$f(x)  &#x3D; 1 + h_1x+ h_2x^2+\dots +h_{n-1}x^{n-1}+h_nx^n$$</p>
-<p>之所以加上1， 是因为我们假设原始输入为0000..1,避免全0的状态。</p>
-<p>需要注意的是，反馈多项式和用二进制表示多项式的概念是不同的。</p>
-<p>反馈多项式代表LFSR的周期特征。具体来说，LFSR的周期数与其反馈多项式的阶数有关。<br>设$P_n(x)$为n次多项式，满足：<br>$$min{k:P_n(x)|(x^k+1)}$$<br>的整数称为多项式$P_n(x)$的阶。即多项式$P_n(x)$仅能被$x^k+1$整除，而对任何${x^m+1|m&lt;k}$,$P_n(x)$均不能被其整除。(这里的整除是GF(2)意义上的整除，在GF(2)域上，加法和减法都等价于模2运算。)</p>
-<p>进一步的，称阶数为$2^n-1$的不可约多项式$P(x)$为$GF(2^n)$域上的本原多项式。即本原多项式仅能被$x^{2^n-1}+1$整除，而不能被${x^m+1|m&lt;2^n-1}$整除。同时，本原多项式还无法被分解为$f(x)g(x)$的形式。不可约多项式有点类似于”素数”的概念，即不能被分解为更小的2个多项式的乘积。</p>
-<p>LFSR的周期数等于其反馈多项式的阶数。由此我们可以知道，为了构造具有最大周期数的LFSR,我们需要构造反馈多项式为本原多项式的LFSR。</p>
-<p>下面是一个寻找本原多项式的python程序：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> sympy</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">is_primitive_poly</span>(<span class="params">poly, field_size</span>):</span><br><span class="line">    x = sympy.Symbol(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">    <span class="keyword">if</span> poly.degree() != field_size:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> poly.is_irreducible:</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">2</span>**(field_size-<span class="number">1</span>),<span class="number">2</span>**(field_size)-<span class="number">1</span>):</span><br><span class="line">        level = sympy.Poly(x**i+<span class="number">1</span>, x, domain=<span class="string">&#x27;GF(2)&#x27;</span>)</span><br><span class="line">        <span class="keyword">if</span> level.rem(poly).is_zero:</span><br><span class="line">            <span class="keyword">return</span> <span class="literal">False</span></span><br><span class="line">    <span class="keyword">return</span> <span class="literal">True</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">integer_to_binary_list</span>(<span class="params">i</span>):</span><br><span class="line">    binary_string = <span class="built_in">bin</span>(i)[<span class="number">2</span>:]  </span><br><span class="line">    binary_list = [<span class="built_in">int</span>(bit) <span class="keyword">for</span> bit <span class="keyword">in</span> binary_string]  </span><br><span class="line">    <span class="keyword">return</span> binary_list</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">find_primitive_polys</span>(<span class="params">field_size</span>):</span><br><span class="line">    x = sympy.Symbol(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">    primitive_polys = []</span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>, <span class="number">2</span>**(field_size+<span class="number">1</span>)):</span><br><span class="line">        binary_list = integer_to_binary_list(i)</span><br><span class="line">        <span class="comment">#print(binary_list)</span></span><br><span class="line">        symb=<span class="number">0</span></span><br><span class="line">        <span class="keyword">for</span> j <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(binary_list)):</span><br><span class="line">            symb += binary_list[j]*x**(<span class="built_in">len</span>(binary_list)-j-<span class="number">1</span>)</span><br><span class="line">        </span><br><span class="line">        poly = sympy.Poly(symb, x, domain=<span class="string">&#x27;GF(2)&#x27;</span>)</span><br><span class="line">        <span class="comment">#print(poly)</span></span><br><span class="line">        <span class="keyword">if</span> is_primitive_poly(poly, field_size):</span><br><span class="line">            primitive_polys.append(poly)</span><br><span class="line">    <span class="keyword">return</span> primitive_polys</span><br><span class="line"></span><br><span class="line">field_size = <span class="number">9</span></span><br><span class="line">primitive_polys = find_primitive_polys(field_size)</span><br><span class="line"><span class="keyword">for</span> poly <span class="keyword">in</span> primitive_polys:</span><br><span class="line">    <span class="built_in">print</span>(poly)</span><br></pre></td></tr></table></figure>
-
-
-<p>该程序的时间复杂度是$O(2^n)$级别的，性能会随着field size设置的增大而急剧下降。</p>
-<p>一个更好的办法是利用前人的结果，通过查表寻找需要本原多项式。</p>
-<p>下面的网站给出了$GF(2^{10})$以内的所有本原多项式：</p>
-<p><a href="https://www.ece.unb.ca/tervo/ece4253/factors.shtml">https://www.ece.unb.ca/tervo/ece4253/factors.shtml</a></p>
-<p>部分结果如图：</p>
-<p><img src="/2024/04/18/LFSR/image-2.png"></p>
-<h2 id="LFSR的应用"><a href="#LFSR的应用" class="headerlink" title="LFSR的应用"></a>LFSR的应用</h2><p>(待续)</p>
-<h2 id><a href="#" class="headerlink" title></a></h2>]]></content>
-      <tags>
-        <tag>数字集成电路</tag>
-        <tag>Basic Module</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>SoC设计方法</title>
     <url>/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/</url>
     <content><![CDATA[<h1 id="SoC设计方法"><a href="#SoC设计方法" class="headerlink" title="SoC设计方法"></a>SoC设计方法</h1><h2 id="Soc设计概述及流程"><a href="#Soc设计概述及流程" class="headerlink" title="Soc设计概述及流程"></a>Soc设计概述及流程</h2><h3 id="什么是SoC"><a href="#什么是SoC" class="headerlink" title="什么是SoC?"></a>什么是SoC?</h3><p>半导体产业模式及其基本分工：<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image.png" alt="半导体产业链"></p>
@@ -1054,229 +921,6 @@ RISC：(Reduced Instruction Set Computer)精简指令集计算机  代表：MIPS
       </categories>
       <tags>
         <tag>SoC</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>笨办法学C</title>
-    <url>/2024/04/19/%E7%AC%A8%E5%8A%9E%E6%B3%95%E5%AD%A6C/</url>
-    <content><![CDATA[<h1 id="Learn-C-the-hard-way"><a href="#Learn-C-the-hard-way" class="headerlink" title="Learn C the hard way"></a>Learn C the hard way</h1><h2 id="C语法"><a href="#C语法" class="headerlink" title="C语法"></a>C语法</h2><p>略</p>
-<h2 id="一些技巧"><a href="#一些技巧" class="headerlink" title="一些技巧"></a>一些技巧</h2><h3 id="语法糖"><a href="#语法糖" class="headerlink" title="语法糖"></a>语法糖</h3><p>使用宏定义构建语法糖。<br><code>&quot;语法糖&quot;是一种编程术语，用来描述那些没有给编程语言添加新功能，但是可以使代码更易读或易写的语法。这些语法通过提供更加方便、简洁的编写方式，使得程序员能够更加快速、更加直观地表达程序设计的意图。 在C语言中，也存在一些语法糖。例如，数组的下标运算就是一种语法糖。例如，array[i]实际上就是*(array + i)的简化写法。另一个例子是for循环，它实际上可以使用while循环和一些额外的语句来实现，但for循环提供了一种更加简洁、易读的方式来编写循环。 虽然语法糖可以使代码更简洁、易读，但并不会影响程序的功能或效率。使用或不使用语法糖，都不会影响程序的运行结果。</code></p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 语法糖, 写入obj-&gt;_(N), 等价于 obj-&gt;proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> _(N) proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NEW(T, N) Object_new(sizeof(T), T##Proto, N)</span></span><br></pre></td></tr></table></figure>
-
-
-<h3 id="assert宏"><a href="#assert宏" class="headerlink" title="assert宏"></a>assert宏</h3><p>&lt;assert.h&gt; 是 C 语言的一个标准库，主要提供了一个名为 assert 的宏，用于在程序开发和调试过程中进行条件测试。<br>assert 宏允许程序员在代码中插入诊断信息。如果在运行时，assert 的条件测试失败（即，测试的表达式结果为假），那么程序会立即终止，并显示一条错误消息。这条消息通常包括文件名、源代码行号以及测试失败的表达式。</p>
-<p>例如：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> Person *<span class="title function_">Person_create</span><span class="params">(<span class="type">char</span> *name, <span class="type">int</span> age, <span class="type">int</span> height, <span class="type">int</span> weight)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Person</span> *<span class="title">who</span> =</span> <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> Person));</span><br><span class="line">    assert(who != <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    who-&gt;name = strdup(name);</span><br><span class="line">    who-&gt;age = age;</span><br><span class="line">    who-&gt;height = height;</span><br><span class="line">    who-&gt;weight = weight;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> who;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里使用assert宏来检查内存是否被成功分配。</p>
-<h3 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h3><p>众所周知C不支持面向对象，但是可以通过一些技巧实现类似继承的功能：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//定义一个基类 Object</span></span><br><span class="line"><span class="comment">//注意这里使用了函数指针，从而可以实现函数重载</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">char</span> *description;</span><br><span class="line">    <span class="type">int</span> (*init)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*describe)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*destroy)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> *(*move)(<span class="type">void</span> *self, Direction direction);</span><br><span class="line">    <span class="type">int</span> (*attack)(<span class="type">void</span> *self, <span class="type">int</span> damage);</span><br><span class="line">&#125; Object;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//基类的构造函数</span></span><br><span class="line"><span class="type">void</span> *<span class="title function_">Object_new</span><span class="params">(<span class="type">size_t</span> size, Object proto, <span class="type">char</span> *description)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// setup the default functions in case they aren&#x27;t set</span></span><br><span class="line">    <span class="keyword">if</span>(!proto.init) proto.init = Object_init;</span><br><span class="line">    <span class="keyword">if</span>(!proto.describe) proto.describe = Object_describe;</span><br><span class="line">    <span class="keyword">if</span>(!proto.destroy) proto.destroy = Object_destroy;</span><br><span class="line">    <span class="keyword">if</span>(!proto.attack) proto.attack = Object_attack;</span><br><span class="line">    <span class="keyword">if</span>(!proto.move) proto.move = Object_move;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// this seems weird, but we can make a struct of one size,</span></span><br><span class="line">    <span class="comment">// then point a different pointer at it to &quot;cast&quot; it</span></span><br><span class="line">    Object *el = <span class="built_in">calloc</span>(<span class="number">1</span>, size);</span><br><span class="line">    *el = proto;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// copy the description over</span></span><br><span class="line">    el-&gt;description = strdup(description);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// initialize it with whatever init we were given</span></span><br><span class="line">    <span class="keyword">if</span>(!el-&gt;init(el)) &#123;</span><br><span class="line">        <span class="comment">// looks like it didn&#x27;t initialize properly</span></span><br><span class="line">        el-&gt;destroy(el);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// all done, we made an object of any type</span></span><br><span class="line">        <span class="keyword">return</span> el;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//对每个需要继承基类的子类，用以下方法定义：</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Map</span> &#123;</span></span><br><span class="line">    Object proto;</span><br><span class="line">    Room *start;</span><br><span class="line">    Room *location;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//指定需要重载的方法：</span></span><br><span class="line">Object MapProto = &#123;</span><br><span class="line">    .init = Map_init,</span><br><span class="line">    .move = Map_move,</span><br><span class="line">    .attack = Map_attack</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//使用之前的语法糖进行初始化：</span></span><br><span class="line">Map *game = NEW(Map, <span class="string">&quot;The Hall of the Minotaur.&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>notes</category>
-      </categories>
-      <tags>
-        <tag>Programming Language</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>高等数字集成电路设计</title>
-    <url>/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/</url>
-    <content><![CDATA[<h1 id="高等数字集成电路设计"><a href="#高等数字集成电路设计" class="headerlink" title="高等数字集成电路设计"></a>高等数字集成电路设计</h1><h2 id="Lecture1-introduction"><a href="#Lecture1-introduction" class="headerlink" title="Lecture1 introduction"></a>Lecture1 introduction</h2><p>本节主要对IC产业的发展进行概述，以及介绍一些数字IC设计中的常用概念和基本指标。</p>
-<h3 id="IC产业概述"><a href="#IC产业概述" class="headerlink" title="IC产业概述"></a>IC产业概述</h3><p>集成电路行业是典型的高附加值行业，具有重资产，高技术附加值，和劳动力密集三重特点。其发展存在典型的周期性:<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image.png"></p>
-<p>半导体行业的细分领域如下：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-1.png"><br>对应中国的产业图谱为：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-2.png"></p>
-<p>在IC产业的发展历程中，摩尔定律起到核心的推动作用。从芯片制造的角度讲，晶体管尺寸的scaling down能够带来性能，成本和各方面的益处，如下图：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-3.png"></p>
-<p>然而随着器件尺寸逼近物理极限，IC工业面临的功耗墙，成本(主要是验证方面成本的急剧提高)及可靠性等各方面的挑战。<br>各工艺节点下的芯片制作成本如下：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-6.png"></p>
-<h3 id="数字IC设计概览"><a href="#数字IC设计概览" class="headerlink" title="数字IC设计概览"></a>数字IC设计概览</h3><h4 id="方法学"><a href="#方法学" class="headerlink" title="方法学"></a>方法学</h4><p>数字IC设计从业者分为不同层级：架构，逻辑，电路和物理层级，它们负责不同抽象层级的设计，使用不同的设计工具，如下图：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-4.png"></p>
-<p>在数字IC的实际实现过程中，又分为全定制设计和半定制设计。其中半定制设计包括标准单元库（standard cell 设计方法）、门阵列（gate array设计方法）。而全定制设计则在器件层面进行性能和功能的优化。半定制的方法在一定程度上降低了设计难度和优化难度，但可能在性能上略逊于全定制设计。如今的大部分IC设计都是基于半定制设计的。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-5.png"></p>
-<h4 id="封装"><a href="#封装" class="headerlink" title="封装"></a>封装</h4><p>生产出的芯片裸片并不能直接用于生产生活中的直接应用，而需要先进行封装，对芯片进行一定的物理保护，从而增加芯片的可靠性。芯片封装需要考虑以下几个因素：</p>
-<ol>
-<li>电气特性，引入尽量小的寄生效应</li>
-<li>机械特性：尽量高的稳定性和可靠性</li>
-<li>热特性：高效的散热能力</li>
-<li>经济性：尽量低的成本</li>
-</ol>
-<p>下图展示了封装过程中引入的寄生参数：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-7.png"></p>
-<p>并且，随着IC产业的发展，一些先进封装技术如SiP,3D stacking, Die to Die,Chiplet等技术，脱离了物理保护的范畴，在架构层面实现了芯片性能的提升，从而成为在设计阶段就需要考虑的因素之一。</p>
-<h4 id="DFT-defign-for-test"><a href="#DFT-defign-for-test" class="headerlink" title="DFT(defign for test)"></a>DFT(defign for test)</h4><p>如上所述，随着工艺尺寸的scaling down，IC设计面临测试和验证成本的急剧提升。为此引入了DFT技术。一些典型的DFT技术如扫描链(Scan chain)技术，内建自测试BIST(build-in self test),JTAG等。</p>
-<h5 id="SCAN-CHAIN"><a href="#SCAN-CHAIN" class="headerlink" title="SCAN CHAIN"></a>SCAN CHAIN</h5><p>扫描链技术如下图：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-8.png"></p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-9.png"></p>
-<p>在每个寄存器的输入端口加入一个mux,形成一种scan register,并将每个寄存器的输出端和scan in段串联。</p>
-<ol>
-<li>在常规模式下，电路正常工作</li>
-<li>在scan 模式下，电路相当于一个shift register,每个寄存器中保存的结果被逐位的移动至输出端口(scan out)，从而能够得到某一周期内电路的所有中间值，进行功能验证。</li>
-</ol>
-<h5 id="BIST"><a href="#BIST" class="headerlink" title="BIST"></a>BIST</h5><p>待补充</p>
-<h5 id="JTAG"><a href="#JTAG" class="headerlink" title="JTAG"></a>JTAG</h5><p>待补充</p>
-<h3 id="数字IC设计的关心的一些指标"><a href="#数字IC设计的关心的一些指标" class="headerlink" title="数字IC设计的关心的一些指标"></a>数字IC设计的关心的一些指标</h3><p>就IC设计而言，最关注的指标无疑是PPA(power,Performance,Area)。这三个指标往往相互约束，需要做出权衡取舍(trade-off)。</p>
-<p>而数字IC设计领域，影响PPA的细分指标也有很多，下面分别简要进行介绍。</p>
-<h4 id="Fan-in-和Fan-out"><a href="#Fan-in-和Fan-out" class="headerlink" title="Fan-in 和Fan-out"></a>Fan-in 和Fan-out</h4><p>fan in 指逻辑门连接的输入，fan-in越大，逻辑门本身的面积越大，同时性能也会越差。<img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-10.png" alt="alt text"></p>
-<p>fan-out 指逻辑门连接的输出。fan-out越大，逻辑门需要驱动的下级电路越大，从而速度变慢。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-11.png"></p>
-<h4 id="干扰-interference-及噪声-noise"><a href="#干扰-interference-及噪声-noise" class="headerlink" title="干扰(interference)及噪声(noise)"></a>干扰(interference)及噪声(noise)</h4><p>电路中那些预期之外的电压和电流信号被称为噪声，噪声往往影响电路的性能。</p>
-<p>噪声的形成原因多种多样，常见的有平行线路之间的电磁串扰，电容直接的耦合(coupling)等。这些都造成电路信号的不稳定。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-12.png"><br>同时，来自电源(VDD)和地(VSS)的噪声也会影响信号。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-13.png"></p>
-<h4 id="噪声容限-Noise-Margins"><a href="#噪声容限-Noise-Margins" class="headerlink" title="噪声容限 Noise Margins"></a>噪声容限 Noise Margins</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-14.png"></p>
-<p>噪声容限一般分为高电平噪声容限$NM_H$和低电平噪声容限$NM_L$,代表电路对噪声的承受能力。它们分别定义为:</p>
-<p>$$NM_H &#x3D; V_{OH}-V_{IH}$$<br>$$NM_L &#x3D; V_{IL}-V_{OL}$$</p>
-<p>其中$V_{IL}$,$V_{IH}$,$V_{OL}$,$V_{OH}$的定义分别为：</p>
-<ol>
-<li>$V_{IL}$（Input Low Voltage）：输入低电平电压。输入信号被识别为低电平（通常为“0”）的最大电压。</li>
-<li>$V_{IH}$（Input High Voltage）：输入高电平电压。输入信号被识别为高电平（通常为“1”）的最小电压。</li>
-<li>$V_{OL}$（Output Low Voltage）：输出低电平电压。输出信号被识别为低电平（通常为“0”）时的最大电压。</li>
-<li>$V_{OH}$（Output High Voltage）：输出高电平电压。输出信号被识别为高电平（通常为“1”）时的最小电压。</li>
-</ol>
-<h4 id="传输延迟-Delay"><a href="#传输延迟-Delay" class="headerlink" title="传输延迟 Delay"></a>传输延迟 Delay</h4><p>电路的传输延迟参数定义如下图：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-15.png"></p>
-<ol>
-<li>$t_r$：电路从高电平的10%上升为高电平的90%所需要的时间。</li>
-<li>$t_f$：电路从高电平的90%下降为高电平的10%所需要的时间。</li>
-<li>$t_{pHL}$：输入信号上升为高电平的50%到输出信号下降为高电平的50%所需要的时间。</li>
-<li>$t_{pLH}$：输入信号下降为高电平的50%到输出信号上升为高电平的50%所需要的时间。</li>
-<li>$t_p$： $t_{pHL}$和$t_{pLH}$的平均值。</li>
-</ol>
-<h4 id="能效指标：PDP和EDP"><a href="#能效指标：PDP和EDP" class="headerlink" title="能效指标：PDP和EDP"></a>能效指标：PDP和EDP</h4><p>PDP(power delay product)：电路发生翻转期间的平均功耗与传输延迟的乘积,用于衡量电路完成一次计算所消化的能量。单位为焦耳($W\times s$)。</p>
-<p>$PDP &#x3D; P_{av}\times t_p$</p>
-<p>EDP(Energy delay product):有时，一个具有低PDP的电路，传输延迟（$t_p$）仍然有可能很大。为了找到在功耗和性能之间的最佳平衡点，可以将Power与Delay的平方相乘。即:</p>
-<p>$PEP &#x3D; P_{av}\times t_p^2 &#x3D; PDP \times t_p$</p>
-<p>在CMOS电路中，PEP一般与电源电压VDD成正比，较低的电压下往往能得到更好的EDP。</p>
-<h2 id="Lecture2-Device-Model"><a href="#Lecture2-Device-Model" class="headerlink" title="Lecture2 Device&amp;Model"></a>Lecture2 Device&amp;Model</h2><p>本节主要介绍集成电路中的基本器件：二极管和晶体管，以及对其进行分析的基本模型。</p>
-<h3 id="二极管Diode"><a href="#二极管Diode" class="headerlink" title="二极管Diode"></a>二极管Diode</h3><h4 id="掺杂"><a href="#掺杂" class="headerlink" title="掺杂"></a>掺杂</h4><p>硅原子具有4个外层电子，在形成单质(单晶硅)时，每个晶格硅原子与周围的4个硅原子相连，形成正四面体结构：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-16.png"></p>
-<p>如果对硅单质中掺入少量的3价元素（如硼B），则在一个晶格中存在一个硅原子，其原子核周围缺少一个电子，或者说形成了一个带正电的空穴(free hole)。进行这类掺杂(doping)的半导体材料具有获得电子的特性(acceptors)，称为P(posetive)型半导体。</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-17.png"></p>
-<p>如果对硅单质中掺入少量的5价元素(如磷P,砷As),则在一个晶格中存在一个硅原子，其原子核周围多出一个自由电子(free electron)。进行这类掺杂(doping)的半导体材料具有失去电子的特性(donater),称为N(negetive)型半导体。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-18.png"></p>
-<h4 id="PN结"><a href="#PN结" class="headerlink" title="PN结"></a>PN结</h4><p>在将一块P型半导体和N型半导体进行接触之后，由于载流子浓度的不同，N型半导体中的自由电子便会自发向P型半导体的区域进行扩散(diffusion)，对其中的空穴进行填充，形成扩散电流(diffusion current)<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-19.png"></p>
-<p>在这个过程中，N型半导体由于失去电子而带正电，P型半导体由于得到电子而带负电，从而在PN结内部形成一个从N指向P的内建电场。在内建电场的作用下，P区的电子反过来向N区运动，形成漂移电流(drift diffusion)</p>
-<p>在自然条件下，PN结附近的扩散电流和漂移电流达到动态平衡。那些自发失去和得到电子的区域称为耗尽区(depletion region)。</p>
-<p>在扩散作用达到平衡后形成的耗尽区具有如下特点：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-20.png"></p>
-<ol>
-<li>电子&#x2F;空穴的密度均匀分布。</li>
-<li>由于场强是电荷密度的积分，电子&#x2F;空穴的均匀分布引起电场强调的线性分布。</li>
-<li>由于电势是场强的积分，PN结中内建电势随坐标呈现递增分布。</li>
-</ol>
-<p>耗尽区中内建电势的存在，会阻止载流子的运动，从宏观上看，降低了材料的导电能力。</p>
-<h4 id="偏置"><a href="#偏置" class="headerlink" title="偏置"></a>偏置</h4><p>二级结的构成为一个PN结和连接它们的金属，如下图：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-21.png"></p>
-<p>其电路符号为一个顶端带有一横线的三角，横线画在N型半导体的位置。</p>
-<h5 id="正偏"><a href="#正偏" class="headerlink" title="正偏"></a>正偏</h5><p>将二极管的P区连接电源的正极，N区连接电源的负极时，称为正偏(forward bias):<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-22.png"></p>
-<p>正偏后， 施加使得PN结内部的内建电势下降，耗尽区的宽度减小，从而减小了载流子通行的难度。P区的大量空穴和N区的大量电子(这是由掺杂浓度决定的，即空穴在N中为多子，电子在P中也为多子)能够成功穿过耗尽区，从而形成电流。此时占据主导的是扩散电流,导电主要由器件中的多子完成，电流较大。</p>
-<h5 id="反偏"><a href="#反偏" class="headerlink" title="反偏"></a>反偏</h5><p>将二极管的P端连接电源负极，N端连接电源正极，称为反偏(reverse bias):<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-23.png"></p>
-<p>反偏后，外加电源强化了二极管内部的内建电场，从而使载流子穿过耗尽区的难度增加，只有P区中的少数电子和N区中的少数空穴在电场作用下穿过耗尽区，形成电流。此时占据主导的是漂移电流，导电主要由器件中的少子完成，电流较小。</p>
-<h5 id="I-V特性"><a href="#I-V特性" class="headerlink" title="I-V特性"></a>I-V特性</h5><p>二极管的电流公式为：<br>$$ I_D &#x3D; I_s(e^{\frac{V_D}{\phi_T}}-1)$$</p>
-<p>其中$\phi_T&#x3D;\frac{kT}{q}&#x3D;26mV$</p>
-<p>$I_s$为饱和电流，与二极管的掺杂，PN结面面积有关。</p>
-<p>在一定情况下也可作一阶近似：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-24.png"></p>
-<h5 id="结电容"><a href="#结电容" class="headerlink" title="结电容"></a>结电容</h5><p>PN结电容公式为：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-25.png"></p>
-<p>通过对上述公式定性分析可知：施加正偏电压，$C_j$的分母减小，整体结电容增大。一种理解角度是，正偏后耗尽区减小，相当于减小了平行板电容器的间距，从而增大了电容。</p>
-<h3 id="MOS晶体管的静态模型"><a href="#MOS晶体管的静态模型" class="headerlink" title="MOS晶体管的静态模型"></a>MOS晶体管的静态模型</h3><p>MOS器件的剖面图如下：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-26.png"></p>
-<p>一个晶体管一般可以抽象成一个开关，当gate端施加足够大的电压(超过阈值电压)，则开关打开。</p>
-<h4 id="阈值电压"><a href="#阈值电压" class="headerlink" title="阈值电压"></a>阈值电压</h4><p>晶体管的gate端可以看作一个平板电容，当施加电压足够高时，在下方的衬底中感应出一定的电荷，形成导电沟道。</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-27.png"></p>
-<p>阈值电压的计算公式：<br>$$V_T &#x3D; V_{T0} + \gamma (\sqrt{|-2\phi_F+V_{SB}|}-\sqrt{\phi_F})$$</p>
-<p>其中：$V_{SB}$是源和沉底之间的电压，$V_{T0}$是$V_{SB}&#x3D;0$时的阈值电压，由制作工艺决定。$\phi_F$是费米能级。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-28.png"></p>
-<h5 id="体偏效应"><a href="#体偏效应" class="headerlink" title="体偏效应"></a>体偏效应</h5><p>通过上述公式我们可以知道，阈值电压与体源电压有关，从而可以通过条件body端的电压实现阈值电压的条件。这样的方法常被用于低功耗技术中。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-29.png"></p>
-<h5 id="短沟道效应-short-channel-effet"><a href="#短沟道效应-short-channel-effet" class="headerlink" title="短沟道效应 short channel effet"></a>短沟道效应 short channel effet</h5><p>随着晶体管尺寸的scaling down,器件的沟道长度逐渐缩短，由于工艺导致源漏之间的耗尽区变得接近，使得阈值电压降低，影响晶体管的开关特性。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-30.png"></p>
-<h5 id="漏致势垒降低效应（DIBL）"><a href="#漏致势垒降低效应（DIBL）" class="headerlink" title="漏致势垒降低效应（DIBL）"></a>漏致势垒降低效应（DIBL）</h5><p>Drain-induced barrier lowering：在经典的长沟道器件中，阈值电压的值与漏区电压无关。然而在短沟道器件中，由于晶体管在工作时会给漏级施加电压，从而在D-B之间形成了一个反偏的二极管。这个反偏的二极管增大了漏极的耗尽区宽度，使其与源极的耗尽区进一步接近，从而进一步缩小了导电沟道的长度，使得阈值电压下降。</p>
-<p>DIBL本质也是一种短沟道效应。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-31.png"></p>
-<h5 id="窄沟道效应-narrow-channel-effet"><a href="#窄沟道效应-narrow-channel-effet" class="headerlink" title="窄沟道效应 narrow channel effet"></a>窄沟道效应 narrow channel effet</h5><p>不同于短沟道效应，窄沟道效应是指当晶体管的沟道宽度(不是长度)变窄时，阈值电压增大的一种现象。这是由于窄沟道的gate端容易与场氧化层重叠，形成更大的GATE电容。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-32.png"></p>
-<h4 id="对晶体管的建模"><a href="#对晶体管的建模" class="headerlink" title="对晶体管的建模"></a>对晶体管的建模</h4><p>晶体管可以被看做是个 G,S,D,B的3端器件。在使用时，一般NMOS的衬底默认会接VSS,PMOS的衬底接VDD，从而简化为一个G,S,D的3端器件。在G S间的电压负责控制晶体管的开关，DS间的电压负责控制管子电流的流通。</p>
-<h5 id="线性区"><a href="#线性区" class="headerlink" title="线性区"></a>线性区</h5><p>当晶体管满足：</p>
-<p>$$V_{GS}&gt; V_T$$<br>$$V_{DS}&lt; V_{GS}-V_T$$</p>
-<p>管子工作在线性区，此时晶体管的电流大小满足：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-33.png"></p>
-<h5 id="饱和区"><a href="#饱和区" class="headerlink" title="饱和区"></a>饱和区</h5><p>当晶体管满足：<br>$$V_{GS}&gt; V_T$$<br>$$V_{DS}\geq V_{GS}-V_T$$</p>
-<p>电流不再随$V_{DS}$增大而增大，而是只与$V_{GS}$有关：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-34.png"></p>
-<p>此时的晶体管可以被看做是一个理想电流源。</p>
-<h5 id="沟道长度调制-Channel-Length-Modulation"><a href="#沟道长度调制-Channel-Length-Modulation" class="headerlink" title="沟道长度调制 Channel Length Modulation"></a>沟道长度调制 Channel Length Modulation</h5><p>如下图，当$V_{DS} &gt; V_{GS}-V_T$时，靠近漏区部分的沟道实际上会无法感应出反型电荷而产生夹断(pinch-off)。这将导致晶体管的有效沟道长度减小。而晶体管的电流与沟道长度L成反比。因此实际的电流会增大。通过添加一个参数$\lambda$来修正这种沟道长度调制效应：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-35.png"></p>
-<h5 id="速度饱和-Velocity-Saturation"><a href="#速度饱和-Velocity-Saturation" class="headerlink" title="速度饱和 Velocity Saturation"></a>速度饱和 Velocity Saturation</h5><p>一般来说，载流子的速度正比于电场强度，但是当速度过大时，会因为载流子间的散射效应而趋于饱和，不再满足线性关系。在源漏电压不变的情况下，沟道越短，沟道间的电场强度越大，从而越容易达到速度饱和。</p>
-<p>而对同一器件，则存在一个饱和电压$V_{DSAT}$,当源漏电压大于该值是，出现速度饱和。速度饱和会降低饱和区电流。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-36.png"></p>
-<h5 id="电流公式"><a href="#电流公式" class="headerlink" title="电流公式"></a>电流公式</h5><p>结合上述分析，可以分别得到长沟道器件和短沟道器件的电流公式：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-37.png"></p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-38.png"></p>
-<h5 id="电阻计算"><a href="#电阻计算" class="headerlink" title="电阻计算"></a>电阻计算</h5><p>MOS器件的等效电阻可以用如下公式计算：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-39.png"></p>
-<p>可以看到，同样的器件，在VDD减小的情况下，等效电阻急剧增大。这也是阻止器件的VDD无法随器件尺寸同步scaling down的一个原因。</p>
-<h3 id="晶体管的动态模型"><a href="#晶体管的动态模型" class="headerlink" title="晶体管的动态模型"></a>晶体管的动态模型</h3><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-40.png"><br>作为一个4端器件，MOS管的电容主要由3部分组成：</p>
-<ol>
-<li>结构电容</li>
-<li>沟道电容</li>
-<li>结电容</li>
-</ol>
-<p>下面依次进行分析：</p>
-<h4 id="结构电容"><a href="#结构电容" class="headerlink" title="结构电容"></a>结构电容</h4><p>这部分的主要成因是MOS管在实际生产时，源和漏会向栅下方扩展一个$x_d$的长度，引起了栅和源漏之间的寄生电容：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-41.png"></p>
-<h4 id="沟道电容"><a href="#沟道电容" class="headerlink" title="沟道电容"></a>沟道电容</h4><p>向栅极施加电压，在下方形成导电沟道，这个过程也是电容充电的过程。在这个过程中，gate 端与S,D,B间形成的电容大小与晶体管的工作状态有关，总结如下：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-42.png"></p>
-<h4 id="结电容-扩散电容"><a href="#结电容-扩散电容" class="headerlink" title="结电容&#x2F;扩散电容"></a>结电容&#x2F;扩散电容</h4><p>最后一部分电容的形成原因如下：考虑一个NMOS，其制造是在一个P衬底上挖出2个N well,这样源漏和衬底之间实际上存在一个PN结，这个PN结在D极施加电压时是反向导通的，但是也具有一定的电容。此外因为MOS管实际是一个立体的结构，源漏区除了与底板之外，与侧壁之间也会形成PN结。</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-43.png"></p>
-<p>总结上述电容，就可以得到晶体管的电容模型：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-44.png"></p>
-<h4 id="源-漏电阻"><a href="#源-漏电阻" class="headerlink" title="源-漏电阻"></a>源-漏电阻</h4><p>晶体管的电阻可能进一步受到源漏电阻的影响：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-45.png"></p>
-<h3 id="先进器件"><a href="#先进器件" class="headerlink" title="先进器件"></a>先进器件</h3><p>略</p>
-<h2 id="Lecture3-Inverter"><a href="#Lecture3-Inverter" class="headerlink" title="Lecture3 Inverter"></a>Lecture3 Inverter</h2><p>反相器是连接器件到电路的桥梁，因此对反相器的研究可以起到很好的承上启下的作用。</p>
-<h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><h4 id="电路"><a href="#电路" class="headerlink" title="电路"></a>电路</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-47.png"></p>
-<p>反相器的电路图如图所示。由gate 和drain端相连的一个PMOS和一个NMOS组成，当输入为高电平时，P管关闭而N管打开，VOUT为低电平。输入为低电平时则相反，N管打开而P管关闭，VOUT被拉高。</p>
-<h4 id="瞬态响应"><a href="#瞬态响应" class="headerlink" title="瞬态响应"></a>瞬态响应</h4><p>反向器的瞬态响应，可以看作是通过P管和N管对于负责电阻$C_L$的充放电过程：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-48.png"></p>
-<p>根据基本电路理论，其传输延迟为 $t_p&#x3D; ln2 \cdot RC &#x3D; 0.69R_{on}C_L$</p>
-<h4 id="传输特性曲线"><a href="#传输特性曲线" class="headerlink" title="传输特性曲线"></a>传输特性曲线</h4><p>反向器的传输特性曲线如下：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-49.png"></p>
-<p>需要注意的是，在CMOS电路中，在稳定的工作状态下，不存在从VDD到VSS的直接电流，只有在状态翻转的过程中有一个瞬时的大电流。</p>
-<h4 id="翻转阈值"><a href="#翻转阈值" class="headerlink" title="翻转阈值"></a>翻转阈值</h4><p>将反相器的翻转阈值定义为：<br>$$V_M &#x3D; V_{in}&#x3D;V_{out}$$<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-50.png" alt="alt text"></p>
-<p>根据上述公式，在该点下，P管和N管均处于饱和状态($V_{ds}&#x3D;V_{gs}$)，假设晶体管为短沟道器件，达到速度饱和，带入电流公式：</p>
-<p>$$I_D &#x3D; k’\frac{W}{L}((V_{GS}-V_T)V_{DSAT}-\frac{V_{DSAT}^2}{2})$$</p>
-<p>可以解得：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-51.png" alt="alt text"></p>
-<p>当VDD的值相比晶体管的阈值电压和饱和电压相比足够大时，简化为“</p>
-<p>$$V_M \simeq \frac{rV_{DD}}{1+r}$$</p>
-<p>由于r 是一个与P N管宽度只比相关的参数，因此可以通过调节PN管的比值来调节$V_M$的大小：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-52.png"></p>
-<p>一般来讲，当$\frac{W_p}{W_n} &#x3D; 2$时， $V_M$接近$V_{DD}$的一半。</p>
-<h4 id="V-IH-V-IL-与噪声容限"><a href="#V-IH-V-IL-与噪声容限" class="headerlink" title="$V_{IH}$,$V_{IL}$与噪声容限"></a>$V_{IH}$,$V_{IL}$与噪声容限</h4><p>对于反相器而言，将VTC曲线的斜率为-1(增益为-1)时Vin的值定义为$V_{IH}$,$V_{IL}$</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-53.png"></p>
-<p>而数字设计中，往往采用线性分段近似的方式，通过求得$V_M$处曲线的斜率g,确定$V_{IH}$和$V_{IL}$：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-54.png"></p>
-<p>此时假设$V_{OL}&#x3D;0$,$V_{OH}&#x3D;V_{DD}$,计算得到相应的噪声容限。</p>
-<h4 id="传输增益"><a href="#传输增益" class="headerlink" title="传输增益"></a>传输增益</h4><p>略</p>
-<h3 id="负载电容"><a href="#负载电容" class="headerlink" title="负载电容"></a>负载电容</h3><p>接下来分析反相器的负载电容。假设2个反相器进行串联，分析其负载电容$C_L$：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-55.png"></p>
-<p>$C_L$的组成包括：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-56.png"></p>
-<h4 id="栅漏电容-C-gd"><a href="#栅漏电容-C-gd" class="headerlink" title="栅漏电容 $C_{gd}$"></a>栅漏电容 $C_{gd}$</h4><p>$C_{gd12}$指12这两个管子的栅与漏之间的电容，如之前在器件一栏分析的，该电容一方面由栅极的覆盖（栅氧化层）电容有关，另一方面与栅极电压感应出的沟道电容有关，即：</p>
-<p>$$C_{gd} &#x3D; C_{gdO} + C_{gcd}$$</p>
-<p>其中栅氧化层电容$C_{gdO}$的值是固定的，而沟道电容$C_{gcd}$与晶体管的工作状态有关。对其进行分类讨论如下：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-57.png"></p>
-<p>可见无论何种工作状态下，沟道电容均为0，故栅漏电容只等于覆盖电容：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-58.png"></p>
-<p>此外，需要考虑晶体管的米勒效应，将浮空电容用2倍的接地电容来替换，最终结合版图计算得到的栅漏电容$C_{gd1,2}$为：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-59.png"></p>
-<h4 id="漏体电容-C-db1-和-C-db2"><a href="#漏体电容-C-db1-和-C-db2" class="headerlink" title="漏体电容$C_{db1}$和$C_{db2}$"></a>漏体电容$C_{db1}$和$C_{db2}$</h4><p>漏体电容$C_{db1}$和$C_{db2}$来自漏体之间反向偏置的PN结形成的结电容，满足PN结的电容公式。为了简化计算，一般采用一些线性公式进行近似。</p>
-<h4 id="扇出的栅电容-C-g"><a href="#扇出的栅电容-C-g" class="headerlink" title="扇出的栅电容$C_g$"></a>扇出的栅电容$C_g$</h4><p>假设栅电容为扇出的栅上的总电容，有：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-60.png"></p>
-<h4 id="连线电容-C-W"><a href="#连线电容-C-W" class="headerlink" title="连线电容 $C_W$"></a>连线电容 $C_W$</h4><p>$C_W$ 的值与具体工艺相关</p>
-<p>将上述所有电容加和，便得到反相器的负载电容$C_L$</p>
-<h3 id="传输延迟"><a href="#传输延迟" class="headerlink" title="传输延迟"></a>传输延迟</h3><p>如前所述，对反相器的传输延迟的分析可以近似为一个一阶的RC模型：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-61.png"></p>
-<p>之前的分析已经计算出了反相器的负载电容，接下来需要考虑反相器工作时的等效电阻。</p>
-<p>对等效电阻的分析如下：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-62.png"></p>
-<p>可以看到，正如前面强调过的，等效电阻是一个与电源电压VDD相关的参数，且与VDD负相关。</p>
-<p>当计算传输延迟时：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-63.png"></p>
-<p>可以发现随着工作电压的提高，传输延迟也会下降，从而电路的性能提升。这也符号我们的一般直觉，即电压越高，对电路的”驱动”能力越强。</p>
-<p>此外，传输延迟也与输入信号的变化有关：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-64.png"></p>
-<p>由于输入信号并非理想信号，其变化时间也需要被考虑在传输延迟之内。</p>
-<h4 id="晶体管尺寸比例的确定"><a href="#晶体管尺寸比例的确定" class="headerlink" title="晶体管尺寸比例的确定"></a>晶体管尺寸比例的确定</h4><p>在上一节中，为了是传输特性曲线VTC对称，得出P管和N管的比例系数$\beta$约为2。而对称的VTC并不意味着总延迟(high to low 和low to high之和)最小。</p>
-<p>实际的实验结果如下：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-65.png"></p>
-<p>可以看到，相等上升和下降传输延迟(2.4)与总延迟最小(1.9)的比例系数并不相等。</p>
-<p>好在它们都在2附近，于是$\beta&#x3D;2$便成为默认比例系数。</p>
-<h4 id="sizing的影响"><a href="#sizing的影响" class="headerlink" title="sizing的影响"></a>sizing的影响</h4><p>在上述分析中，我们总是假设晶体管的负载电容为$C_L$,然而事实上，$C_L$可以包含2个部分：本征电容$C_{int}$与外部电容$C_{ext}$。还是用之前2个反相器相连的例子：</p>
-<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-66.png"></p>
-<p>当反相器的尺寸整体扩大S倍时，其电容大致扩大为原来的S倍，而电阻却下降为原来的1&#x2F;S,这使得延迟参数$R_{eq}C{int}$不变。而由于sizing增大了本征电容的值，使得$\frac{C_{ext}}{C_{int}}$变小，从而整体的传输延迟变小。</p>
-<p>即：在外部负载电容不变的情况下，反相器的尺寸越大，其”驱动”能力越强，传输延迟越小。</p>
-<h3 id="对传输延迟的优化"><a href="#对传输延迟的优化" class="headerlink" title="* 对传输延迟的优化"></a>* 对传输延迟的优化</h3><p>在对反相器的sizing有了基本认识后，可以考虑对传输延迟进行优化。</p>
-<h3 id="功耗"><a href="#功耗" class="headerlink" title="功耗"></a>功耗</h3>]]></content>
-      <categories>
-        <category>notes</category>
-      </categories>
-      <tags>
-        <tag>ICer</tag>
       </tags>
   </entry>
   <entry>
@@ -1948,6 +1592,607 @@ assert 将 property 应用于实际的硬件设计，以确保在运行时满足
       <tags>
         <tag>ICer</tag>
         <tag>Programming Language</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>LearnPerl</title>
+    <url>/2024/05/08/LearnPerl/</url>
+    <content><![CDATA[<h1 id="Learn-Perl"><a href="#Learn-Perl" class="headerlink" title="Learn Perl"></a>Learn Perl</h1><h2 id="ch2-标量数据"><a href="#ch2-标量数据" class="headerlink" title="ch2 标量数据"></a>ch2 标量数据</h2><h3 id="第一个Helloword-程序"><a href="#第一个Helloword-程序" class="headerlink" title="第一个Helloword 程序"></a>第一个Helloword 程序</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">&quot;Hello, world!\n&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>perl是一种脚本语言，一般已经被内置在类unix系统中。类似的还有shell，bash,csh,tcl,python等。</p>
+<p>第一行的<code>#!</code>读作shell bang。shell bang 是一个用于指定脚本解释器的特殊字符组合。它由 <code>#</code>（井号）和 <code>!</code>（感叹号）组合而成，通常位于脚本的第一行。当一个脚本被执行时，系统会参考 shebang 指定的解释器来执行这个脚本。</p>
+<p>例如，如果一个脚本的第一行是 <code>#!/bin/bash</code>，那么这个脚本就会使用 Bash 作为其解释器。如果改为 <code>#!/usr/bin/python3</code>，那么这个脚本就会使用 Python 3 作为其解释器。</p>
+<p>linux默认的脚本解释器总是在&#x2F;usr&#x2F;bin目录下，如果解释器安装在其他目录下，则需要修改对应的路径。</p>
+<p>由于有shell bang的存在，perl程序不需要有特定的扩展名，而只需要是<strong>可执行</strong>的。（为了区分可以加上<code>.pl</code>）的后缀。</p>
+<p>此外也可以直接通过<code>perl</code>命令执行脚本。这2种方式大部分情况下是相同的，然而有时候也会产生不同的效果。</p>
+<p><img src="/2024/05/08/LearnPerl/image.png"><br>目前本人还没搞清楚这种情况出现的原因。</p>
+<p>反引号&#96;&#96;可以用于执行外部命令:</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"> @lines = <span class="string">`ls -a`</span>;</span><br><span class="line"> <span class="keyword">foreach</span> (@lines) &#123;</span><br><span class="line">  <span class="keyword">print</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="标量数据"><a href="#标量数据" class="headerlink" title="标量数据"></a>标量数据</h3><p>字符串，数字都被看做标量数据。</p>
+<p>perl会根据数据的操作符判断执行代数运算还是字符串操作。</p>
+<p>变量采用美元符号声明：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">$alef  = <span class="keyword">chr</span>( <span class="number">0x05D0</span> );</span><br><span class="line">$alpha = <span class="keyword">chr</span>( <span class="keyword">hex</span>(<span class="string">&#x27;03B1&#x27;</span>) );</span><br><span class="line">$omega = <span class="keyword">chr</span>( <span class="number">0x03C9</span> );</span><br><span class="line"></span><br><span class="line"><span class="keyword">say</span> <span class="string">&quot;alpha:&quot;</span>.$alpha;</span><br><span class="line"><span class="keyword">say</span> <span class="string">&quot;alef:&quot;</span>.$alef;</span><br><span class="line"><span class="keyword">say</span> <span class="string">&quot;omega:&quot;</span>.$omega;</span><br><span class="line"></span><br><span class="line">$code_point = <span class="keyword">ord</span>( <span class="string">&#x27;א&#x27;</span> );</span><br><span class="line"></span><br><span class="line"><span class="keyword">say</span> $code_point;</span><br></pre></td></tr></table></figure>
+<p><img src="/2024/05/08/LearnPerl/image2.png"><br>chr函数会将对应的ascii字符进行转换。ord则相反。</p>
+<p>使用<code>x</code>可以将字符串重复对应的次数。</p>
+<p><img src="/2024/05/08/LearnPerl/image1.png"></p>
+<p><code>say</code>和<code>print</code>类似，区别是会自动换行。（需要5.10以上的版本）</p>
+<p>使用<code>.</code>可以连接2个字符串。</p>
+<h3 id="其他特性"><a href="#其他特性" class="headerlink" title="其他特性"></a>其他特性</h3><p>获取标准输入：<code>&lt;STDIN&gt;</code></p>
+<p><img src="/2024/05/08/LearnPerl/image-1.png"></p>
+<p><img src="/2024/05/08/LearnPerl/image-2.png"></p>
+<p><code>chomp</code>的作用是去掉字符串末尾的换行符。</p>
+<h2 id="ch3"><a href="#ch3" class="headerlink" title="ch3"></a>ch3</h2><h3 id="list"><a href="#list" class="headerlink" title="list"></a>list</h3><p>数组和标量的声明方式完全相同。</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">10</span>;</span><br><span class="line">$word[<span class="number">0</span>]= <span class="string">&quot;s&quot;</span>;</span><br><span class="line"></span><br><span class="line">$word[<span class="number">1</span>]= <span class="string">&quot;h&quot;</span>;</span><br><span class="line">$word[<span class="number">2</span>]= <span class="string">&quot;i&quot;</span>;</span><br><span class="line">$word[<span class="number">3</span>]= <span class="string">&quot;t&quot;</span>;</span><br><span class="line"></span><br><span class="line">$a = $#word;</span><br><span class="line"><span class="keyword">say</span> $a;</span><br><span class="line"><span class="keyword">say</span>  $word[-<span class="number">4</span>].$word[-<span class="number">3</span>].$word[-<span class="number">2</span>].$word[-<span class="number">1</span>];</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">wenkai@LAPTOP-36N49UJG:~/perl/ex3$ ./array</span><br><span class="line">3</span><br><span class="line">shit</span><br></pre></td></tr></table></figure>
+
+
+<p><code>$#</code>得到数组的长度(减一)</p>
+<h3 id="array"><a href="#array" class="headerlink" title="array"></a>array</h3>]]></content>
+      <categories>
+        <category>notes</category>
+      </categories>
+      <tags>
+        <tag>Programming Language</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>笨办法学C</title>
+    <url>/2024/04/19/%E7%AC%A8%E5%8A%9E%E6%B3%95%E5%AD%A6C/</url>
+    <content><![CDATA[<h1 id="Learn-C-the-hard-way"><a href="#Learn-C-the-hard-way" class="headerlink" title="Learn C the hard way"></a>Learn C the hard way</h1><h2 id="C语法"><a href="#C语法" class="headerlink" title="C语法"></a>C语法</h2><p>略</p>
+<h2 id="一些技巧"><a href="#一些技巧" class="headerlink" title="一些技巧"></a>一些技巧</h2><h3 id="语法糖"><a href="#语法糖" class="headerlink" title="语法糖"></a>语法糖</h3><p>使用宏定义构建语法糖。<br><code>&quot;语法糖&quot;是一种编程术语，用来描述那些没有给编程语言添加新功能，但是可以使代码更易读或易写的语法。这些语法通过提供更加方便、简洁的编写方式，使得程序员能够更加快速、更加直观地表达程序设计的意图。 在C语言中，也存在一些语法糖。例如，数组的下标运算就是一种语法糖。例如，array[i]实际上就是*(array + i)的简化写法。另一个例子是for循环，它实际上可以使用while循环和一些额外的语句来实现，但for循环提供了一种更加简洁、易读的方式来编写循环。 虽然语法糖可以使代码更简洁、易读，但并不会影响程序的功能或效率。使用或不使用语法糖，都不会影响程序的运行结果。</code></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 语法糖, 写入obj-&gt;_(N), 等价于 obj-&gt;proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> _(N) proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NEW(T, N) Object_new(sizeof(T), T##Proto, N)</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="assert宏"><a href="#assert宏" class="headerlink" title="assert宏"></a>assert宏</h3><p>&lt;assert.h&gt; 是 C 语言的一个标准库，主要提供了一个名为 assert 的宏，用于在程序开发和调试过程中进行条件测试。<br>assert 宏允许程序员在代码中插入诊断信息。如果在运行时，assert 的条件测试失败（即，测试的表达式结果为假），那么程序会立即终止，并显示一条错误消息。这条消息通常包括文件名、源代码行号以及测试失败的表达式。</p>
+<p>例如：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> Person *<span class="title function_">Person_create</span><span class="params">(<span class="type">char</span> *name, <span class="type">int</span> age, <span class="type">int</span> height, <span class="type">int</span> weight)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Person</span> *<span class="title">who</span> =</span> <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> Person));</span><br><span class="line">    assert(who != <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    who-&gt;name = strdup(name);</span><br><span class="line">    who-&gt;age = age;</span><br><span class="line">    who-&gt;height = height;</span><br><span class="line">    who-&gt;weight = weight;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> who;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里使用assert宏来检查内存是否被成功分配。</p>
+<h3 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h3><p>众所周知C不支持面向对象，但是可以通过一些技巧实现类似继承的功能：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//定义一个基类 Object</span></span><br><span class="line"><span class="comment">//注意这里使用了函数指针，从而可以实现函数重载</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">char</span> *description;</span><br><span class="line">    <span class="type">int</span> (*init)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*describe)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*destroy)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> *(*move)(<span class="type">void</span> *self, Direction direction);</span><br><span class="line">    <span class="type">int</span> (*attack)(<span class="type">void</span> *self, <span class="type">int</span> damage);</span><br><span class="line">&#125; Object;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//基类的构造函数</span></span><br><span class="line"><span class="type">void</span> *<span class="title function_">Object_new</span><span class="params">(<span class="type">size_t</span> size, Object proto, <span class="type">char</span> *description)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// setup the default functions in case they aren&#x27;t set</span></span><br><span class="line">    <span class="keyword">if</span>(!proto.init) proto.init = Object_init;</span><br><span class="line">    <span class="keyword">if</span>(!proto.describe) proto.describe = Object_describe;</span><br><span class="line">    <span class="keyword">if</span>(!proto.destroy) proto.destroy = Object_destroy;</span><br><span class="line">    <span class="keyword">if</span>(!proto.attack) proto.attack = Object_attack;</span><br><span class="line">    <span class="keyword">if</span>(!proto.move) proto.move = Object_move;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// this seems weird, but we can make a struct of one size,</span></span><br><span class="line">    <span class="comment">// then point a different pointer at it to &quot;cast&quot; it</span></span><br><span class="line">    Object *el = <span class="built_in">calloc</span>(<span class="number">1</span>, size);</span><br><span class="line">    *el = proto;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// copy the description over</span></span><br><span class="line">    el-&gt;description = strdup(description);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// initialize it with whatever init we were given</span></span><br><span class="line">    <span class="keyword">if</span>(!el-&gt;init(el)) &#123;</span><br><span class="line">        <span class="comment">// looks like it didn&#x27;t initialize properly</span></span><br><span class="line">        el-&gt;destroy(el);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// all done, we made an object of any type</span></span><br><span class="line">        <span class="keyword">return</span> el;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//对每个需要继承基类的子类，用以下方法定义：</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Map</span> &#123;</span></span><br><span class="line">    Object proto;</span><br><span class="line">    Room *start;</span><br><span class="line">    Room *location;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//指定需要重载的方法：</span></span><br><span class="line">Object MapProto = &#123;</span><br><span class="line">    .init = Map_init,</span><br><span class="line">    .move = Map_move,</span><br><span class="line">    .attack = Map_attack</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//使用之前的语法糖进行初始化：</span></span><br><span class="line">Map *game = NEW(Map, <span class="string">&quot;The Hall of the Minotaur.&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>notes</category>
+      </categories>
+      <tags>
+        <tag>Programming Language</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>CORDIC Algorithm</title>
+    <url>/2024/02/28/CORDIC-Algorithm/</url>
+    <content><![CDATA[<h1 id="Coordinate-Rotation-Dlgital-Computer-CORDIC-算法"><a href="#Coordinate-Rotation-Dlgital-Computer-CORDIC-算法" class="headerlink" title="Coordinate Rotation Dlgital Computer(CORDIC)算法"></a>Coordinate Rotation Dlgital Computer(CORDIC)算法</h1><p>参考：Computer Arithmetic: Algorithm and Hardware Design</p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><h3 id="角度模式"><a href="#角度模式" class="headerlink" title="角度模式"></a>角度模式</h3><p>考虑平面直角坐标系下的旋转，如图：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image.png" alt="basic"></p>
+<p>点$E^{(i)}$旋转$\alpha^{(i)}$后得到了点$E^{(i+1)}$</p>
+<p>那么假设$E^{(i)}$的坐标为：$E^{(i)}$:   $(x^{(i)},y^{(i)})&#x3D;(R^{(i)}cos\theta,R^{(i)}cos\theta)$</p>
+<p>$E^{(i+1)}$的坐标可以表示为：<br>$x^{(i)+1} &#x3D; R^{(i)}cos(\theta+\alpha) &#x3D; x^{(i)}cos\alpha - y^{(i)}sin\alpha \ &#x3D;\frac{ x^{(i)}-y^{(i)}tan\alpha}{\frac{1}{cos\alpha}}\ &#x3D; \frac{ x^{(i)}-y^{(i)}tan\alpha}{(1+tan^2\alpha)^{1&#x2F;2}}$</p>
+<p>同理有：<br>$y^{(i+1)} &#x3D; R^{(i)}sin(\theta+\alpha) &#x3D; x^{(i)}sin\alpha + y^{(i)}cos\alpha \ &#x3D;\frac{ x^{(i)}tan\alpha + y^{(i)} }{\frac{1}{cos\alpha}}\ &#x3D; \frac{  x^{(i)}tan\alpha + y^{(i)}}{(1+tan^2\alpha)^{1&#x2F;2}}$</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-1.png"></p>
+<p>上述公式是一个迭代式，<br>$ z^{(i)}$表示当前旋转之前向量与x轴的夹角，$ z^{(i+1)}$表示在旋转后与x轴的夹角（顺时针为正）。</p>
+<p>现在考虑一种图中的一种伪旋转，对公式2边同时除以$\cos\alpha^{(i)}$,得到$E’^{(i)}$的坐标：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-3.png"><br><img src="/2024/02/28/CORDIC-Algorithm/image-2.png"></p>
+<p>令$x^{(0)}&#x3D;x,  y^{(0)}&#x3D;y,  z^{(0)}&#x3D;z$，则对于一个m次迭代的真旋转，有：<br><img src="/2024/02/28/CORDIC-Algorithm/image-4.png"></p>
+<p>对伪旋转：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-5.png"></p>
+<p>考虑每次迭代的角度选取，如果使$tan\alpha$恰好等于 $2^{-i},i&#x3D;0,1,2,3…$则上式变为：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-6.png"></p>
+<p>其中$d_i \in {−1,1}$ </p>
+<p>则每次真旋转迭代的计算可以通过：1次查表，2次移位，3次加(减)法实现。</p>
+<p>对于伪旋转，由于每次的角度选取是固定值，因此K为常数，K &#x3D; 1.646 760 258 121….</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-7.png"></p>
+<p>考虑计算 $cosz$,可以令$x^{(0)}&#x3D;1,  y^{(0)}&#x3D;0,  \sum\alpha^{(i)}&#x3D;z$此时有：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-10.png"></p>
+<p>如果计算$cos30^\circ$,可以：<br><img src="/2024/02/28/CORDIC-Algorithm/image-8.png"></p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-9.png"></p>
+<p>由于表中的角度表示范围达到了$−99.7^\circ ≤ z ≤ 99.7^\circ$,因此可以通过上述方法加上基本三角变化求出任何角的正余弦值。</p>
+<h3 id="向量模式"><a href="#向量模式" class="headerlink" title="向量模式"></a>向量模式</h3><p>通过令$y\rightarrow 0$,可以计算反三角函数值$tan^{-1}y$,此时，</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-12.png"><br>带入</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-5.png"></p>
+<p>可得<br><img src="/2024/02/28/CORDIC-Algorithm/image-13.png"></p>
+<p>故可以取(1,y),将其旋转到x轴上，此时旋转过的角度即为$tan^{-1}y$</p>
+<h3 id="一个简单的python验证程序"><a href="#一个简单的python验证程序" class="headerlink" title="一个简单的python验证程序"></a>一个简单的python验证程序</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line">lookuptable = &#123;&#125;</span><br><span class="line"></span><br><span class="line">lookuptable[<span class="number">0</span>]=<span class="number">45.0</span></span><br><span class="line">lookuptable[<span class="number">1</span>]=<span class="number">26.5650</span></span><br><span class="line">lookuptable[<span class="number">2</span>]=<span class="number">14.0362</span></span><br><span class="line">lookuptable[<span class="number">3</span>]=<span class="number">7.1250</span></span><br><span class="line">lookuptable[<span class="number">4</span>]=<span class="number">3.5763</span></span><br><span class="line">lookuptable[<span class="number">5</span>]=<span class="number">1.7899</span></span><br><span class="line">lookuptable[<span class="number">6</span>]=<span class="number">0.8951</span></span><br><span class="line">lookuptable[<span class="number">7</span>]=<span class="number">0.4476</span></span><br><span class="line">lookuptable[<span class="number">8</span>]=<span class="number">0.2238</span></span><br><span class="line">lookuptable[<span class="number">9</span>]=<span class="number">0.1119</span></span><br><span class="line">lookuptable[<span class="number">10</span>]=<span class="number">0.0230</span></span><br><span class="line">lookuptable[<span class="number">11</span>]=<span class="number">0.0140</span></span><br><span class="line">lookuptable[<span class="number">12</span>]=<span class="number">0.0070</span></span><br><span class="line">lookuptable[<span class="number">13</span>]=<span class="number">0.0035</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cordic</span>(<span class="params">value,  mode</span>):</span><br><span class="line">    z = <span class="number">0</span></span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">        x =  <span class="number">0.607252935</span></span><br><span class="line">        y = <span class="number">0.0</span> </span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">1</span>):</span><br><span class="line">        x = <span class="number">1</span></span><br><span class="line">        y = value</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">13</span>):</span><br><span class="line">        <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">            d = np.sign(value)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            d = -np.sign(y)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(d==<span class="number">0</span>):d = <span class="number">1</span></span><br><span class="line">        value -= d*lookuptable[i]</span><br><span class="line"></span><br><span class="line">        z -= d*lookuptable[i]</span><br><span class="line"></span><br><span class="line">        temp = x</span><br><span class="line">        x -= d * y * <span class="number">2.0</span>**(-i)</span><br><span class="line">        y +=  d* temp * <span class="number">2.0</span>**(-i)</span><br><span class="line">        <span class="comment"># print(&quot;y:&quot;,y)</span></span><br><span class="line">        <span class="comment"># print(&quot;x:&quot;,x)</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;sin:&quot;</span>,y)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;cos:&quot;</span>,x)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;theta:&quot;</span>,z)</span><br><span class="line"></span><br><span class="line">cordic(<span class="number">4</span>,<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h3><p>对一个n位的cordic运算，若采用纯硬件实现，每一位需要1次查表，2次移位，3次加法，其计算复杂度是$O(n)$这个量级的。</p>
+<p>考虑硬件实现，一个最简单的版本是这样的：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-14.png"></p>
+<p>在不考虑优化版本时，图中的加法器可以用串行进位的方式实现，此时，对于k位的操作数，计算需要的时钟周期为$O(k^2)$。</p>
+<h3 id="通用版本"><a href="#通用版本" class="headerlink" title="通用版本"></a>通用版本</h3><p><img src="/2024/02/28/CORDIC-Algorithm/image-15.png"></p>
+<p>CORDIC算法可以被拓展，用于线性和双曲函数的计算。其通用公式为：<br><img src="/2024/02/28/CORDIC-Algorithm/image-17.png"><br><img src="/2024/02/28/CORDIC-Algorithm/image-16.png"></p>
+<p>推理过程如下：<br>参考：（A unified algorithm for elementary functions）</p>
+<p>考虑一个从二维直角坐标系到极坐标的非线性映射：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-18.png"></p>
+<p>其中R是映射后的向量长度，A是其与坐标轴的夹角。</p>
+<p>显然当m取1时，该映射为从直角坐标系到极坐标系的坐标变换。<br>当m取0时， 该变换总是落在一条相同的直线上<br>当m&#x3D;-1时，该变换为落在一条双曲线$x^2-y^2&#x3D;1$上。</p>
+<p>事实上，如果将R看作特定曲线与x轴交点到原点的距离，根据上述定义，总是有：<br>$A &#x3D; \frac{2S}{R^2}$<br><img src="/2024/02/28/CORDIC-Algorithm/image-19.png"></p>
+<p>其中S为变换前的点P与点O,R围成的阴影部分面积。</p>
+<p>如果给出一个迭代式：<br><img src="/2024/02/28/CORDIC-Algorithm/image-20.png"></p>
+<p>其中$\delta_i$时任意值，而m是映射中的参数。那么每次迭代后的点经过非线性映射后，在极坐标下可以表示为：<br><img src="/2024/02/28/CORDIC-Algorithm/image-21.png"></p>
+<p>其中<br><img src="/2024/02/28/CORDIC-Algorithm/image-22.png"></p>
+<p>即每次迭代可以看作是一次旋转和放缩。对n次迭代，最后得到的长度和角度为：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-23.png"></p>
+<p>其中<img src="/2024/02/28/CORDIC-Algorithm/image-24.png"></p>
+<p>如果再定义一个新的变量<br><img src="/2024/02/28/CORDIC-Algorithm/image-25.png"></p>
+<p>则经过n次迭代后的点经过逆映射后，可以得到其在直角坐标系下的坐标：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-26.png"></p>
+<p>同样的，注意到当m&#x3D;1时，该迭代式与之前推出的角度模式下的伪旋转迭代式一模一样。</p>
+<p>而当m&#x3D;0时，分别让$y\rightarrow0$和$z\rightarrow 0$,可以得到如下不同的迭代结果：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-27.png"><br>且在m&#x3D;0时，多轮迭代后的缩放因子为1.</p>
+<p>上述公式说明，直线迭代可以用于计算乘法，除法或直接计算一个乘加、除加操作。</p>
+<p>而对双曲映射，迭代结果分别为：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-28.png"></p>
+<p>其中缩放因子<code>K&#39;=0.8281593609602</code>。</p>
+<p>上述公式说明，双曲映射可以被用来计算双曲正弦，双曲余弦和双曲正切函数。</p>
+<p>另外需要注意的是，对于双曲映射，并不总是收敛的，这是因为对于tan函数，总是有：<br> $tan^{−1}(2^{−(i+1)}) ≥ 0.5tan^{−1}(2^{−i})$</p>
+<p>而同样的关系:放在双曲正切中却并不总是成立。</p>
+<p>$tanh^{−1}(2^{−(i+1)}) ≥ 0.5tanh^{−1}(2^{−i})$</p>
+<p>一个简单的收敛方法为，当迭代次数为:$ i &#x3D; 4, 13, 40, 121, …,3j + 1$时，该次迭代必须再重复一遍。即：<br>1,2,3,4,4,5,6,7,8,9,10,11,12,13,13,14….<br>(收敛性分析在原论文中有比较严格的推导，我懒得手推一遍，这里就不重复了，直接使用其结果)</p>
+<p>计算范围为： <code>With these provisions, convergence in computing  hyperbolic sine and cosine functions is guaranteed for |z| &lt; 1.13 and in the case of the  tanh−1 function, for |y| &lt; 0.81.</code></p>
+<p>此外，以下函数也可以被间接计算出来：<br><img src="/2024/02/28/CORDIC-Algorithm/image-29.png"></p>
+<h3 id="收敛性仿真"><a href="#收敛性仿真" class="headerlink" title="收敛性仿真"></a>收敛性仿真</h3><p>写一个简单的双曲迭代来验证上述方法的收敛性：</p>
+<p>以cosh为例，以下是一段简单的python代码：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">20</span>): </span><br><span class="line">    lookuptable_tanh[i] = math.atanh(<span class="number">2</span>**(-i))</span><br><span class="line">    <span class="built_in">print</span>(math.atanh(<span class="number">2</span>**(-i)))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_tanh</span>(<span class="params">value</span>):</span><br><span class="line">    k=<span class="number">0.8281593609602</span></span><br><span class="line">    x=<span class="number">1</span>/k</span><br><span class="line">    y=<span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">20</span>):</span><br><span class="line">        <span class="keyword">if</span>(value)&gt;<span class="number">0</span>:</span><br><span class="line">            d=<span class="number">1</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            d=-<span class="number">1</span></span><br><span class="line">        </span><br><span class="line">        value = value - d*lookuptable_tanh[i]</span><br><span class="line">        temp=x</span><br><span class="line">        x = x + d*y*<span class="number">2</span>**-i</span><br><span class="line">        y = y + d*temp*<span class="number">2</span>**-i</span><br><span class="line"></span><br><span class="line">        <span class="comment"># if(i==4 or i==13):</span></span><br><span class="line">        <span class="comment">#     if(value)&gt;0:</span></span><br><span class="line">        <span class="comment">#         d=1</span></span><br><span class="line">        <span class="comment">#     else:</span></span><br><span class="line">        <span class="comment">#         d=-1</span></span><br><span class="line">        <span class="comment">#     value = value - d*lookuptable_tanh[i]</span></span><br><span class="line">        <span class="comment">#     temp=x</span></span><br><span class="line">        <span class="comment">#     x = x + d*y*2**-i</span></span><br><span class="line">        <span class="comment">#     y = y + d*temp*2**-i</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_cosh:&quot;</span>,x)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_sinh:&quot;</span>,y)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_tanh:&quot;</span>,y/x)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span>(x,y,y/x)</span><br><span class="line"></span><br><span class="line">x = np.arange(-<span class="number">1</span>, <span class="number">1</span>, <span class="number">0.01</span>)</span><br><span class="line"><span class="comment"># 计算对应的 cosh 函数值</span></span><br><span class="line">y_numpy = np.cosh(x)</span><br><span class="line"></span><br><span class="line">y_custom=[]</span><br><span class="line"><span class="keyword">for</span> value <span class="keyword">in</span> x:</span><br><span class="line">    y,_,_ = my_tanh(value)</span><br><span class="line">    y_custom.append(y)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 绘制图形</span></span><br><span class="line">plt.plot(x, y_numpy, label=<span class="string">&#x27;numpy.cosh(x)&#x27;</span>)</span><br><span class="line">plt.plot(x, y_custom, label=<span class="string">&#x27;my_cosh(x)&#x27;</span>)</span><br><span class="line">plt.xlabel(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">plt.ylabel(<span class="string">&#x27;cosh(x)&#x27;</span>)</span><br><span class="line">plt.title(<span class="string">&#x27;Comparison of cosh(x) functions&#x27;</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.grid(<span class="literal">True</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+
+
+<p>在不用重复第4次和第13次迭代时，结果如下：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-30.png"></p>
+<p>可以看到蓝色线和橙色线不完全重合，局部放大后结果如下：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-31.png"></p>
+<p>取消对应注释，重复第4和第13次迭代，结果如下：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-32.png"></p>
+<p>可以看到蓝色线和橙色线基本完全重合，局部放大后结果如下：<br><img src="/2024/02/28/CORDIC-Algorithm/image-33.png"></p>
+<h3 id="硬件实现"><a href="#硬件实现" class="headerlink" title="硬件实现"></a>硬件实现</h3>]]></content>
+      <tags>
+        <tag>数字集成电路</tag>
+        <tag>ICer</tag>
+        <tag>Hardware Algorithm</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>高等数字集成电路设计</title>
+    <url>/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/</url>
+    <content><![CDATA[<h1 id="高等数字集成电路设计"><a href="#高等数字集成电路设计" class="headerlink" title="高等数字集成电路设计"></a>高等数字集成电路设计</h1><h2 id="Lecture1-introduction"><a href="#Lecture1-introduction" class="headerlink" title="Lecture1 introduction"></a>Lecture1 introduction</h2><p>本节主要对IC产业的发展进行概述，以及介绍一些数字IC设计中的常用概念和基本指标。</p>
+<h3 id="IC产业概述"><a href="#IC产业概述" class="headerlink" title="IC产业概述"></a>IC产业概述</h3><p>集成电路行业是典型的高附加值行业，具有重资产，高技术附加值，和劳动力密集三重特点。其发展存在典型的周期性:<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image.png"></p>
+<p>半导体行业的细分领域如下：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-1.png"><br>对应中国的产业图谱为：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-2.png"></p>
+<p>在IC产业的发展历程中，摩尔定律起到核心的推动作用。从芯片制造的角度讲，晶体管尺寸的scaling down能够带来性能，成本和各方面的益处，如下图：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-3.png"></p>
+<p>然而随着器件尺寸逼近物理极限，IC工业面临的功耗墙，成本(主要是验证方面成本的急剧提高)及可靠性等各方面的挑战。<br>各工艺节点下的芯片制作成本如下：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-6.png"></p>
+<h3 id="数字IC设计概览"><a href="#数字IC设计概览" class="headerlink" title="数字IC设计概览"></a>数字IC设计概览</h3><h4 id="方法学"><a href="#方法学" class="headerlink" title="方法学"></a>方法学</h4><p>数字IC设计从业者分为不同层级：架构，逻辑，电路和物理层级，它们负责不同抽象层级的设计，使用不同的设计工具，如下图：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-4.png"></p>
+<p>在数字IC的实际实现过程中，又分为全定制设计和半定制设计。其中半定制设计包括标准单元库（standard cell 设计方法）、门阵列（gate array设计方法）。而全定制设计则在器件层面进行性能和功能的优化。半定制的方法在一定程度上降低了设计难度和优化难度，但可能在性能上略逊于全定制设计。如今的大部分IC设计都是基于半定制设计的。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-5.png"></p>
+<h4 id="封装"><a href="#封装" class="headerlink" title="封装"></a>封装</h4><p>生产出的芯片裸片并不能直接用于生产生活中的直接应用，而需要先进行封装，对芯片进行一定的物理保护，从而增加芯片的可靠性。芯片封装需要考虑以下几个因素：</p>
+<ol>
+<li>电气特性，引入尽量小的寄生效应</li>
+<li>机械特性：尽量高的稳定性和可靠性</li>
+<li>热特性：高效的散热能力</li>
+<li>经济性：尽量低的成本</li>
+</ol>
+<p>下图展示了封装过程中引入的寄生参数：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-7.png"></p>
+<p>并且，随着IC产业的发展，一些先进封装技术如SiP,3D stacking, Die to Die,Chiplet等技术，脱离了物理保护的范畴，在架构层面实现了芯片性能的提升，从而成为在设计阶段就需要考虑的因素之一。</p>
+<h4 id="DFT-defign-for-test"><a href="#DFT-defign-for-test" class="headerlink" title="DFT(defign for test)"></a>DFT(defign for test)</h4><p>如上所述，随着工艺尺寸的scaling down，IC设计面临测试和验证成本的急剧提升。为此引入了DFT技术。一些典型的DFT技术如扫描链(Scan chain)技术，内建自测试BIST(build-in self test),JTAG等。</p>
+<h5 id="SCAN-CHAIN"><a href="#SCAN-CHAIN" class="headerlink" title="SCAN CHAIN"></a>SCAN CHAIN</h5><p>扫描链技术如下图：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-8.png"></p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-9.png"></p>
+<p>在每个寄存器的输入端口加入一个mux,形成一种scan register,并将每个寄存器的输出端和scan in段串联。</p>
+<ol>
+<li>在常规模式下，电路正常工作</li>
+<li>在scan 模式下，电路相当于一个shift register,每个寄存器中保存的结果被逐位的移动至输出端口(scan out)，从而能够得到某一周期内电路的所有中间值，进行功能验证。</li>
+</ol>
+<h5 id="BIST"><a href="#BIST" class="headerlink" title="BIST"></a>BIST</h5><p>待补充</p>
+<h5 id="JTAG"><a href="#JTAG" class="headerlink" title="JTAG"></a>JTAG</h5><p>待补充</p>
+<h3 id="数字IC设计的关心的一些指标"><a href="#数字IC设计的关心的一些指标" class="headerlink" title="数字IC设计的关心的一些指标"></a>数字IC设计的关心的一些指标</h3><p>就IC设计而言，最关注的指标无疑是PPA(power,Performance,Area)。这三个指标往往相互约束，需要做出权衡取舍(trade-off)。</p>
+<p>而数字IC设计领域，影响PPA的细分指标也有很多，下面分别简要进行介绍。</p>
+<h4 id="Fan-in-和Fan-out"><a href="#Fan-in-和Fan-out" class="headerlink" title="Fan-in 和Fan-out"></a>Fan-in 和Fan-out</h4><p>fan in 指逻辑门连接的输入，fan-in越大，逻辑门本身的面积越大，同时性能也会越差。<img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-10.png" alt="alt text"></p>
+<p>fan-out 指逻辑门连接的输出。fan-out越大，逻辑门需要驱动的下级电路越大，从而速度变慢。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-11.png"></p>
+<h4 id="干扰-interference-及噪声-noise"><a href="#干扰-interference-及噪声-noise" class="headerlink" title="干扰(interference)及噪声(noise)"></a>干扰(interference)及噪声(noise)</h4><p>电路中那些预期之外的电压和电流信号被称为噪声，噪声往往影响电路的性能。</p>
+<p>噪声的形成原因多种多样，常见的有平行线路之间的电磁串扰，电容直接的耦合(coupling)等。这些都造成电路信号的不稳定。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-12.png"><br>同时，来自电源(VDD)和地(VSS)的噪声也会影响信号。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-13.png"></p>
+<h4 id="噪声容限-Noise-Margins"><a href="#噪声容限-Noise-Margins" class="headerlink" title="噪声容限 Noise Margins"></a>噪声容限 Noise Margins</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-14.png"></p>
+<p>噪声容限一般分为高电平噪声容限$NM_H$和低电平噪声容限$NM_L$,代表电路对噪声的承受能力。它们分别定义为:</p>
+<p>$$NM_H &#x3D; V_{OH}-V_{IH}$$<br>$$NM_L &#x3D; V_{IL}-V_{OL}$$</p>
+<p>其中$V_{IL}$,$V_{IH}$,$V_{OL}$,$V_{OH}$的定义分别为：</p>
+<ol>
+<li>$V_{IL}$（Input Low Voltage）：输入低电平电压。输入信号被识别为低电平（通常为“0”）的最大电压。</li>
+<li>$V_{IH}$（Input High Voltage）：输入高电平电压。输入信号被识别为高电平（通常为“1”）的最小电压。</li>
+<li>$V_{OL}$（Output Low Voltage）：输出低电平电压。输出信号被识别为低电平（通常为“0”）时的最大电压。</li>
+<li>$V_{OH}$（Output High Voltage）：输出高电平电压。输出信号被识别为高电平（通常为“1”）时的最小电压。</li>
+</ol>
+<h4 id="传输延迟-Delay"><a href="#传输延迟-Delay" class="headerlink" title="传输延迟 Delay"></a>传输延迟 Delay</h4><p>电路的传输延迟参数定义如下图：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-15.png"></p>
+<ol>
+<li>$t_r$：电路从高电平的10%上升为高电平的90%所需要的时间。</li>
+<li>$t_f$：电路从高电平的90%下降为高电平的10%所需要的时间。</li>
+<li>$t_{pHL}$：输入信号上升为高电平的50%到输出信号下降为高电平的50%所需要的时间。</li>
+<li>$t_{pLH}$：输入信号下降为高电平的50%到输出信号上升为高电平的50%所需要的时间。</li>
+<li>$t_p$： $t_{pHL}$和$t_{pLH}$的平均值。</li>
+</ol>
+<h4 id="能效指标：PDP和EDP"><a href="#能效指标：PDP和EDP" class="headerlink" title="能效指标：PDP和EDP"></a>能效指标：PDP和EDP</h4><p>PDP(power delay product)：电路发生翻转期间的平均功耗与传输延迟的乘积,用于衡量电路完成一次计算所消化的能量。单位为焦耳($W\times s$)。</p>
+<p>$PDP &#x3D; P_{av}\times t_p$</p>
+<p>EDP(Energy delay product):有时，一个具有低PDP的电路，传输延迟（$t_p$）仍然有可能很大。为了找到在功耗和性能之间的最佳平衡点，可以将Power与Delay的平方相乘。即:</p>
+<p>$PEP &#x3D; P_{av}\times t_p^2 &#x3D; PDP \times t_p$</p>
+<p>在CMOS电路中，PEP一般与电源电压VDD成正比，较低的电压下往往能得到更好的EDP。</p>
+<h2 id="Lecture2-Device-Model"><a href="#Lecture2-Device-Model" class="headerlink" title="Lecture2 Device&amp;Model"></a>Lecture2 Device&amp;Model</h2><p>本节主要介绍集成电路中的基本器件：二极管和晶体管，以及对其进行分析的基本模型。</p>
+<h3 id="二极管Diode"><a href="#二极管Diode" class="headerlink" title="二极管Diode"></a>二极管Diode</h3><h4 id="掺杂"><a href="#掺杂" class="headerlink" title="掺杂"></a>掺杂</h4><p>硅原子具有4个外层电子，在形成单质(单晶硅)时，每个晶格硅原子与周围的4个硅原子相连，形成正四面体结构：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-16.png"></p>
+<p>如果对硅单质中掺入少量的3价元素（如硼B），则在一个晶格中存在一个硅原子，其原子核周围缺少一个电子，或者说形成了一个带正电的空穴(free hole)。进行这类掺杂(doping)的半导体材料具有获得电子的特性(acceptors)，称为P(posetive)型半导体。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-17.png"></p>
+<p>如果对硅单质中掺入少量的5价元素(如磷P,砷As),则在一个晶格中存在一个硅原子，其原子核周围多出一个自由电子(free electron)。进行这类掺杂(doping)的半导体材料具有失去电子的特性(donater),称为N(negetive)型半导体。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-18.png"></p>
+<h4 id="PN结"><a href="#PN结" class="headerlink" title="PN结"></a>PN结</h4><p>在将一块P型半导体和N型半导体进行接触之后，由于载流子浓度的不同，N型半导体中的自由电子便会自发向P型半导体的区域进行扩散(diffusion)，对其中的空穴进行填充，形成扩散电流(diffusion current)<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-19.png"></p>
+<p>在这个过程中，N型半导体由于失去电子而带正电，P型半导体由于得到电子而带负电，从而在PN结内部形成一个从N指向P的内建电场。在内建电场的作用下，P区的电子反过来向N区运动，形成漂移电流(drift diffusion)</p>
+<p>在自然条件下，PN结附近的扩散电流和漂移电流达到动态平衡。那些自发失去和得到电子的区域称为耗尽区(depletion region)。</p>
+<p>在扩散作用达到平衡后形成的耗尽区具有如下特点：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-20.png"></p>
+<ol>
+<li>电子&#x2F;空穴的密度均匀分布。</li>
+<li>由于场强是电荷密度的积分，电子&#x2F;空穴的均匀分布引起电场强调的线性分布。</li>
+<li>由于电势是场强的积分，PN结中内建电势随坐标呈现递增分布。</li>
+</ol>
+<p>耗尽区中内建电势的存在，会阻止载流子的运动，从宏观上看，降低了材料的导电能力。</p>
+<h4 id="偏置"><a href="#偏置" class="headerlink" title="偏置"></a>偏置</h4><p>二级结的构成为一个PN结和连接它们的金属，如下图：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-21.png"></p>
+<p>其电路符号为一个顶端带有一横线的三角，横线画在N型半导体的位置。</p>
+<h5 id="正偏"><a href="#正偏" class="headerlink" title="正偏"></a>正偏</h5><p>将二极管的P区连接电源的正极，N区连接电源的负极时，称为正偏(forward bias):<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-22.png"></p>
+<p>正偏后， 施加使得PN结内部的内建电势下降，耗尽区的宽度减小，从而减小了载流子通行的难度。P区的大量空穴和N区的大量电子(这是由掺杂浓度决定的，即空穴在N中为多子，电子在P中也为多子)能够成功穿过耗尽区，从而形成电流。此时占据主导的是扩散电流,导电主要由器件中的多子完成，电流较大。</p>
+<h5 id="反偏"><a href="#反偏" class="headerlink" title="反偏"></a>反偏</h5><p>将二极管的P端连接电源负极，N端连接电源正极，称为反偏(reverse bias):<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-23.png"></p>
+<p>反偏后，外加电源强化了二极管内部的内建电场，从而使载流子穿过耗尽区的难度增加，只有P区中的少数电子和N区中的少数空穴在电场作用下穿过耗尽区，形成电流。此时占据主导的是漂移电流，导电主要由器件中的少子完成，电流较小。</p>
+<h5 id="I-V特性"><a href="#I-V特性" class="headerlink" title="I-V特性"></a>I-V特性</h5><p>二极管的电流公式为：<br>$$ I_D &#x3D; I_s(e^{\frac{V_D}{\phi_T}}-1)$$</p>
+<p>其中$\phi_T&#x3D;\frac{kT}{q}&#x3D;26mV$</p>
+<p>$I_s$为饱和电流，与二极管的掺杂，PN结面面积有关。</p>
+<p>在一定情况下也可作一阶近似：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-24.png"></p>
+<h5 id="结电容"><a href="#结电容" class="headerlink" title="结电容"></a>结电容</h5><p>PN结电容公式为：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-25.png"></p>
+<p>通过对上述公式定性分析可知：施加正偏电压，$C_j$的分母减小，整体结电容增大。一种理解角度是，正偏后耗尽区减小，相当于减小了平行板电容器的间距，从而增大了电容。</p>
+<h3 id="MOS晶体管的静态模型"><a href="#MOS晶体管的静态模型" class="headerlink" title="MOS晶体管的静态模型"></a>MOS晶体管的静态模型</h3><p>MOS器件的剖面图如下：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-26.png"></p>
+<p>一个晶体管一般可以抽象成一个开关，当gate端施加足够大的电压(超过阈值电压)，则开关打开。</p>
+<h4 id="阈值电压"><a href="#阈值电压" class="headerlink" title="阈值电压"></a>阈值电压</h4><p>晶体管的gate端可以看作一个平板电容，当施加电压足够高时，在下方的衬底中感应出一定的电荷，形成导电沟道。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-27.png"></p>
+<p>阈值电压的计算公式：<br>$$V_T &#x3D; V_{T0} + \gamma (\sqrt{|-2\phi_F+V_{SB}|}-\sqrt{\phi_F})$$</p>
+<p>其中：$V_{SB}$是源和沉底之间的电压，$V_{T0}$是$V_{SB}&#x3D;0$时的阈值电压，由制作工艺决定。$\phi_F$是费米能级。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-28.png"></p>
+<h5 id="体偏效应"><a href="#体偏效应" class="headerlink" title="体偏效应"></a>体偏效应</h5><p>通过上述公式我们可以知道，阈值电压与体源电压有关，从而可以通过条件body端的电压实现阈值电压的条件。这样的方法常被用于低功耗技术中。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-29.png"></p>
+<h5 id="短沟道效应-short-channel-effet"><a href="#短沟道效应-short-channel-effet" class="headerlink" title="短沟道效应 short channel effet"></a>短沟道效应 short channel effet</h5><p>随着晶体管尺寸的scaling down,器件的沟道长度逐渐缩短，由于工艺导致源漏之间的耗尽区变得接近，使得阈值电压降低，影响晶体管的开关特性。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-30.png"></p>
+<h5 id="漏致势垒降低效应（DIBL）"><a href="#漏致势垒降低效应（DIBL）" class="headerlink" title="漏致势垒降低效应（DIBL）"></a>漏致势垒降低效应（DIBL）</h5><p>Drain-induced barrier lowering：在经典的长沟道器件中，阈值电压的值与漏区电压无关。然而在短沟道器件中，由于晶体管在工作时会给漏级施加电压，从而在D-B之间形成了一个反偏的二极管。这个反偏的二极管增大了漏极的耗尽区宽度，使其与源极的耗尽区进一步接近，从而进一步缩小了导电沟道的长度，使得阈值电压下降。</p>
+<p>DIBL本质也是一种短沟道效应。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-31.png"></p>
+<h5 id="窄沟道效应-narrow-channel-effet"><a href="#窄沟道效应-narrow-channel-effet" class="headerlink" title="窄沟道效应 narrow channel effet"></a>窄沟道效应 narrow channel effet</h5><p>不同于短沟道效应，窄沟道效应是指当晶体管的沟道宽度(不是长度)变窄时，阈值电压增大的一种现象。这是由于窄沟道的gate端容易与场氧化层重叠，形成更大的GATE电容。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-32.png"></p>
+<h4 id="对晶体管的建模"><a href="#对晶体管的建模" class="headerlink" title="对晶体管的建模"></a>对晶体管的建模</h4><p>晶体管可以被看做是个 G,S,D,B的3端器件。在使用时，一般NMOS的衬底默认会接VSS,PMOS的衬底接VDD，从而简化为一个G,S,D的3端器件。在G S间的电压负责控制晶体管的开关，DS间的电压负责控制管子电流的流通。</p>
+<h5 id="线性区"><a href="#线性区" class="headerlink" title="线性区"></a>线性区</h5><p>当晶体管满足：</p>
+<p>$$V_{GS}&gt; V_T$$<br>$$V_{DS}&lt; V_{GS}-V_T$$</p>
+<p>管子工作在线性区，此时晶体管的电流大小满足：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-33.png"></p>
+<h5 id="饱和区"><a href="#饱和区" class="headerlink" title="饱和区"></a>饱和区</h5><p>当晶体管满足：<br>$$V_{GS}&gt; V_T$$<br>$$V_{DS}\geq V_{GS}-V_T$$</p>
+<p>电流不再随$V_{DS}$增大而增大，而是只与$V_{GS}$有关：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-34.png"></p>
+<p>此时的晶体管可以被看做是一个理想电流源。</p>
+<h5 id="沟道长度调制-Channel-Length-Modulation"><a href="#沟道长度调制-Channel-Length-Modulation" class="headerlink" title="沟道长度调制 Channel Length Modulation"></a>沟道长度调制 Channel Length Modulation</h5><p>如下图，当$V_{DS} &gt; V_{GS}-V_T$时，靠近漏区部分的沟道实际上会无法感应出反型电荷而产生夹断(pinch-off)。这将导致晶体管的有效沟道长度减小。而晶体管的电流与沟道长度L成反比。因此实际的电流会增大。通过添加一个参数$\lambda$来修正这种沟道长度调制效应：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-35.png"></p>
+<h5 id="速度饱和-Velocity-Saturation"><a href="#速度饱和-Velocity-Saturation" class="headerlink" title="速度饱和 Velocity Saturation"></a>速度饱和 Velocity Saturation</h5><p>一般来说，载流子的速度正比于电场强度，但是当速度过大时，会因为载流子间的散射效应而趋于饱和，不再满足线性关系。在源漏电压不变的情况下，沟道越短，沟道间的电场强度越大，从而越容易达到速度饱和。</p>
+<p>而对同一器件，则存在一个饱和电压$V_{DSAT}$,当源漏电压大于该值是，出现速度饱和。速度饱和会降低饱和区电流。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-36.png"></p>
+<h5 id="电流公式"><a href="#电流公式" class="headerlink" title="电流公式"></a>电流公式</h5><p>结合上述分析，可以分别得到长沟道器件和短沟道器件的电流公式：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-37.png"></p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-38.png"></p>
+<h5 id="电阻计算"><a href="#电阻计算" class="headerlink" title="电阻计算"></a>电阻计算</h5><p>MOS器件的等效电阻可以用如下公式计算：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-39.png"></p>
+<p>可以看到，同样的器件，在VDD减小的情况下，等效电阻急剧增大。这也是阻止器件的VDD无法随器件尺寸同步scaling down的一个原因。</p>
+<h3 id="晶体管的动态模型"><a href="#晶体管的动态模型" class="headerlink" title="晶体管的动态模型"></a>晶体管的动态模型</h3><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-40.png"><br>作为一个4端器件，MOS管的电容主要由3部分组成：</p>
+<ol>
+<li>结构电容</li>
+<li>沟道电容</li>
+<li>结电容</li>
+</ol>
+<p>下面依次进行分析：</p>
+<h4 id="结构电容"><a href="#结构电容" class="headerlink" title="结构电容"></a>结构电容</h4><p>这部分的主要成因是MOS管在实际生产时，源和漏会向栅下方扩展一个$x_d$的长度，引起了栅和源漏之间的寄生电容：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-41.png"></p>
+<h4 id="沟道电容"><a href="#沟道电容" class="headerlink" title="沟道电容"></a>沟道电容</h4><p>向栅极施加电压，在下方形成导电沟道，这个过程也是电容充电的过程。在这个过程中，gate 端与S,D,B间形成的电容大小与晶体管的工作状态有关，总结如下：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-42.png"></p>
+<h4 id="结电容-扩散电容"><a href="#结电容-扩散电容" class="headerlink" title="结电容&#x2F;扩散电容"></a>结电容&#x2F;扩散电容</h4><p>最后一部分电容的形成原因如下：考虑一个NMOS，其制造是在一个P衬底上挖出2个N well,这样源漏和衬底之间实际上存在一个PN结，这个PN结在D极施加电压时是反向导通的，但是也具有一定的电容。此外因为MOS管实际是一个立体的结构，源漏区除了与底板之外，与侧壁之间也会形成PN结。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-43.png"></p>
+<p>总结上述电容，就可以得到晶体管的电容模型：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-44.png"></p>
+<h4 id="源-漏电阻"><a href="#源-漏电阻" class="headerlink" title="源-漏电阻"></a>源-漏电阻</h4><p>晶体管的电阻可能进一步受到源漏电阻的影响：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-45.png"></p>
+<h3 id="先进器件"><a href="#先进器件" class="headerlink" title="先进器件"></a>先进器件</h3><p>略</p>
+<h2 id="Lecture3-Inverter"><a href="#Lecture3-Inverter" class="headerlink" title="Lecture3 Inverter"></a>Lecture3 Inverter</h2><p>反相器是连接器件到电路的桥梁，因此对反相器的研究可以起到很好的承上启下的作用。</p>
+<h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><h4 id="电路"><a href="#电路" class="headerlink" title="电路"></a>电路</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-47.png"></p>
+<p>反相器的电路图如图所示。由gate 和drain端相连的一个PMOS和一个NMOS组成，当输入为高电平时，P管关闭而N管打开，VOUT为低电平。输入为低电平时则相反，N管打开而P管关闭，VOUT被拉高。</p>
+<h4 id="瞬态响应"><a href="#瞬态响应" class="headerlink" title="瞬态响应"></a>瞬态响应</h4><p>反向器的瞬态响应，可以看作是通过P管和N管对于负责电阻$C_L$的充放电过程：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-48.png"></p>
+<p>根据基本电路理论，其传输延迟为 $t_p&#x3D; ln2 \cdot RC &#x3D; 0.69R_{on}C_L$</p>
+<h4 id="传输特性曲线"><a href="#传输特性曲线" class="headerlink" title="传输特性曲线"></a>传输特性曲线</h4><p>反向器的传输特性曲线如下：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-49.png"></p>
+<p>需要注意的是，在CMOS电路中，在稳定的工作状态下，不存在从VDD到VSS的直接电流，只有在状态翻转的过程中有一个瞬时的大电流。</p>
+<h4 id="翻转阈值"><a href="#翻转阈值" class="headerlink" title="翻转阈值"></a>翻转阈值</h4><p>将反相器的翻转阈值定义为：<br>$$V_M &#x3D; V_{in}&#x3D;V_{out}$$<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-50.png" alt="alt text"></p>
+<p>根据上述公式，在该点下，P管和N管均处于饱和状态($V_{ds}&#x3D;V_{gs}$)，假设晶体管为短沟道器件，达到速度饱和，带入电流公式：</p>
+<p>$$I_D &#x3D; k’\frac{W}{L}((V_{GS}-V_T)V_{DSAT}-\frac{V_{DSAT}^2}{2})$$</p>
+<p>可以解得：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-51.png" alt="alt text"></p>
+<p>当VDD的值相比晶体管的阈值电压和饱和电压相比足够大时，简化为“</p>
+<p>$$V_M \simeq \frac{rV_{DD}}{1+r}$$</p>
+<p>由于r 是一个与P N管宽度只比相关的参数，因此可以通过调节PN管的比值来调节$V_M$的大小：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-52.png"></p>
+<p>一般来讲，当$\frac{W_p}{W_n} &#x3D; 2$时， $V_M$接近$V_{DD}$的一半。</p>
+<h4 id="V-IH-V-IL-与噪声容限"><a href="#V-IH-V-IL-与噪声容限" class="headerlink" title="$V_{IH}$,$V_{IL}$与噪声容限"></a>$V_{IH}$,$V_{IL}$与噪声容限</h4><p>对于反相器而言，将VTC曲线的斜率为-1(增益为-1)时Vin的值定义为$V_{IH}$,$V_{IL}$</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-53.png"></p>
+<p>而数字设计中，往往采用线性分段近似的方式，通过求得$V_M$处曲线的斜率g,确定$V_{IH}$和$V_{IL}$：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-54.png"></p>
+<p>此时假设$V_{OL}&#x3D;0$,$V_{OH}&#x3D;V_{DD}$,计算得到相应的噪声容限。</p>
+<h4 id="传输增益"><a href="#传输增益" class="headerlink" title="传输增益"></a>传输增益</h4><p>略</p>
+<h3 id="负载电容"><a href="#负载电容" class="headerlink" title="负载电容"></a>负载电容</h3><p>接下来分析反相器的负载电容。假设2个反相器进行串联，分析其负载电容$C_L$：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-55.png"></p>
+<p>$C_L$的组成包括：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-56.png"></p>
+<h4 id="栅漏电容-C-gd"><a href="#栅漏电容-C-gd" class="headerlink" title="栅漏电容 $C_{gd}$"></a>栅漏电容 $C_{gd}$</h4><p>$C_{gd12}$指12这两个管子的栅与漏之间的电容，如之前在器件一栏分析的，该电容一方面由栅极的覆盖（栅氧化层）电容有关，另一方面与栅极电压感应出的沟道电容有关，即：</p>
+<p>$$C_{gd} &#x3D; C_{gdO} + C_{gcd}$$</p>
+<p>其中栅氧化层电容$C_{gdO}$的值是固定的，而沟道电容$C_{gcd}$与晶体管的工作状态有关。对其进行分类讨论如下：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-57.png"></p>
+<p>可见无论何种工作状态下，沟道电容均为0，故栅漏电容只等于覆盖电容：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-58.png"></p>
+<p>此外，需要考虑晶体管的米勒效应，将浮空电容用2倍的接地电容来替换，最终结合版图计算得到的栅漏电容$C_{gd1,2}$为：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-59.png"></p>
+<h4 id="漏体电容-C-db1-和-C-db2"><a href="#漏体电容-C-db1-和-C-db2" class="headerlink" title="漏体电容$C_{db1}$和$C_{db2}$"></a>漏体电容$C_{db1}$和$C_{db2}$</h4><p>漏体电容$C_{db1}$和$C_{db2}$来自漏体之间反向偏置的PN结形成的结电容，满足PN结的电容公式。为了简化计算，一般采用一些线性公式进行近似。</p>
+<h4 id="扇出的栅电容-C-g"><a href="#扇出的栅电容-C-g" class="headerlink" title="扇出的栅电容$C_g$"></a>扇出的栅电容$C_g$</h4><p>假设栅电容为扇出的栅上的总电容，有：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-60.png"></p>
+<h4 id="连线电容-C-W"><a href="#连线电容-C-W" class="headerlink" title="连线电容 $C_W$"></a>连线电容 $C_W$</h4><p>$C_W$ 的值与具体工艺相关</p>
+<p>将上述所有电容加和，便得到反相器的负载电容$C_L$</p>
+<h3 id="传输延迟"><a href="#传输延迟" class="headerlink" title="传输延迟"></a>传输延迟</h3><p>如前所述，对反相器的传输延迟的分析可以近似为一个一阶的RC模型：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-61.png"></p>
+<p>之前的分析已经计算出了反相器的负载电容，接下来需要考虑反相器工作时的等效电阻。</p>
+<p>对等效电阻的分析如下：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-62.png"></p>
+<p>可以看到，正如前面强调过的，等效电阻是一个与电源电压VDD相关的参数，且与VDD负相关。</p>
+<p>当计算传输延迟时：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-63.png"></p>
+<p>可以发现随着工作电压的提高，传输延迟也会下降，从而电路的性能提升。这也符号我们的一般直觉，即电压越高，对电路的”驱动”能力越强。</p>
+<p>此外，传输延迟也与输入信号的变化有关：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-64.png"></p>
+<p>由于输入信号并非理想信号，其变化时间也需要被考虑在传输延迟之内。</p>
+<h4 id="晶体管尺寸比例的确定"><a href="#晶体管尺寸比例的确定" class="headerlink" title="晶体管尺寸比例的确定"></a>晶体管尺寸比例的确定</h4><p>在上一节中，为了是传输特性曲线VTC对称，得出P管和N管的比例系数$\beta$约为2。而对称的VTC并不意味着总延迟(high to low 和low to high之和)最小。</p>
+<p>实际的实验结果如下：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-65.png"></p>
+<p>可以看到，相等上升和下降传输延迟(2.4)与总延迟最小(1.9)的比例系数并不相等。</p>
+<p>好在它们都在2附近，于是$\beta&#x3D;2$便成为默认比例系数。</p>
+<h4 id="sizing的影响"><a href="#sizing的影响" class="headerlink" title="sizing的影响"></a>sizing的影响</h4><p>在上述分析中，我们总是假设晶体管的负载电容为$C_L$,然而事实上，$C_L$可以包含2个部分：本征电容$C_{int}$与外部电容$C_{ext}$。还是用之前2个反相器相连的例子：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-66.png"></p>
+<p>将$f &#x3D; \frac{C_{ext}}{C_{int}}$称为等效扇出。</p>
+<p>当反相器的尺寸整体扩大S倍时，其电容大致扩大为原来的S倍，而电阻却下降为原来的1&#x2F;S,这使得延迟参数$R_{eq}C{int}$不变。而由于sizing增大了本征电容的值，使得$\frac{C_{ext}}{C_{int}}$变小，从而整体的传输延迟变小。</p>
+<p>即：在外部负载电容不变的情况下，反相器的尺寸越大，其”驱动”能力越强，传输延迟越小。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-67.png" alt="alt text"></p>
+<p>同时需要注意的是，由于延迟与sizing的系数成反比，随着S的增大，在延迟的收益上会逐渐减小，无法通过sizing的方式无限降低延迟。</p>
+<h3 id="对传输延迟的sizing优化"><a href="#对传输延迟的sizing优化" class="headerlink" title="* 对传输延迟的sizing优化"></a>* 对传输延迟的sizing优化</h3><p>在对反相器的sizing有了基本认识后，可以考虑对传输延迟进行优化。</p>
+<p>考虑如下图所示的一个反相器链(inverter chain)<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-68.png"></p>
+<p>对于反相器链中间的任意一个inverter来说，其输出负载($C_{ext}$)是下一级反相器的栅电容$C_g$,而其自身的栅电容是上一级反相器的输出负载。</p>
+<p>对于反相器而言，本征电容和栅电容成线性关系：<br>$$C_{int} &#x3D; \gamma C_g$$<br>对于亚微米工艺，$\gamma \simeq 1$<br>于是对第j级有：</p>
+<p>$$t_{p,j} &#x3D; t_{p0}(1+\frac{C_{g,j+1}}{\gamma C_{g,j}})$$</p>
+<p>考虑整个N级反相器链的传播延迟，有：<br>$$t_p &#x3D;t_{p0} \sum_{j&#x3D;1}^{N}(1+\frac{C_{g,j+1}}{\gamma C_{g,j}})$$</p>
+<p>其中$C_{g,N+1} &#x3D; C_L$</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-69.png"></p>
+<p>利用均值不等式求其最小值，可得：</p>
+<p>$$\frac{C_{g,j}}{C_{g,j-1}} &#x3D; \frac{C_{g,j+1}}{C_{g,j}}$$</p>
+<p>即：每一级的反相器都相比前一级放到相同的倍数，记为f，满足：</p>
+<p>$$F &#x3D; f^n &#x3D; \frac{C_L}{C_{g,1}}$$</p>
+<p>$$t_p &#x3D; Nt_{p0}(1+\frac{\sqrt[n]{F}}{\gamma})$$</p>
+<p>对于一个级数不确定的反相器链，为了确定其最优传输级数，将上式对N求导(已知$\frac{\partial \sqrt[x]{y}}{\partial x} &#x3D; -\frac{1}{x^2}\ln y \cdot \sqrt[x]{y}$)，另导数为0，可以得到：</p>
+<p>$$f&#x3D;e^{(1+\frac{\gamma}{f})}$$</p>
+<p>上述超越方程只有一个解，当$\gamma &#x3D; 1$时，f&#x3D;3.6，解得：</p>
+<p>$$N &#x3D; \frac{lnF}{lnf}$$</p>
+<h3 id="功耗"><a href="#功耗" class="headerlink" title="功耗"></a>功耗</h3><p>CMOS电路的功耗分为2种：</p>
+<p>动态功耗：逻辑状态进行翻转时的功耗</p>
+<p>静态功耗： 逻辑状态保持时的漏电流产生的功耗</p>
+<p>CMOS反相器的功耗产生主要有以下几个方面：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-70.png"></p>
+<ol>
+<li>gate 端的漏电流</li>
+<li>负载电容的充放电</li>
+<li>进行翻转时的短路电流</li>
+<li>漏极PN结的反偏电流</li>
+<li>晶体管关断状态下的亚阈值漏电流</li>
+</ol>
+<p>其中，主要的功耗来自逻辑翻转时产生的动态功耗。</p>
+<h4 id="动态功耗"><a href="#动态功耗" class="headerlink" title="动态功耗"></a>动态功耗</h4><p>当逻辑进行翻转时，PN两个管子同时导通，相当于产生了从VDD到VSS的短路电流。在上下其中一个管子关闭后，该电流需要对负载电容进行充放电，如下图：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-71.png"></p>
+<p>负载电容的大小会影响峰值电流的大小，具体来说，负载电容越小，峰值电流越大：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-72.png"></p>
+<p>对于动态功耗的计算，每次从低到高翻转消耗的能量为：</p>
+<p>$$E &#x3D; C_LV_{dd}^2$$</p>
+<p>其中$\frac{1}{2} C_LV_{dd}^2$的能量用于电容的充电，另外一半被PMOS或转化为热量，在放电时，另一半存储在电容的能量被NMOS转换为热量(这也是芯片放热的主要来源)。并且这个值与晶体管的尺寸无关，而只与负载电容和工作电压有关。</p>
+<p>如果考虑电路的从0到1的翻转频率，则有：</p>
+<p>$$P_{dyn} &#x3D; C_LV^2_{DD}f_{0\rightarrow1}$$</p>
+<h4 id="针对最小功耗的反相器链sizing"><a href="#针对最小功耗的反相器链sizing" class="headerlink" title="针对最小功耗的反相器链sizing"></a>针对最小功耗的反相器链sizing</h4><p>上一节针对反相器链的性能进行了sizing,事实上，还可以针对最小功耗进行sizing。<br>(待补充)</p>
+<h4 id="PDP和EDP"><a href="#PDP和EDP" class="headerlink" title="PDP和EDP"></a>PDP和EDP</h4><p>如第一节中所定义的，反相器的PDP和EDP如下：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-73.png"></p>
+<p>当需要平衡功耗与性能，使反相器的EDP最小时，我们假设书中的公式5.21：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-74.png"></p>
+<p>其中阈值电压和饱和电压满足一定的比例关系，可得：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-75.png"></p>
+<p>另上述EDP对VDD的偏导为0，得：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-76.png"></p>
+<p>对于一般的亚微米工艺，$\alpha$在1到2之间。</p>
+<h2 id="Lecture4-Combinational-Circuits"><a href="#Lecture4-Combinational-Circuits" class="headerlink" title="Lecture4  Combinational Circuits"></a>Lecture4  Combinational Circuits</h2><p>本章将介绍组合逻辑电路，分为以下几个方面：</p>
+<ol>
+<li>静态&#x2F;动态CMOS 逻辑</li>
+<li>组合逻辑门</li>
+<li>不同输入下的门延迟</li>
+<li>快速逻辑门设计</li>
+<li>逻辑努力与延迟优化</li>
+<li>有比逻辑</li>
+<li>传输管逻辑</li>
+<li>动态逻辑</li>
+</ol>
+<p>所谓组合逻辑，自然是与时序逻辑向对比而言的。二者的区别从抽象的角度来说，组合逻辑是输入的函数，而时序逻辑既是输入的函数，也是当前状态的函数。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-77.png"></p>
+<h3 id="静态-动态CMOS电路"><a href="#静态-动态CMOS电路" class="headerlink" title="静态&#x2F;动态CMOS电路"></a>静态&#x2F;动态CMOS电路</h3><p>静态CMOS电路直接与电源和地相连，当电路稳定后，输出与时间无关。</p>
+<p>动态CMOS电路则需要时钟信号控制。</p>
+<h3 id="组合CMOS逻辑门"><a href="#组合CMOS逻辑门" class="headerlink" title="组合CMOS逻辑门"></a>组合CMOS逻辑门</h3><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-78.png"></p>
+<p>CMOS逻辑门分为上拉和下拉网络，并且上拉网络的拓扑结构与下拉网络的结构是对偶的。上拉网络完全由PMOS组成，下拉网络完全由NMOS组成。并且这样实现的逻辑总是PDN的非逻辑。</p>
+<p>一个典型的例子是NAND门：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-79.png"></p>
+<p>CMOS逻辑的优点在于：</p>
+<ol>
+<li><p>逻辑摆幅大：CMOS集成电路的逻辑高电平“1”、逻辑低电平“0”分别接近于电源高电位VDD及电源低电位VSS，因此具有较高的噪声容限。也就是说，逻辑值的电平与管子尺寸无关。</p>
+</li>
+<li><p>具有低功耗特性：CMOS逻辑电路在静态状态下几乎没有功耗，只有在开关转换时才消耗功率。</p>
+</li>
+<li><p>可以通过sizing调节上升和下降的传输延迟</p>
+</li>
+</ol>
+<h3 id="不同输入pattern下的传输延迟"><a href="#不同输入pattern下的传输延迟" class="headerlink" title="不同输入pattern下的传输延迟"></a>不同输入pattern下的传输延迟</h3><p>CMOS组合逻辑仍然可以套用之前的RC模型:</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-80.png"></p>
+<p>与反相器不同的是，不同的输入组合会使传输延迟有所不同。例如考虑一个NAND门：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-81.png"></p>
+<p>当输入AB同时拉低时，通过2条并行的线路同时对负载电容充电，从而传输延迟相比只有一条通路时有所下降。</p>
+<p>还有一种最坏的情况为： B保持为1，A由1变为0，这个过程中，不但要通过A所在通路向负载电容充电，同时也需要对中间节点的电容充电：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-82.png"></p>
+<h4 id="逻辑门的sizing"><a href="#逻辑门的sizing" class="headerlink" title="逻辑门的sizing"></a>逻辑门的sizing</h4><p>之前的章节我们分析过，对于晶体管，其尺寸(主要是宽度W)每扩大S倍，其等效电阻降低为原来的1&#x2F;S。</p>
+<p>对逻辑门sizing的初衷在于，想要使上拉和下拉的传输延迟与一个标准的CMOS反相器(PMOS尺寸为NMOS的2倍)相同。而对一个逻辑门，总是考虑其最坏情况下的传输延迟。</p>
+<p><strong>因此sizing的逻辑在于将串联的管子尺寸翻倍，以使其等效电阻与单个单倍尺寸的管子相同</strong></p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-83.png"></p>
+<p>sizing过后的NAND和NOR门分别如下：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-84.png"></p>
+<h4 id="对扇入的考量"><a href="#对扇入的考量" class="headerlink" title="对扇入的考量"></a>对扇入的考量</h4><p>当逻辑门的输入增多时，逻辑门的扇入也会影响逻辑门的性能，需要被纳入考虑。比如如下图所示的4输入NAND门：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-85.png"></p>
+<p>当ABC均为1，D从0变为1时，由于一开始OUT为高电平，$C_L$和内部节点$C_1,C_2,C_3$均被充电。</p>
+<p>在放电过程中，电路的延迟可被计算为：</p>
+<p>$$t_{pHL} &#x3D; 0.69(C_L(R_1+R_2+R_3+R_4)+ C_3(R_1+R_2+R_3)+C_2(R_1+R_2)+C_1R_1)$$</p>
+<p>当N管尺寸相同时，可以认为它们拥有相同等效电阻，于是延迟转化为：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-86.png"></p>
+<p>也就是说，<strong>逻辑门的延迟和扇入的数量成平方关系。因此大扇入对门的性能影响很大。</strong></p>
+<p>相比之下，扇出对延迟的影响是线性的。</p>
+<h3 id="快速逻辑门设计"><a href="#快速逻辑门设计" class="headerlink" title="快速逻辑门设计"></a>快速逻辑门设计</h3><p>基于上述对fin-in的考察，对于一个同样功能的逻辑门，有以下不同方式可以降低其延迟：</p>
+<h4 id="递进式sizing"><a href="#递进式sizing" class="headerlink" title="递进式sizing"></a>递进式sizing</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-87.png"></p>
+<p>对于类似的串联结构，由于M1管的电阻对整体延迟贡献的最多，因此可以将其尺寸适当放大以减小电阻。同样我们可以逐级放大后续管子的尺寸，使得：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-88.png"></p>
+<p>这样的sizing方式可以降低大约20%延迟。</p>
+<h4 id="晶体管的重排"><a href="#晶体管的重排" class="headerlink" title="晶体管的重排"></a>晶体管的重排</h4><p>通过重排，将先翻转的逻辑门从近输出端移到近地端，让内部电容提前放电，可以有效降低延迟：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-89.png"></p>
+<h4 id="逻辑重构"><a href="#逻辑重构" class="headerlink" title="逻辑重构"></a>逻辑重构</h4><p>对于同一逻辑，使用不同的门进行组合可以降低其延迟。</p>
+<p>例如对一个8输入与门有以下几种不同的实现方式：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-90.png"></p>
+<h4 id="插入buffer增强驱动"><a href="#插入buffer增强驱动" class="headerlink" title="插入buffer增强驱动"></a>插入buffer增强驱动</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-91.png"></p>
+<p>这样做能够增强驱动的原理在于，buffer的加入将fan-in和fan-out进行了隔离。</p>
+<h3 id="逻辑努力"><a href="#逻辑努力" class="headerlink" title="逻辑努力"></a>逻辑努力</h3><p>先前对反相器链的分析中，我们知道通过对一整个链上的反相器进行sizing，可以有效降低整个路径的传输延迟。通过引入逻辑努力，可以将上述分析方法推广到所有组合逻辑门。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-92.png"></p>
+<p>首先回顾反相器链的知识，一个标准反相器的延迟可以被表示为：</p>
+<p>$$t_p &#x3D; 1+\frac{f}{\gamma}$$</p>
+<p>其中f为等效扇出，$\gamma$是工艺参数，代表本征电容和栅电容的比值。</p>
+<p>$$C_{inv} &#x3D;\gamma C_{g}$$</p>
+<p>将上述分析方式推广任意逻辑门：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/7872a0ef0997c342ccdd6a92af73097.jpg"></p>
+<p>注意上述推导过程，在第三行中，提取一个标准反相器的本征电容$C_{int}$作为公因子，在第五行中将这个值代换成了标准反相器的栅电容$\gamma C_{ginv}$。同时，假设通过sizing使标准逻辑门拥有与反相器相同的电阻，从而$R_{par} &#x3D; R_{inv}$。</p>
+<p>第四行的$C_g$是逻辑门的栅电容。</p>
+<p>最终我们得到公式：</p>
+<p>$$t_p &#x3D; t_{p0}(p+ \frac{g\cdot f}{\gamma})$$</p>
+<p>其中：</p>
+<ol>
+<li>$p$是逻辑门本征电容和标准反相器本征电容只比，这个值只与逻辑门的类型和拓扑结构有关。</li>
+</ol>
+<p>例如，对一个n输入的nand门，其p值为n:</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-94.png"></p>
+<p>而对于下面的异或门，其p值为4：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-95.png"><br>（计算方法是看其对输出节点贡献的负载电阻。）</p>
+<p>不同逻辑门的p值总结如下：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-96.png"></p>
+<ol start="2">
+<li><p>$g$称为逻辑努力，是门输入栅电容与标准反相器栅电容的比值，与逻辑门的类型有关。下表总结了不同类型的逻辑门的逻辑努力：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-97.png"><br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-93.png"></p>
+</li>
+<li><p>$f$为等效扇出，与反相器链中定义的一致，只不过这里的扇入是逻辑门的栅电容。</p>
+</li>
+</ol>
+<h4 id="非对称逻辑门-skewed-gates"><a href="#非对称逻辑门-skewed-gates" class="headerlink" title="非对称逻辑门 skewed gates"></a>非对称逻辑门 skewed gates</h4><p>(待补充)</p>
+<h4 id="分支努力"><a href="#分支努力" class="headerlink" title="分支努力"></a>分支努力</h4><p>假设同一个逻辑门的扇出路径上存在多个相同的逻辑门，如下图所示：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-98.png"></p>
+<p>假设逻辑门共有b个分支，则对于单个逻辑门，其外部负载变为原来的b倍，传输延迟变为：</p>
+<p>$$t_p &#x3D; t_{p0}(p+ \frac{g\cdot f\cdot b}{\gamma})$$</p>
+<p>考虑一个多级，多分支的路径，其总延迟为：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-99.png"></p>
+<p>优化上述延迟，使总延迟最小：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-100.png"></p>
+<p>当且仅当每一级的</p>
+<p>$$h_i &#x3D; g_if_ib_i$$</p>
+<p>都相等时，整个链路的延迟最小。</p>
+<p>而对于每一级来说，逻辑努力g和分支努力d都是固定的，能够进行sizing的参数只有f。</p>
+<p>当电路的级数固定时，令每一级的级努力h都相等，可以取得最低延迟。</p>
+<h5 id="example"><a href="#example" class="headerlink" title="example"></a>example</h5><p>例：优化下面电路的延迟：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-101.png"></p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-102.png"></p>
+<h5 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h5><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-103.png"></p>
+<h3 id="Ratioed-Logic-有比逻辑"><a href="#Ratioed-Logic-有比逻辑" class="headerlink" title="Ratioed Logic 有比逻辑"></a>Ratioed Logic 有比逻辑</h3><p>除CMOS逻辑外，对同一电路功能还有其他实现方法，比如有比逻辑。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-104.png"></p>
+<p>有比逻辑将CMOS中的上拉网络用一个电阻负载进行替代，可以有效减小电路的面积。有比逻辑具有以下特点：</p>
+<ol>
+<li>n输入的逻辑由n个管子和一个负载组成</li>
+<li>$V_{OH} &#x3D; V_{DD}$</li>
+<li>$V_{OL}&#x3D;\frac{R_{PN}}{R_{PN}+R_{L}}V_{DD}$</li>
+<li>具有非对称的响应时间</li>
+<li>静态功耗很高</li>
+<li>$t_{pLH}&#x3D;0.69R_LC_L$</li>
+</ol>
+<h4 id="伪nmos逻辑"><a href="#伪nmos逻辑" class="headerlink" title="伪nmos逻辑"></a>伪nmos逻辑</h4><p>上述有比逻辑在实际实现时，可以通过一个敞开的PMOS来代替电阻：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-105.png"></p>
+<p>这样实现的问题是$V_{OL}$不为0，且与P管与N管的尺寸比例有关(所以叫有比逻辑)。当P管的驱动能力太强时，下拉的N管可能不足以将电路拉低：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-106.png"></p>
+<h4 id="有比逻辑的优化"><a href="#有比逻辑的优化" class="headerlink" title="有比逻辑的优化"></a>有比逻辑的优化</h4><p>基于有比逻辑的缺点，可以对其进行一些改进</p>
+<h5 id="改进负载"><a href="#改进负载" class="headerlink" title="改进负载"></a>改进负载</h5><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-107.png"></p>
+<p>添加一个enable负载，增强P管驱动</p>
+<h5 id="差分级联电压开关逻辑-Differential-Cascode-Voltage-Switch-Logic-DCVSL"><a href="#差分级联电压开关逻辑-Differential-Cascode-Voltage-Switch-Logic-DCVSL" class="headerlink" title="差分级联电压开关逻辑 Differential Cascode Voltage Switch Logic (DCVSL)"></a>差分级联电压开关逻辑 Differential Cascode Voltage Switch Logic (DCVSL)</h5><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-108.png"></p>
+<p>将2个下拉网络的输出端进行级联，并且下拉网络彼此对偶。当一个电路打开时，另一个一定关断。  例如下面的 与门：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-109.png"></p>
+<p>差分逻辑具有如下特点：</p>
+<ol>
+<li>全电压摆幅。($V_{OL}$&#x3D;0，因为out为0会反馈回来关掉上拉网络)。</li>
+<li>无静态功耗</li>
+<li>2个互补的输出直接没有延迟</li>
+</ol>
+<h3 id="传输管逻辑"><a href="#传输管逻辑" class="headerlink" title="传输管逻辑"></a>传输管逻辑</h3><p>在一般的晶体管电路中，输入都被送到晶体管的栅极，而在传输管逻辑中，输入被送到晶体管的源&#x2F;漏极，这样的好处是可以在功耗，面积或性能上得到提升。</p>
+<h4 id="nmos开关"><a href="#nmos开关" class="headerlink" title="nmos开关"></a>nmos开关</h4><p>当nmos作为开关时，存在的问题在于不会获得全摆幅的电压输出，如下图：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-110.png"></p>
+<p>分析B点的电压，由于晶体管必须保持开启状态，有：</p>
+<p>$$V_{GS}&#x3D;V_C-V_B \geq V_t$$</p>
+<p>B点的电压最多只能达到 $V_{DD}-V_T$</p>
+<p>这为传输管逻辑的级联带来了问题：</p>
+<p>如图：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-111.png"><br>这样的连接方法在末端会损失一个$V_t$的电压。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-112.png"></p>
+<p>这样的连法没连接一次就会损失一个$V_t$的电压。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-113.png" alt="alt text"></p>
+<h5 id="改进：level-restoring"><a href="#改进：level-restoring" class="headerlink" title="改进：level restoring"></a>改进：level restoring</h5><p>可以通过下面的方式改进输出不足的问题：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-114.png"></p>
+<p>通过一个反馈的P管，将X点电压重新拉回VDD。问题在于，这样的电路是一个有比逻辑，$M_r$的尺寸不能太大，否则X点电压可能没办法被拉回0.</p>
+<h4 id="传输门逻辑"><a href="#传输门逻辑" class="headerlink" title="传输门逻辑"></a>传输门逻辑</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-116.png" alt="alt text"><br>通过同时使用PN2个管子，得到一个全摆幅的输出</p>
+<h5 id="延迟分析"><a href="#延迟分析" class="headerlink" title="延迟分析"></a>延迟分析</h5><p>一个打开的传输门可以看作一个电阻，多级的传输门逻辑相当于一个RC网络，其延迟是级数的二阶函数：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-117.png"></p>
+<p>同样可以通过插入buffer的方式来降低延迟：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-118.png"></p>
+<h3 id="动态逻辑"><a href="#动态逻辑" class="headerlink" title="动态逻辑"></a>动态逻辑</h3><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-119.png"></p>
+<p>动态逻辑的电路结构如图，通过为PDN加上2个由clk信号控制的管子和一个下拉网络实现，一个n输入的逻辑门需要n+2个管子实现。</p>
+<p>当clk为0时，最下方的n管关闭，上方的n管先对负载进行预充电。clk拉高后，充电结束，下方的n管打开，经PDN的计算决定要不要对负载进行放电。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-120.png"></p>
+<p>动态逻辑具有如下优点：</p>
+<ol>
+<li>只用下拉网络进行计算(节约面积)</li>
+<li>全摆幅输出</li>
+<li>无比逻辑</li>
+<li>翻转速度更快(相比CMOS，输入和输出负载都更小)</li>
+</ol>
+<p>动态逻辑的缺点在于：</p>
+<ol>
+<li>功耗一般高于CMOS逻辑。(每次预充电后计算，都可能放电，导致电路的翻转频率高于CMOS)<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-121.png" alt="alt text"></li>
+</ol>
+<p>噪声容限较低。</p>
+<h4 id="漏电问题"><a href="#漏电问题" class="headerlink" title="漏电问题"></a>漏电问题</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-122.png"></p>
+<p>如下图，预充电后，A管的源极电压为高，S和B直接存在一个反偏的PN结，存在漏电流。这会导致$C_L$上的电荷减少，当进行计算时，无法得到一个满”1”:</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-124.png" alt="alt text"></p>
+<p>解决方案是通过一个反馈来进行电压维持：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-125.png"></p>
+<h4 id="电荷共享问题"><a href="#电荷共享问题" class="headerlink" title="电荷共享问题"></a>电荷共享问题</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-123.png"></p>
+<p>如果在clk为0，进行计算的时候，A由低变高，则$C_A$分担了$C_L$上的电荷，同样导致输出不能达到满”1”：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-126.png"></p>
+<p>解决方案是使用clk控制的晶体管对中间节点进行充电：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-127.png"></p>
+<h4 id="回栅问题-back-gating"><a href="#回栅问题-back-gating" class="headerlink" title="回栅问题 (back gating)"></a>回栅问题 (back gating)</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-128.png"></p>
+<p>简单来说就是输入(out1)通过电容耦合到了输出(out2)上，使输出不能得到完全的计算。</p>
+<h4 id="时钟馈通-clock-feed-through"><a href="#时钟馈通-clock-feed-through" class="headerlink" title="时钟馈通 (clock feed through)"></a>时钟馈通 (clock feed through)</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-129.png"></p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-130.png"></p>
+<p>时钟信号的波动耦合到输出，使得输出峰值大于$V_{DD}$.</p>
+<h4 id="级联问题"><a href="#级联问题" class="headerlink" title="级联问题"></a>级联问题</h4><p>如果将动态逻辑进行级联，同样会遇到输出下降的问题：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-131.png"></p>
+<p>如图是2个串联的动态反相器，一开始clk为低时，out1和out2都被预充为1，在clk拉高后，它们分别开始计算。</p>
+<p>由于in&#x3D;1,因此out1的预期结果应该为0，而out2的结果应该为1.在计算过程中，out1节点会逐渐放电到0，由于out1降到0需要一定时间，在这器件out1控制的nmos仍然是打开的，因此out2也会通过下拉通路放电，知道out1的值降到vt以下才会结束这个过程。</p>
+<p>通过上述分析我们可以发现，这种过程只出现在计算时不需要放电，但却因为输入是从1到0渐变的，导致了一部分电荷损失。如果输入是由0到1的，也就是说本来就需要对输出节点进行放电，则不存在这个问题。</p>
+<p>因此可以通过增加一级反相器解决这个问题：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-132.png"></p>
+<p>由于out1前面的节点总是被预充到1，out1自己总是被预放电到0，如果计算出out1&#x3D;1,再对后面的节点进行放电，就不会有问题。</p>
+<p>这样的多个动态逻辑的串联被称为多米诺逻辑：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-133.png"></p>
+<p>此外可以在多米诺逻辑的基础上省略下面的管设计出footless的多米诺：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-134.png"></p>
+<p>以及省略中间的反相器，做成np-CMOS：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-135.png"></p>
+<h2 id="Lecture5-时序逻辑"><a href="#Lecture5-时序逻辑" class="headerlink" title="Lecture5 时序逻辑"></a>Lecture5 时序逻辑</h2>]]></content>
+      <categories>
+        <category>notes</category>
+      </categories>
+      <tags>
+        <tag>ICer</tag>
       </tags>
   </entry>
 </search>
