@@ -1,6 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>CORDIC Algorithm</title>
+    <url>/2024/02/28/CORDIC-Algorithm/</url>
+    <content><![CDATA[<h1 id="Coordinate-Rotation-Dlgital-Computer-CORDIC-算法"><a href="#Coordinate-Rotation-Dlgital-Computer-CORDIC-算法" class="headerlink" title="Coordinate Rotation Dlgital Computer(CORDIC)算法"></a>Coordinate Rotation Dlgital Computer(CORDIC)算法</h1><p>参考：Computer Arithmetic: Algorithm and Hardware Design</p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><h3 id="角度模式"><a href="#角度模式" class="headerlink" title="角度模式"></a>角度模式</h3><p>考虑平面直角坐标系下的旋转，如图：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image.png" alt="basic"></p>
+<p>点$E^{(i)}$旋转$\alpha^{(i)}$后得到了点$E^{(i+1)}$</p>
+<p>那么假设$E^{(i)}$的坐标为：$E^{(i)}$:   $(x^{(i)},y^{(i)})&#x3D;(R^{(i)}cos\theta,R^{(i)}cos\theta)$</p>
+<p>$E^{(i+1)}$的坐标可以表示为：<br>$x^{(i)+1} &#x3D; R^{(i)}cos(\theta+\alpha) &#x3D; x^{(i)}cos\alpha - y^{(i)}sin\alpha \ &#x3D;\frac{ x^{(i)}-y^{(i)}tan\alpha}{\frac{1}{cos\alpha}}\ &#x3D; \frac{ x^{(i)}-y^{(i)}tan\alpha}{(1+tan^2\alpha)^{1&#x2F;2}}$</p>
+<p>同理有：<br>$y^{(i+1)} &#x3D; R^{(i)}sin(\theta+\alpha) &#x3D; x^{(i)}sin\alpha + y^{(i)}cos\alpha \ &#x3D;\frac{ x^{(i)}tan\alpha + y^{(i)} }{\frac{1}{cos\alpha}}\ &#x3D; \frac{  x^{(i)}tan\alpha + y^{(i)}}{(1+tan^2\alpha)^{1&#x2F;2}}$</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-1.png"></p>
+<p>上述公式是一个迭代式，<br>$ z^{(i)}$表示当前旋转之前向量与x轴的夹角，$ z^{(i+1)}$表示在旋转后与x轴的夹角（顺时针为正）。</p>
+<p>现在考虑一种图中的一种伪旋转，对公式2边同时除以$\cos\alpha^{(i)}$,得到$E’^{(i)}$的坐标：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-3.png"><br><img src="/2024/02/28/CORDIC-Algorithm/image-2.png"></p>
+<p>令$x^{(0)}&#x3D;x,  y^{(0)}&#x3D;y,  z^{(0)}&#x3D;z$，则对于一个m次迭代的真旋转，有：<br><img src="/2024/02/28/CORDIC-Algorithm/image-4.png"></p>
+<p>对伪旋转：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-5.png"></p>
+<p>考虑每次迭代的角度选取，如果使$tan\alpha$恰好等于 $2^{-i},i&#x3D;0,1,2,3…$则上式变为：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-6.png"></p>
+<p>其中$d_i \in {−1,1}$ </p>
+<p>则每次真旋转迭代的计算可以通过：1次查表，2次移位，3次加(减)法实现。</p>
+<p>对于伪旋转，由于每次的角度选取是固定值，因此K为常数，K &#x3D; 1.646 760 258 121….</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-7.png"></p>
+<p>考虑计算 $cosz$,可以令$x^{(0)}&#x3D;1,  y^{(0)}&#x3D;0,  \sum\alpha^{(i)}&#x3D;z$此时有：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-10.png"></p>
+<p>如果计算$cos30^\circ$,可以：<br><img src="/2024/02/28/CORDIC-Algorithm/image-8.png"></p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-9.png"></p>
+<p>由于表中的角度表示范围达到了$−99.7^\circ ≤ z ≤ 99.7^\circ$,因此可以通过上述方法加上基本三角变化求出任何角的正余弦值。</p>
+<h3 id="向量模式"><a href="#向量模式" class="headerlink" title="向量模式"></a>向量模式</h3><p>通过令$y\rightarrow 0$,可以计算反三角函数值$tan^{-1}y$,此时，</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-12.png"><br>带入</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-5.png"></p>
+<p>可得<br><img src="/2024/02/28/CORDIC-Algorithm/image-13.png"></p>
+<p>故可以取(1,y),将其旋转到x轴上，此时旋转过的角度即为$tan^{-1}y$</p>
+<h3 id="一个简单的python验证程序"><a href="#一个简单的python验证程序" class="headerlink" title="一个简单的python验证程序"></a>一个简单的python验证程序</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line">lookuptable = &#123;&#125;</span><br><span class="line"></span><br><span class="line">lookuptable[<span class="number">0</span>]=<span class="number">45.0</span></span><br><span class="line">lookuptable[<span class="number">1</span>]=<span class="number">26.5650</span></span><br><span class="line">lookuptable[<span class="number">2</span>]=<span class="number">14.0362</span></span><br><span class="line">lookuptable[<span class="number">3</span>]=<span class="number">7.1250</span></span><br><span class="line">lookuptable[<span class="number">4</span>]=<span class="number">3.5763</span></span><br><span class="line">lookuptable[<span class="number">5</span>]=<span class="number">1.7899</span></span><br><span class="line">lookuptable[<span class="number">6</span>]=<span class="number">0.8951</span></span><br><span class="line">lookuptable[<span class="number">7</span>]=<span class="number">0.4476</span></span><br><span class="line">lookuptable[<span class="number">8</span>]=<span class="number">0.2238</span></span><br><span class="line">lookuptable[<span class="number">9</span>]=<span class="number">0.1119</span></span><br><span class="line">lookuptable[<span class="number">10</span>]=<span class="number">0.0230</span></span><br><span class="line">lookuptable[<span class="number">11</span>]=<span class="number">0.0140</span></span><br><span class="line">lookuptable[<span class="number">12</span>]=<span class="number">0.0070</span></span><br><span class="line">lookuptable[<span class="number">13</span>]=<span class="number">0.0035</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cordic</span>(<span class="params">value,  mode</span>):</span><br><span class="line">    z = <span class="number">0</span></span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">        x =  <span class="number">0.607252935</span></span><br><span class="line">        y = <span class="number">0.0</span> </span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">1</span>):</span><br><span class="line">        x = <span class="number">1</span></span><br><span class="line">        y = value</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">13</span>):</span><br><span class="line">        <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">            d = np.sign(value)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            d = -np.sign(y)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(d==<span class="number">0</span>):d = <span class="number">1</span></span><br><span class="line">        value -= d*lookuptable[i]</span><br><span class="line"></span><br><span class="line">        z -= d*lookuptable[i]</span><br><span class="line"></span><br><span class="line">        temp = x</span><br><span class="line">        x -= d * y * <span class="number">2.0</span>**(-i)</span><br><span class="line">        y +=  d* temp * <span class="number">2.0</span>**(-i)</span><br><span class="line">        <span class="comment"># print(&quot;y:&quot;,y)</span></span><br><span class="line">        <span class="comment"># print(&quot;x:&quot;,x)</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;sin:&quot;</span>,y)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;cos:&quot;</span>,x)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;theta:&quot;</span>,z)</span><br><span class="line"></span><br><span class="line">cordic(<span class="number">4</span>,<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h3><p>对一个n位的cordic运算，若采用纯硬件实现，每一位需要1次查表，2次移位，3次加法，其计算复杂度是$O(n)$这个量级的。</p>
+<p>考虑硬件实现，一个最简单的版本是这样的：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-14.png"></p>
+<p>在不考虑优化版本时，图中的加法器可以用串行进位的方式实现，此时，对于k位的操作数，计算需要的时钟周期为$O(k^2)$。</p>
+<h3 id="通用版本"><a href="#通用版本" class="headerlink" title="通用版本"></a>通用版本</h3><p><img src="/2024/02/28/CORDIC-Algorithm/image-15.png"></p>
+<p>CORDIC算法可以被拓展，用于线性和双曲函数的计算。其通用公式为：<br><img src="/2024/02/28/CORDIC-Algorithm/image-17.png"><br><img src="/2024/02/28/CORDIC-Algorithm/image-16.png"></p>
+<p>推理过程如下：<br>参考：（A unified algorithm for elementary functions）</p>
+<p>考虑一个从二维直角坐标系到极坐标的非线性映射：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-18.png"></p>
+<p>其中R是映射后的向量长度，A是其与坐标轴的夹角。</p>
+<p>显然当m取1时，该映射为从直角坐标系到极坐标系的坐标变换。<br>当m取0时， 该变换总是落在一条相同的直线上<br>当m&#x3D;-1时，该变换为落在一条双曲线$x^2-y^2&#x3D;1$上。</p>
+<p>事实上，如果将R看作特定曲线与x轴交点到原点的距离，根据上述定义，总是有：<br>$A &#x3D; \frac{2S}{R^2}$<br><img src="/2024/02/28/CORDIC-Algorithm/image-19.png"></p>
+<p>其中S为变换前的点P与点O,R围成的阴影部分面积。</p>
+<p>如果给出一个迭代式：<br><img src="/2024/02/28/CORDIC-Algorithm/image-20.png"></p>
+<p>其中$\delta_i$时任意值，而m是映射中的参数。那么每次迭代后的点经过非线性映射后，在极坐标下可以表示为：<br><img src="/2024/02/28/CORDIC-Algorithm/image-21.png"></p>
+<p>其中<br><img src="/2024/02/28/CORDIC-Algorithm/image-22.png"></p>
+<p>即每次迭代可以看作是一次旋转和放缩。对n次迭代，最后得到的长度和角度为：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-23.png"></p>
+<p>其中<img src="/2024/02/28/CORDIC-Algorithm/image-24.png"></p>
+<p>如果再定义一个新的变量<br><img src="/2024/02/28/CORDIC-Algorithm/image-25.png"></p>
+<p>则经过n次迭代后的点经过逆映射后，可以得到其在直角坐标系下的坐标：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-26.png"></p>
+<p>同样的，注意到当m&#x3D;1时，该迭代式与之前推出的角度模式下的伪旋转迭代式一模一样。</p>
+<p>而当m&#x3D;0时，分别让$y\rightarrow0$和$z\rightarrow 0$,可以得到如下不同的迭代结果：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-27.png"><br>且在m&#x3D;0时，多轮迭代后的缩放因子为1.</p>
+<p>上述公式说明，直线迭代可以用于计算乘法，除法或直接计算一个乘加、除加操作。</p>
+<p>而对双曲映射，迭代结果分别为：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-28.png"></p>
+<p>其中缩放因子<code>K&#39;=0.8281593609602</code>。</p>
+<p>上述公式说明，双曲映射可以被用来计算双曲正弦，双曲余弦和双曲正切函数。</p>
+<p>另外需要注意的是，对于双曲映射，并不总是收敛的，这是因为对于tan函数，总是有：<br> $tan^{−1}(2^{−(i+1)}) ≥ 0.5tan^{−1}(2^{−i})$</p>
+<p>而同样的关系:放在双曲正切中却并不总是成立。</p>
+<p>$tanh^{−1}(2^{−(i+1)}) ≥ 0.5tanh^{−1}(2^{−i})$</p>
+<p>一个简单的收敛方法为，当迭代次数为:$ i &#x3D; 4, 13, 40, 121, …,3j + 1$时，该次迭代必须再重复一遍。即：<br>1,2,3,4,4,5,6,7,8,9,10,11,12,13,13,14….<br>(收敛性分析在原论文中有比较严格的推导，我懒得手推一遍，这里就不重复了，直接使用其结果)</p>
+<p>计算范围为： <code>With these provisions, convergence in computing  hyperbolic sine and cosine functions is guaranteed for |z| &lt; 1.13 and in the case of the  tanh−1 function, for |y| &lt; 0.81.</code></p>
+<p>此外，以下函数也可以被间接计算出来：<br><img src="/2024/02/28/CORDIC-Algorithm/image-29.png"></p>
+<h3 id="收敛性仿真"><a href="#收敛性仿真" class="headerlink" title="收敛性仿真"></a>收敛性仿真</h3><p>写一个简单的双曲迭代来验证上述方法的收敛性：</p>
+<p>以cosh为例，以下是一段简单的python代码：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">20</span>): </span><br><span class="line">    lookuptable_tanh[i] = math.atanh(<span class="number">2</span>**(-i))</span><br><span class="line">    <span class="built_in">print</span>(math.atanh(<span class="number">2</span>**(-i)))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_tanh</span>(<span class="params">value</span>):</span><br><span class="line">    k=<span class="number">0.8281593609602</span></span><br><span class="line">    x=<span class="number">1</span>/k</span><br><span class="line">    y=<span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">20</span>):</span><br><span class="line">        <span class="keyword">if</span>(value)&gt;<span class="number">0</span>:</span><br><span class="line">            d=<span class="number">1</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            d=-<span class="number">1</span></span><br><span class="line">        </span><br><span class="line">        value = value - d*lookuptable_tanh[i]</span><br><span class="line">        temp=x</span><br><span class="line">        x = x + d*y*<span class="number">2</span>**-i</span><br><span class="line">        y = y + d*temp*<span class="number">2</span>**-i</span><br><span class="line"></span><br><span class="line">        <span class="comment"># if(i==4 or i==13):</span></span><br><span class="line">        <span class="comment">#     if(value)&gt;0:</span></span><br><span class="line">        <span class="comment">#         d=1</span></span><br><span class="line">        <span class="comment">#     else:</span></span><br><span class="line">        <span class="comment">#         d=-1</span></span><br><span class="line">        <span class="comment">#     value = value - d*lookuptable_tanh[i]</span></span><br><span class="line">        <span class="comment">#     temp=x</span></span><br><span class="line">        <span class="comment">#     x = x + d*y*2**-i</span></span><br><span class="line">        <span class="comment">#     y = y + d*temp*2**-i</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_cosh:&quot;</span>,x)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_sinh:&quot;</span>,y)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_tanh:&quot;</span>,y/x)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span>(x,y,y/x)</span><br><span class="line"></span><br><span class="line">x = np.arange(-<span class="number">1</span>, <span class="number">1</span>, <span class="number">0.01</span>)</span><br><span class="line"><span class="comment"># 计算对应的 cosh 函数值</span></span><br><span class="line">y_numpy = np.cosh(x)</span><br><span class="line"></span><br><span class="line">y_custom=[]</span><br><span class="line"><span class="keyword">for</span> value <span class="keyword">in</span> x:</span><br><span class="line">    y,_,_ = my_tanh(value)</span><br><span class="line">    y_custom.append(y)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 绘制图形</span></span><br><span class="line">plt.plot(x, y_numpy, label=<span class="string">&#x27;numpy.cosh(x)&#x27;</span>)</span><br><span class="line">plt.plot(x, y_custom, label=<span class="string">&#x27;my_cosh(x)&#x27;</span>)</span><br><span class="line">plt.xlabel(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">plt.ylabel(<span class="string">&#x27;cosh(x)&#x27;</span>)</span><br><span class="line">plt.title(<span class="string">&#x27;Comparison of cosh(x) functions&#x27;</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.grid(<span class="literal">True</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+
+
+<p>在不用重复第4次和第13次迭代时，结果如下：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-30.png"></p>
+<p>可以看到蓝色线和橙色线不完全重合，局部放大后结果如下：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-31.png"></p>
+<p>取消对应注释，重复第4和第13次迭代，结果如下：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-32.png"></p>
+<p>可以看到蓝色线和橙色线基本完全重合，局部放大后结果如下：<br><img src="/2024/02/28/CORDIC-Algorithm/image-33.png"></p>
+<h3 id="硬件实现"><a href="#硬件实现" class="headerlink" title="硬件实现"></a>硬件实现</h3>]]></content>
+      <tags>
+        <tag>数字集成电路</tag>
+        <tag>Hardware Algorithm</tag>
+        <tag>ICer</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>LFSR</title>
     <url>/2024/04/18/LFSR/</url>
     <content><![CDATA[<h1 id="LSFR"><a href="#LSFR" class="headerlink" title="LSFR"></a>LSFR</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>LFSR 全称为Linear Feedback Shift Register, 线性反馈移位寄存器。LFSR 可以用来<br>产生可重复的伪随机序列，从而被广泛使用在计数器，解码器，密码系统，BIST等方<br>面。<br>一般的LFSR分为2种，内部反馈型和外部反馈型的LFSR，如图2–1所示。其中内<br>部反馈型LFSR又称为伽罗瓦LFSR，而外部反馈型LFSR又称为斐波那契型LFSR。</p>
@@ -30,6 +120,258 @@
       <tags>
         <tag>数字集成电路</tag>
         <tag>Basic Module</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>LearnPerl</title>
+    <url>/2024/05/08/LearnPerl/</url>
+    <content><![CDATA[<h1 id="Learn-Perl"><a href="#Learn-Perl" class="headerlink" title="Learn Perl"></a>Learn Perl</h1><h2 id="ch2-标量数据"><a href="#ch2-标量数据" class="headerlink" title="ch2 标量数据"></a>ch2 标量数据</h2><h3 id="第一个Helloword-程序"><a href="#第一个Helloword-程序" class="headerlink" title="第一个Helloword 程序"></a>第一个Helloword 程序</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">&quot;Hello, world!\n&quot;</span>;</span><br></pre></td></tr></table></figure>
+
+<p>perl是一种脚本语言，一般已经被内置在类unix系统中。类似的还有shell，bash,csh,tcl,python等。</p>
+<p>第一行的<code>#!</code>读作shell bang。shell bang 是一个用于指定脚本解释器的特殊字符组合。它由 <code>#</code>（井号）和 <code>!</code>（感叹号）组合而成，通常位于脚本的第一行。当一个脚本被执行时，系统会参考 shebang 指定的解释器来执行这个脚本。</p>
+<p>例如，如果一个脚本的第一行是 <code>#!/bin/bash</code>，那么这个脚本就会使用 Bash 作为其解释器。如果改为 <code>#!/usr/bin/python3</code>，那么这个脚本就会使用 Python 3 作为其解释器。</p>
+<p>linux默认的脚本解释器总是在&#x2F;usr&#x2F;bin目录下，如果解释器安装在其他目录下，则需要修改对应的路径。</p>
+<p>由于有shell bang的存在，perl程序不需要有特定的扩展名，而只需要是<strong>可执行</strong>的。（为了区分可以加上<code>.pl</code>）的后缀。</p>
+<p>此外也可以直接通过<code>perl</code>命令执行脚本。这2种方式大部分情况下是相同的，然而有时候也会产生不同的效果。</p>
+<p><img src="/2024/05/08/LearnPerl/image.png"><br>目前本人还没搞清楚这种情况出现的原因。</p>
+<p>反引号&#96;&#96;可以用于执行外部命令:</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"> @lines = <span class="string">`ls -a`</span>;</span><br><span class="line"> <span class="keyword">foreach</span> (@lines) &#123;</span><br><span class="line">  <span class="keyword">print</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h3 id="标量数据"><a href="#标量数据" class="headerlink" title="标量数据"></a>标量数据</h3><p>字符串，数字都被看做标量数据。</p>
+<p>perl会根据数据的操作符判断执行代数运算还是字符串操作。</p>
+<p>变量采用美元符号声明：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">$alef  = <span class="keyword">chr</span>( <span class="number">0x05D0</span> );</span><br><span class="line">$alpha = <span class="keyword">chr</span>( <span class="keyword">hex</span>(<span class="string">&#x27;03B1&#x27;</span>) );</span><br><span class="line">$omega = <span class="keyword">chr</span>( <span class="number">0x03C9</span> );</span><br><span class="line"></span><br><span class="line"><span class="keyword">say</span> <span class="string">&quot;alpha:&quot;</span>.$alpha;</span><br><span class="line"><span class="keyword">say</span> <span class="string">&quot;alef:&quot;</span>.$alef;</span><br><span class="line"><span class="keyword">say</span> <span class="string">&quot;omega:&quot;</span>.$omega;</span><br><span class="line"></span><br><span class="line">$code_point = <span class="keyword">ord</span>( <span class="string">&#x27;א&#x27;</span> );</span><br><span class="line"></span><br><span class="line"><span class="keyword">say</span> $code_point;</span><br></pre></td></tr></table></figure>
+<p><img src="/2024/05/08/LearnPerl/image2.png"><br>chr函数会将对应的ascii字符进行转换。ord则相反。</p>
+<p>使用<code>x</code>可以将字符串重复对应的次数。</p>
+<p><img src="/2024/05/08/LearnPerl/image1.png"></p>
+<p><code>say</code>和<code>print</code>类似，区别是会自动换行。（需要5.10以上的版本）</p>
+<p>使用<code>.</code>可以连接2个字符串。</p>
+<h3 id="其他特性"><a href="#其他特性" class="headerlink" title="其他特性"></a>其他特性</h3><p>获取标准输入：<code>&lt;STDIN&gt;</code></p>
+<p><img src="/2024/05/08/LearnPerl/image-1.png"></p>
+<p><img src="/2024/05/08/LearnPerl/image-2.png"></p>
+<p><code>chomp</code>的作用是去掉字符串末尾的换行符。</p>
+<h2 id="ch3"><a href="#ch3" class="headerlink" title="ch3"></a>ch3</h2><h3 id="list"><a href="#list" class="headerlink" title="list"></a>list</h3><p>数组和标量的声明方式完全相同。</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">10</span>;</span><br><span class="line">$word[<span class="number">0</span>]= <span class="string">&quot;s&quot;</span>;</span><br><span class="line"></span><br><span class="line">$word[<span class="number">1</span>]= <span class="string">&quot;h&quot;</span>;</span><br><span class="line">$word[<span class="number">2</span>]= <span class="string">&quot;i&quot;</span>;</span><br><span class="line">$word[<span class="number">3</span>]= <span class="string">&quot;t&quot;</span>;</span><br><span class="line"></span><br><span class="line">$a = $#word;</span><br><span class="line"><span class="keyword">say</span> $a;</span><br><span class="line"><span class="keyword">say</span>  $word[-<span class="number">4</span>].$word[-<span class="number">3</span>].$word[-<span class="number">2</span>].$word[-<span class="number">1</span>];</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">wenkai@LAPTOP-36N49UJG:~/perl/ex3$ ./array</span><br><span class="line">3</span><br><span class="line">shit</span><br></pre></td></tr></table></figure>
+
+
+<p><code>$#</code>得到数组的长度(减一)</p>
+<h3 id="array"><a href="#array" class="headerlink" title="array"></a>array</h3>]]></content>
+      <categories>
+        <category>notes</category>
+      </categories>
+      <tags>
+        <tag>Programming Language</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SoC设计方法</title>
+    <url>/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/</url>
+    <content><![CDATA[<h1 id="SoC设计方法"><a href="#SoC设计方法" class="headerlink" title="SoC设计方法"></a>SoC设计方法</h1><h2 id="Soc设计概述及流程"><a href="#Soc设计概述及流程" class="headerlink" title="Soc设计概述及流程"></a>Soc设计概述及流程</h2><h3 id="什么是SoC"><a href="#什么是SoC" class="headerlink" title="什么是SoC?"></a>什么是SoC?</h3><p>半导体产业模式及其基本分工：<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image.png" alt="半导体产业链"></p>
+<h4 id="SoC的基本概念："><a href="#SoC的基本概念：" class="headerlink" title="SoC的基本概念："></a>SoC的基本概念：</h4><pre><code>SoC(System on Chip)：系统级芯片，片上系统
+</code></pre>
+<p>SoC的诞生是集成电路领域发展的必然趋势。SoC的应用场景：<br>➢高性能计算<br>➢智能手机<br>➢汽车主控<br>➢物联网设备</p>
+<h4 id="SoC的优势"><a href="#SoC的优势" class="headerlink" title="SoC的优势"></a>SoC的优势</h4><ol>
+<li>有利于复杂系统的集成</li>
+<li>缩短设计时间</li>
+<li>可靠性更高</li>
+<li>延迟更低(内部连线短，传输延迟更小。内部晶体管阻抗低，较小的门延迟)</li>
+<li>低能耗</li>
+<li>低成本（IP复用）</li>
+</ol>
+<h4 id="SoC发展的挑战"><a href="#SoC发展的挑战" class="headerlink" title="SoC发展的挑战"></a>SoC发展的挑战</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-1.png" alt="设计成本"></p>
+<ol>
+<li><p>随着工艺节点的迭代，研发费用指数上升。</p>
+</li>
+<li><p>软硬件功能的划分（通用vs专用）<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-2.png" alt="不同划分带来不同成本占比"></p>
+</li>
+<li><p>复杂性提升导致的验证难度提升</p>
+</li>
+<li><p>制造成本高（7nm工艺下，$400mm^2$的芯片良率只有大约55%），设计错误不可接受</p>
+</li>
+</ol>
+<h4 id="新型SoC-Chiplet"><a href="#新型SoC-Chiplet" class="headerlink" title="新型SoC: Chiplet"></a>新型SoC: Chiplet</h4><p>芯粒(Chiplet):将功能丰富面积较大的裸片（die）拆分成多个芯粒（chiplet）通过先进封装组合在一起形成一个系统芯片</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-3.png"></p>
+<h4 id="SoC设计总结"><a href="#SoC设计总结" class="headerlink" title="SoC设计总结"></a>SoC设计总结</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-4.png"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-5.png"></p>
+<h3 id="SoC设计流程"><a href="#SoC设计流程" class="headerlink" title="SoC设计流程"></a>SoC设计流程</h3><p>SoC系统是软件和硬件的结合，需要综合评估系统的性能，设计相应的硬件和软件架构：</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-6.png" alt="SoC的软硬件协同设计流程"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-7.png" alt="SoC的软件设计流程"></p>
+<h4 id="SoC的硬件设计流程"><a href="#SoC的硬件设计流程" class="headerlink" title="SoC的硬件设计流程"></a>SoC的硬件设计流程</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-8.png" alt="SoC硬件设计流程-前端部分"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-9.png" alt="SoC硬件设计流程-后端部分"></p>
+<p>步骤基本可以分为： </p>
+<ol>
+<li><strong>设计规范（spec）</strong>：确定芯片的顶层架构，规格参数，划分模块定义</li>
+<li>模块设计与IP复用，顶端集成</li>
+<li>前仿真：验证设计逻辑的正确性</li>
+<li>验证</li>
+<li>逻辑综合：代码翻译为电路（理想器件）</li>
+<li>静态时序分析：检查设计是否符合时序要求，有无违例</li>
+</ol>
+<p>其中电路的抽象层次如下：</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-19.png"></p>
+<p>分别为：</p>
+<ol>
+<li>系统级</li>
+<li>RTL级</li>
+<li>门级(gate level)</li>
+<li>集体管级(transistor level)</li>
+<li>版图级 (lay-out level)</li>
+</ol>
+<h3 id="静态时序分析"><a href="#静态时序分析" class="headerlink" title="静态时序分析"></a>静态时序分析</h3><h4 id="setup-time-建立时间"><a href="#setup-time-建立时间" class="headerlink" title="setup time 建立时间"></a>setup time 建立时间</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-10.png" alt="建立时间"></p>
+<p>在时钟信号到来之前，数据需要提前一段时间准备好。这个时间称为建立时间</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-11.png" alt="建立时间与时钟周期的关系"></p>
+<p>如图，$t_{pcq}$指从时钟信号变化(50%)开始，到q端信号变化所需的时间(由寄存器本身的特性决定)；</p>
+<p>$t_{pd}$是组合逻辑的传输延迟。</p>
+<p>由于在下一个时钟到来之前，下一级寄存器的输入数据应当准备好，因此有：<br>$T_c \geq t_{pcq} + t_{pd} + t_{setup}$</p>
+<h4 id="hold-time-保持时间"><a href="#hold-time-保持时间" class="headerlink" title="hold time 保持时间"></a>hold time 保持时间</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-12.png" alt="保持时间"></p>
+<p>在时钟信号变化之后，输入如数据不能立马跳变，而是需要保持原来的值一定时间，保证数据被完全写入寄存器。这个时间称为保持时间。</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-13.png" alt="保持时间的时序约束"></p>
+<p>如图，对于理想时钟，clk总是同时到达。</p>
+<p>$t_{ccq}$是时钟信号变化（50%）后，q1变化的时间。 </p>
+<p>$t_{cd}$是组合逻辑的传播延时，则从时钟变化后，经过$t_{ccq}+t_{cd}$的时间，D2的数据会发生变化。</p>
+<p>按照保持时间的定义，需满足：</p>
+<p>$t_{ccq}+t_{cd} \geq t_{hold}$</p>
+<h4 id="recovery-removal-time"><a href="#recovery-removal-time" class="headerlink" title="recovery&#x2F;removal time"></a>recovery&#x2F;removal time</h4><p>异步电路的复位信号，需要满足的时序关系：</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-14.png" alt="alt text"></p>
+<h4 id="时钟偏斜-time-skew"><a href="#时钟偏斜-time-skew" class="headerlink" title="时钟偏斜 time skew"></a>时钟偏斜 time skew</h4><p>理论上clk对每个寄存器的clk端都应该相同，但实际上时钟到达每个元件的时间会有偏差，这个偏差称作time skew<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-15.png" alt="alt text"></p>
+<p>可以通过插入buffer的办法尽量消除时钟偏向(时钟树综合)</p>
+<h4 id="data-arrival-time-和-clk-arrival-time"><a href="#data-arrival-time-和-clk-arrival-time" class="headerlink" title="data arrival time 和 clk arrival  time"></a>data arrival time 和 clk arrival  time</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-16.png" alt="data arrival time"></p>
+<p>分析第二个寄存器的D端，数据到达需要经过：</p>
+<ol>
+<li>时钟启动时间(launch edge)</li>
+<li>clk1相对于时钟源的延迟$T_{clk1}$</li>
+<li>寄存器的内部延迟（时钟变化到数据变化需要的时间）$T_{co}$</li>
+<li>组合逻辑的数据延迟 $T_{data}$</li>
+</ol>
+<p>分析第二个寄存器的时钟到达时间：<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-17.png" alt="clk arrival time"></p>
+<ol>
+<li>时钟启动时间(launch edge)</li>
+<li>clk2相对于时钟源的延迟$T_{clk2}$</li>
+</ol>
+<p>根据建立时间，数据需要提前于时钟到达，并保持稳定：</p>
+<p>$data\  required\  time（setup）  &#x3D; clk\  arrival \ time - t_{setup} - setup\ uncertainty$</p>
+<p>根据保持时间的定义，在时钟到达后，数据需要保持稳定一段时间：</p>
+<p>$data\  required\  time（hold）  &#x3D; clk\  arrival \ time + t_{hold} + hold\ uncertainty$</p>
+<h4 id="时间裕量-time-slack"><a href="#时间裕量-time-slack" class="headerlink" title="时间裕量 time slack"></a>时间裕量 time slack</h4><p>对建立时间来说，由于数据应该提前到达，并保持一定时间的裕量，有：</p>
+<p>$data \ arrival \ time(setup) + setup \ slack &#x3D; data \ required \ time$<br>$setup \ slack &#x3D; data \ required \ time - data \ arrival \ time \<br>  &#x3D;  clk\  arrival \ time - data \ arrival \ time - t_{setup} - setup\ uncertainty  $</p>
+<p>set up slack应当大于0，才能保证时序正确。</p>
+<p>对保持时间，时钟到达后数据需要保持一定的时间裕量，有：<br>$ data \ required \ time(hold) + hold \ slack &#x3D;data \ arrival \ time$</p>
+<p>$hold \ slack &#x3D; data \ arrival \ time - data \ required \ time(hold)\<br> &#x3D;data \ arrival \ time -  clk\  arrival \ time - t_{hold} - hold\ uncertainty$</p>
+<h4 id="例"><a href="#例" class="headerlink" title="例"></a>例</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-18.png"></p>
+<p>计算最大工作频率。 考虑建立时间，使 setup slack为0：</p>
+<p>$T{clk_1}+ T_{co} + T_{data} + T_{setup} &#x3D;T_{c} + T_{clk2}$</p>
+<p>$f_{max} &#x3D; \frac{1}{T_{co} + T_{data} + T_{setup} + T{clk_1} - T_{clk2}}$</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-20.png"></p>
+<h2 id="SoC架构"><a href="#SoC架构" class="headerlink" title="SoC架构"></a>SoC架构</h2><h3 id="SoC架构概述"><a href="#SoC架构概述" class="headerlink" title="SoC架构概述"></a>SoC架构概述</h3><p>一个典型的SoC架构如下图：<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-21.png"></p>
+<p>SoC的同样遵循冯诺依曼架构，分别包括：</p>
+<ol>
+<li>中央处理器(计算，控制)</li>
+<li>存储系统</li>
+<li>总线</li>
+<li>外设 (I&#x2F;O)</li>
+<li>协处理器(可选，用于异构计算)</li>
+</ol>
+<h3 id="中央处理器CPU"><a href="#中央处理器CPU" class="headerlink" title="中央处理器CPU"></a>中央处理器CPU</h3><p>略</p>
+<h3 id="系统总线"><a href="#系统总线" class="headerlink" title="系统总线"></a>系统总线</h3><p>在SoC（System-on-a-Chip）系统中，总线是用来连接各个组件和模块，实现数据、地址和控制信号的传输。</p>
+<p>常见的总线包括ARM公司的AMBA（advanced microcontroller Bus Architecture）, 包括：</p>
+<ol>
+<li>AHB (Advanced High-performance Bus)</li>
+<li>AXI (Advanced eXtensibleInterface)</li>
+<li>APB (Advanced Peripheral Bus)</li>
+</ol>
+<h4 id="APB总线协议"><a href="#APB总线协议" class="headerlink" title="APB总线协议"></a>APB总线协议</h4><p>(待补充)</p>
+<h4 id="AHB总线协议"><a href="#AHB总线协议" class="headerlink" title="AHB总线协议"></a>AHB总线协议</h4><p>(待补充)</p>
+<h4 id="AXI总线协议"><a href="#AXI总线协议" class="headerlink" title="AXI总线协议"></a>AXI总线协议</h4><p>(待补充)</p>
+<h3 id="接口控制模块"><a href="#接口控制模块" class="headerlink" title="接口控制模块"></a>接口控制模块</h3><p>SoC一般包含多种不同的串&#x2F;并接口，常见的有:</p>
+<ol>
+<li>SPI</li>
+<li>UART</li>
+<li>USB</li>
+<li>PCIe</li>
+</ol>
+<p>此外还包括：</p>
+<ol>
+<li>中断控制器(Interrupt Controller, INTC)</li>
+<li>实时时钟(Real Time Clock, RTC) 、Timer、Watchdog</li>
+<li>功耗管理模块(Power Management Controller, PMC)</li>
+</ol>
+<p>等功能模块。</p>
+<h4 id="串-并行通信接口"><a href="#串-并行通信接口" class="headerlink" title="串&#x2F;并行通信接口"></a>串&#x2F;并行通信接口</h4><h5 id="串行-解串器"><a href="#串行-解串器" class="headerlink" title="串行&#x2F;解串器"></a>串行&#x2F;解串器</h5><h5 id="PCIe-Peripheral-Component-Interconnect-Express"><a href="#PCIe-Peripheral-Component-Interconnect-Express" class="headerlink" title="PCIe (Peripheral Component Interconnect Express)"></a>PCIe (Peripheral Component Interconnect Express)</h5><h5 id="SPI-Serial-Peripheral-Interface"><a href="#SPI-Serial-Peripheral-Interface" class="headerlink" title="SPI (Serial Peripheral Interface)"></a>SPI (Serial Peripheral Interface)</h5><h5 id="UART-Universal-Asynchronous-Receiver-Transmitter"><a href="#UART-Universal-Asynchronous-Receiver-Transmitter" class="headerlink" title="UART (Universal Asynchronous Receiver&#x2F;Transmitter)"></a>UART (Universal Asynchronous Receiver&#x2F;Transmitter)</h5><h5 id="USB-Universal-Serial-Bus"><a href="#USB-Universal-Serial-Bus" class="headerlink" title="USB (Universal Serial Bus)"></a>USB (Universal Serial Bus)</h5><h4 id="中断控制模块"><a href="#中断控制模块" class="headerlink" title="中断控制模块"></a>中断控制模块</h4><p>(待补充)</p>
+<h4 id="时钟外设"><a href="#时钟外设" class="headerlink" title="时钟外设"></a>时钟外设</h4><p>(待补充)</p>
+<h4 id="功耗管理模块"><a href="#功耗管理模块" class="headerlink" title="功耗管理模块"></a>功耗管理模块</h4><p>(待补充)</p>
+<h2 id="Lecture-3-系统级建模"><a href="#Lecture-3-系统级建模" class="headerlink" title="Lecture 3 系统级建模"></a>Lecture 3 系统级建模</h2><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-22.png"></p>
+<p>在传统的top-down设计流程中，其余环节都可以比较好的形式化，量化，然而顶层的功能需求定义等工作还是依赖文档和设计者对于文档的理解。</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-23.png"></p>
+<p>通过加强系统级建模，可以更好的克服非形式化手段带来的不精确性，有效将需求转化为产品。</p>
+<h3 id="系统级建模ELS"><a href="#系统级建模ELS" class="headerlink" title="系统级建模ELS"></a>系统级建模ELS</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-24.png"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-25.png"></p>
+<p>通过更高层次的建模来提高开发效率</p>
+<p>ELS功能：</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-26.png"></p>
+<h4 id="ELS设计阶段"><a href="#ELS设计阶段" class="headerlink" title="ELS设计阶段"></a>ELS设计阶段</h4><p>ELS设计分为3个阶段：</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-27.png"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-28.png"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-29.png"></p>
+<h3 id="ELS设计模型"><a href="#ELS设计模型" class="headerlink" title="ELS设计模型"></a>ELS设计模型</h3><h4 id="事物级建模"><a href="#事物级建模" class="headerlink" title="事物级建模"></a>事物级建模</h4><p>事务指模块之间的数据和事件的交互。数据交换可以是一个或多个字，<br>或者是一种数据结构。而诸如同步或者中断等则属于事件的交互<br>•事务级建模的核心概念是在一个系统建模过程中将运算功能和通信功<br>能分开，模块之间的通信通过函数调用来实现</p>
+<p>与寄存器传输级模型相比较，事务级建模可以减少事件和信息的处理，<br>所需的程序代码更少，执行速度更快<br>• 根据实际需要提供足够的设计精度，根据描述系统精度的不同，事务<br>级模型可以分为三种：<br>• 没有时序信息的模型<br>• 周期近似的模型<br>• 周期精确的模型</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-30.png"></p>
+<h4 id="ELS设计语言"><a href="#ELS设计语言" class="headerlink" title="ELS设计语言"></a>ELS设计语言</h4><p>业界获得较多支持和应用较为广泛的语言是SystemVerilog和SystemC<br>SystemVerilog是在Verilog上的扩展，吸收了C&#x2F;C++中的一些特性，可以实<br>现和C的仿真。由于是在Verilog上的扩展，SystemVerilog的优势在于基于<br>时钟的建模能力和验证能力。但在TLM的抽象上还存在一些不足，如缺少<br>抽象的数据类型<br>• 更为成功的是SystemC，SystemC是OSCI推出的基于C++扩展的描述语言。<br>是一种可以完成电子系统从软件到硬件的全部建模过程的语言。在目前的<br>设计中软件开发占到设计任务的60%-90%，基于C++扩展的语言SystemC<br>比从HDL扩展的语言有更加有利的发展趋势。SystemC完全支持TLM建模，<br>而且OSCI已经提出了TLM建模的标准。而其他语言目前还没有完全支持<br>TLM建模。</p>
+<h2 id="Lecture-4-SoC验证"><a href="#Lecture-4-SoC验证" class="headerlink" title="Lecture 4 SoC验证"></a>Lecture 4 SoC验证</h2><p>设计验证(Verification)的目的是确认设计的功能正确性和性能（速度和功耗等）满足设计要求，贯穿于设计的整个过程。</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-31.png"></p>
+<p>随着系统复杂的的提高，bug的数量也在提高，而找出bug的代价更大。</p>
+<h3 id="SoC验证方法学"><a href="#SoC验证方法学" class="headerlink" title="SoC验证方法学"></a>SoC验证方法学</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-32.png"></p>
+<p>根据验证的方式可以分为：</p>
+<p>Formal,Simulation,Emulation,Protyping</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-33.png"></p>
+<p>从方式来分类可以分解基于仿真的验证和基于形式的验证2大类。</p>
+<p>基于仿真的方法需要设置输入向量和预期结果，然后进行结果对比。</p>
+<h3 id="事件驱动的仿真-simulation"><a href="#事件驱动的仿真-simulation" class="headerlink" title="事件驱动的仿真 simulation"></a>事件驱动的仿真 simulation</h3><p>时间驱动的仿真，将各个时间节点发生的时间进行归类，然后以特定顺序调用，以此模拟真实的系统。</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-34.png"></p>
+<h4 id="代码覆盖率和功能覆盖率"><a href="#代码覆盖率和功能覆盖率" class="headerlink" title="代码覆盖率和功能覆盖率"></a>代码覆盖率和功能覆盖率</h4><p>(参考SV课程中的内容)</p>
+<h4 id="仿真simulation和模拟emulation的区别"><a href="#仿真simulation和模拟emulation的区别" class="headerlink" title="仿真simulation和模拟emulation的区别"></a>仿真simulation和模拟emulation的区别</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-35.png"></p>
+<p>核心在于emulation采取一套不同的硬件系统来验证功能</p>
+<p>Emulation的问题在于成本过高。</p>
+<h3 id="形式化验证"><a href="#形式化验证" class="headerlink" title="形式化验证"></a>形式化验证</h3><p>可以达到100%覆盖率<br>仅适用于小尺寸的有限状态系统</p>
+<p>对于类似soc这样的复杂系统，其输入空间的组合近似无穷大，如果不用形式验证的方法，很难穷尽所有的输入可能。</p>
+<h4 id="形式化验证的分类"><a href="#形式化验证的分类" class="headerlink" title="形式化验证的分类"></a>形式化验证的分类</h4><p>主要分为模型检查和等价性检查。</p>
+<p>其中等价性检查又分为LEC(logic equivalence)和SEC(sequential equivalence)</p>
+<h4 id="基于AI和深度学习的验证"><a href="#基于AI和深度学习的验证" class="headerlink" title="基于AI和深度学习的验证"></a>基于AI和深度学习的验证</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-36.png"></p>
+<h3 id="测试平台搭建"><a href="#测试平台搭建" class="headerlink" title="测试平台搭建"></a>测试平台搭建</h3><h3 id="SoC混合信号验证"><a href="#SoC混合信号验证" class="headerlink" title="SoC混合信号验证"></a>SoC混合信号验证</h3><h2 id="Lecture5-逻辑综合"><a href="#Lecture5-逻辑综合" class="headerlink" title="Lecture5 逻辑综合"></a>Lecture5 逻辑综合</h2><p>gtech: 与工艺无关的门级网表</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-37.png"></p>
+<h3 id="逻辑综合要解决的问题"><a href="#逻辑综合要解决的问题" class="headerlink" title="逻辑综合要解决的问题"></a>逻辑综合要解决的问题</h3><p> 单的综合只需要将RTL读入综合软件并elaborate即可得到门级网表，但<br>这并不代表综合真正成功<br>• 对于同步逻辑电路，综合成功表示综合后的电路中，触发器等时序逻辑部<br>件能在正确的时间(时钟沿)得到正确的数据，即满足时序要求，同时需要满<br>足扇出、负载等约束<br>• 触发器正确读取数据的关键<br>• 数据在时钟沿之前稳定足够的时间，即数据不要到达太晚，应满足建立时间(setup<br>time)要求<br>• 数据在时钟沿之后稳定足够的时间，即数据不能到达太早，应满足保持时间(hold<br>time)要求<br>• 时钟沿会在正确的时刻出现，即时钟质量要满足要求<br>• 可简单认为综合主要是为了保证建立时间、保持时间、时钟这几项要求</p>
+<h3 id="Synopsys-DC-综合流程"><a href="#Synopsys-DC-综合流程" class="headerlink" title="Synopsys DC 综合流程"></a>Synopsys DC 综合流程</h3><ol>
+<li>set library</li>
+<li>Read design</li>
+<li>Defign environment </li>
+<li>Sent design constraints</li>
+<li>Select compile strategy</li>
+<li>Optimize the design</li>
+<li>Analyze and resolve design problems</li>
+<li>save design data</li>
+</ol>
+<h3 id="CCS-模型"><a href="#CCS-模型" class="headerlink" title="CCS 模型"></a>CCS 模型</h3><p>CCS模型即复合电流源模型Composite Current Source，精度可达HSpice的2%以内，但CCS库尺寸比NLDM库大一个数量级。</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-38.png"></p>
+<h3 id="无法综合的部分"><a href="#无法综合的部分" class="headerlink" title="无法综合的部分"></a>无法综合的部分</h3><p>类似memory之类的模型无法由逻辑综合直接得到，而是需要专用工具或使用成型IP：</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-39.png"></p>
+<h3 id="需要约束的时序路径"><a href="#需要约束的时序路径" class="headerlink" title="需要约束的时序路径"></a>需要约束的时序路径</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-40.png"></p>
+<h3 id="电路优化"><a href="#电路优化" class="headerlink" title="电路优化"></a>电路优化</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-41.png"></p>
+<h3 id="高层次综合HLS"><a href="#高层次综合HLS" class="headerlink" title="高层次综合HLS"></a>高层次综合HLS</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-42.png"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-43.png"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-44.png"></p>
+<h2 id="Lecture-6-STA"><a href="#Lecture-6-STA" class="headerlink" title="Lecture 6 STA"></a>Lecture 6 STA</h2><h3 id="建立时间和保持时间"><a href="#建立时间和保持时间" class="headerlink" title="建立时间和保持时间"></a>建立时间和保持时间</h3><p>Setup Time – 建立时间，数据在时钟沿之前必须保持稳定的时间长度</p>
+<p>Hold Time – 保持时间，数据在时钟沿之后必须保持稳定的时间长度</p>
+<h3 id="亚稳态"><a href="#亚稳态" class="headerlink" title="亚稳态"></a>亚稳态</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-45.png"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-46.png"></p>
+<h3 id="Negative-hold-time"><a href="#Negative-hold-time" class="headerlink" title="Negative hold time"></a>Negative hold time</h3><p>建立时间总是正的，但保持时间可以为正值、零，甚至负值<br>• 某些触发器可能需要set-reset-enable或者scan-enable功能，或者其它<br>原因，使得触发器第一个传输门前存在部分组合逻辑<br>• 这些额外的组合逻辑会在输入数据D到第一个传输门的路径中引入额<br>外的延迟，此额外的延迟可能使得保持时间为正、零或者负</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-47.png" alt="alt text"></p>
+]]></content>
+      <categories>
+        <category>notes</category>
+      </categories>
+      <tags>
+        <tag>SoC</tag>
       </tags>
   </entry>
   <entry>
@@ -780,147 +1122,26 @@ RISC：(Reduced Instruction Set Computer)精简指令集计算机  代表：MIPS
       </tags>
   </entry>
   <entry>
-    <title>SoC设计方法</title>
-    <url>/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/</url>
-    <content><![CDATA[<h1 id="SoC设计方法"><a href="#SoC设计方法" class="headerlink" title="SoC设计方法"></a>SoC设计方法</h1><h2 id="Soc设计概述及流程"><a href="#Soc设计概述及流程" class="headerlink" title="Soc设计概述及流程"></a>Soc设计概述及流程</h2><h3 id="什么是SoC"><a href="#什么是SoC" class="headerlink" title="什么是SoC?"></a>什么是SoC?</h3><p>半导体产业模式及其基本分工：<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image.png" alt="半导体产业链"></p>
-<h4 id="SoC的基本概念："><a href="#SoC的基本概念：" class="headerlink" title="SoC的基本概念："></a>SoC的基本概念：</h4><pre><code>SoC(System on Chip)：系统级芯片，片上系统
-</code></pre>
-<p>SoC的诞生是集成电路领域发展的必然趋势。SoC的应用场景：<br>➢高性能计算<br>➢智能手机<br>➢汽车主控<br>➢物联网设备</p>
-<h4 id="SoC的优势"><a href="#SoC的优势" class="headerlink" title="SoC的优势"></a>SoC的优势</h4><ol>
-<li>有利于复杂系统的集成</li>
-<li>缩短设计时间</li>
-<li>可靠性更高</li>
-<li>延迟更低(内部连线短，传输延迟更小。内部晶体管阻抗低，较小的门延迟)</li>
-<li>低能耗</li>
-<li>低成本（IP复用）</li>
-</ol>
-<h4 id="SoC发展的挑战"><a href="#SoC发展的挑战" class="headerlink" title="SoC发展的挑战"></a>SoC发展的挑战</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-1.png" alt="设计成本"></p>
-<ol>
-<li><p>随着工艺节点的迭代，研发费用指数上升。</p>
-</li>
-<li><p>软硬件功能的划分（通用vs专用）<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-2.png" alt="不同划分带来不同成本占比"></p>
-</li>
-<li><p>复杂性提升导致的验证难度提升</p>
-</li>
-<li><p>制造成本高（7nm工艺下，$400mm^2$的芯片良率只有大约55%），设计错误不可接受</p>
-</li>
-</ol>
-<h4 id="新型SoC-Chiplet"><a href="#新型SoC-Chiplet" class="headerlink" title="新型SoC: Chiplet"></a>新型SoC: Chiplet</h4><p>芯粒(Chiplet):将功能丰富面积较大的裸片（die）拆分成多个芯粒（chiplet）通过先进封装组合在一起形成一个系统芯片</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-3.png"></p>
-<h4 id="SoC设计总结"><a href="#SoC设计总结" class="headerlink" title="SoC设计总结"></a>SoC设计总结</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-4.png"></p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-5.png"></p>
-<h3 id="SoC设计流程"><a href="#SoC设计流程" class="headerlink" title="SoC设计流程"></a>SoC设计流程</h3><p>SoC系统是软件和硬件的结合，需要综合评估系统的性能，设计相应的硬件和软件架构：</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-6.png" alt="SoC的软硬件协同设计流程"></p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-7.png" alt="SoC的软件设计流程"></p>
-<h4 id="SoC的硬件设计流程"><a href="#SoC的硬件设计流程" class="headerlink" title="SoC的硬件设计流程"></a>SoC的硬件设计流程</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-8.png" alt="SoC硬件设计流程-前端部分"></p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-9.png" alt="SoC硬件设计流程-后端部分"></p>
-<p>步骤基本可以分为： </p>
-<ol>
-<li><strong>设计规范（spec）</strong>：确定芯片的顶层架构，规格参数，划分模块定义</li>
-<li>模块设计与IP复用，顶端集成</li>
-<li>前仿真：验证设计逻辑的正确性</li>
-<li>验证</li>
-<li>逻辑综合：代码翻译为电路（理想器件）</li>
-<li>静态时序分析：检查设计是否符合时序要求，有无违例</li>
-</ol>
-<p>其中电路的抽象层次如下：</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-19.png"></p>
-<p>分别为：</p>
-<ol>
-<li>系统级</li>
-<li>RTL级</li>
-<li>门级(gate level)</li>
-<li>集体管级(transistor level)</li>
-<li>版图级 (lay-out level)</li>
-</ol>
-<h3 id="静态时序分析"><a href="#静态时序分析" class="headerlink" title="静态时序分析"></a>静态时序分析</h3><h4 id="setup-time-建立时间"><a href="#setup-time-建立时间" class="headerlink" title="setup time 建立时间"></a>setup time 建立时间</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-10.png" alt="建立时间"></p>
-<p>在时钟信号到来之前，数据需要提前一段时间准备好。这个时间称为建立时间</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-11.png" alt="建立时间与时钟周期的关系"></p>
-<p>如图，$t_{pcq}$指从时钟信号变化(50%)开始，到q端信号变化所需的时间(由寄存器本身的特性决定)；</p>
-<p>$t_{pd}$是组合逻辑的传输延迟。</p>
-<p>由于在下一个时钟到来之前，下一级寄存器的输入数据应当准备好，因此有：<br>$T_c \geq t_{pcq} + t_{pd} + t_{setup}$</p>
-<h4 id="hold-time-保持时间"><a href="#hold-time-保持时间" class="headerlink" title="hold time 保持时间"></a>hold time 保持时间</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-12.png" alt="保持时间"></p>
-<p>在时钟信号变化之后，输入如数据不能立马跳变，而是需要保持原来的值一定时间，保证数据被完全写入寄存器。这个时间称为保持时间。</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-13.png" alt="保持时间的时序约束"></p>
-<p>如图，对于理想时钟，clk总是同时到达。</p>
-<p>$t_{ccq}$是时钟信号变化（50%）后，q1变化的时间。 </p>
-<p>$t_{cd}$是组合逻辑的传播延时，则从时钟变化后，经过$t_{ccq}+t_{cd}$的时间，D2的数据会发生变化。</p>
-<p>按照保持时间的定义，需满足：</p>
-<p>$t_{ccq}+t_{cd} \geq t_{hold}$</p>
-<h4 id="recovery-removal-time"><a href="#recovery-removal-time" class="headerlink" title="recovery&#x2F;removal time"></a>recovery&#x2F;removal time</h4><p>异步电路的复位信号，需要满足的时序关系：</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-14.png" alt="alt text"></p>
-<h4 id="时钟偏斜-time-skew"><a href="#时钟偏斜-time-skew" class="headerlink" title="时钟偏斜 time skew"></a>时钟偏斜 time skew</h4><p>理论上clk对每个寄存器的clk端都应该相同，但实际上时钟到达每个元件的时间会有偏差，这个偏差称作time skew<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-15.png" alt="alt text"></p>
-<p>可以通过插入buffer的办法尽量消除时钟偏向(时钟树综合)</p>
-<h4 id="data-arrival-time-和-clk-arrival-time"><a href="#data-arrival-time-和-clk-arrival-time" class="headerlink" title="data arrival time 和 clk arrival  time"></a>data arrival time 和 clk arrival  time</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-16.png" alt="data arrival time"></p>
-<p>分析第二个寄存器的D端，数据到达需要经过：</p>
-<ol>
-<li>时钟启动时间(launch edge)</li>
-<li>clk1相对于时钟源的延迟$T_{clk1}$</li>
-<li>寄存器的内部延迟（时钟变化到数据变化需要的时间）$T_{co}$</li>
-<li>组合逻辑的数据延迟 $T_{data}$</li>
-</ol>
-<p>分析第二个寄存器的时钟到达时间：<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-17.png" alt="clk arrival time"></p>
-<ol>
-<li>时钟启动时间(launch edge)</li>
-<li>clk2相对于时钟源的延迟$T_{clk2}$</li>
-</ol>
-<p>根据建立时间，数据需要提前于时钟到达，并保持稳定：</p>
-<p>$data\  required\  time（setup）  &#x3D; clk\  arrival \ time - t_{setup} - setup\ uncertainty$</p>
-<p>根据保持时间的定义，在时钟到达后，数据需要保持稳定一段时间：</p>
-<p>$data\  required\  time（hold）  &#x3D; clk\  arrival \ time + t_{hold} + hold\ uncertainty$</p>
-<h4 id="时间裕量-time-slack"><a href="#时间裕量-time-slack" class="headerlink" title="时间裕量 time slack"></a>时间裕量 time slack</h4><p>对建立时间来说，由于数据应该提前到达，并保持一定时间的裕量，有：</p>
-<p>$data \ arrival \ time(setup) + setup \ slack &#x3D; data \ required \ time$<br>$setup \ slack &#x3D; data \ required \ time - data \ arrival \ time \<br>  &#x3D;  clk\  arrival \ time - data \ arrival \ time - t_{setup} - setup\ uncertainty  $</p>
-<p>set up slack应当大于0，才能保证时序正确。</p>
-<p>对保持时间，时钟到达后数据需要保持一定的时间裕量，有：<br>$ data \ required \ time(hold) + hold \ slack &#x3D;data \ arrival \ time$</p>
-<p>$hold \ slack &#x3D; data \ arrival \ time - data \ required \ time(hold)\<br> &#x3D;data \ arrival \ time -  clk\  arrival \ time - t_{hold} - hold\ uncertainty$</p>
-<h4 id="例"><a href="#例" class="headerlink" title="例"></a>例</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-18.png"></p>
-<p>计算最大工作频率。 考虑建立时间，使 setup slack为0：</p>
-<p>$T{clk_1}+ T_{co} + T_{data} + T_{setup} &#x3D;T_{c} + T_{clk2}$</p>
-<p>$f_{max} &#x3D; \frac{1}{T_{co} + T_{data} + T_{setup} + T{clk_1} - T_{clk2}}$</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-20.png"></p>
-<h2 id="SoC架构"><a href="#SoC架构" class="headerlink" title="SoC架构"></a>SoC架构</h2><h3 id="SoC架构概述"><a href="#SoC架构概述" class="headerlink" title="SoC架构概述"></a>SoC架构概述</h3><p>一个典型的SoC架构如下图：<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-21.png"></p>
-<p>SoC的同样遵循冯诺依曼架构，分别包括：</p>
-<ol>
-<li>中央处理器(计算，控制)</li>
-<li>存储系统</li>
-<li>总线</li>
-<li>外设 (I&#x2F;O)</li>
-<li>协处理器(可选，用于异构计算)</li>
-</ol>
-<h3 id="中央处理器CPU"><a href="#中央处理器CPU" class="headerlink" title="中央处理器CPU"></a>中央处理器CPU</h3><p>略</p>
-<h3 id="系统总线"><a href="#系统总线" class="headerlink" title="系统总线"></a>系统总线</h3><p>在SoC（System-on-a-Chip）系统中，总线是用来连接各个组件和模块，实现数据、地址和控制信号的传输。</p>
-<p>常见的总线包括ARM公司的AMBA（advanced microcontroller Bus Architecture）, 包括：</p>
-<ol>
-<li>AHB (Advanced High-performance Bus)</li>
-<li>AXI (Advanced eXtensibleInterface)</li>
-<li>APB (Advanced Peripheral Bus)</li>
-</ol>
-<h4 id="APB总线协议"><a href="#APB总线协议" class="headerlink" title="APB总线协议"></a>APB总线协议</h4><p>(待补充)</p>
-<h4 id="AHB总线协议"><a href="#AHB总线协议" class="headerlink" title="AHB总线协议"></a>AHB总线协议</h4><p>(待补充)</p>
-<h4 id="AXI总线协议"><a href="#AXI总线协议" class="headerlink" title="AXI总线协议"></a>AXI总线协议</h4><p>(待补充)</p>
-<h3 id="接口控制模块"><a href="#接口控制模块" class="headerlink" title="接口控制模块"></a>接口控制模块</h3><p>SoC一般包含多种不同的串&#x2F;并接口，常见的有:</p>
-<ol>
-<li>SPI</li>
-<li>UART</li>
-<li>USB</li>
-<li>PCIe</li>
-</ol>
-<p>此外还包括：</p>
-<ol>
-<li>中断控制器(Interrupt Controller, INTC)</li>
-<li>实时时钟(Real Time Clock, RTC) 、Timer、Watchdog</li>
-<li>功耗管理模块(Power Management Controller, PMC)</li>
-</ol>
-<p>等功能模块。</p>
-<h4 id="串-并行通信接口"><a href="#串-并行通信接口" class="headerlink" title="串&#x2F;并行通信接口"></a>串&#x2F;并行通信接口</h4><h5 id="串行-解串器"><a href="#串行-解串器" class="headerlink" title="串行&#x2F;解串器"></a>串行&#x2F;解串器</h5><h5 id="PCIe-Peripheral-Component-Interconnect-Express"><a href="#PCIe-Peripheral-Component-Interconnect-Express" class="headerlink" title="PCIe (Peripheral Component Interconnect Express)"></a>PCIe (Peripheral Component Interconnect Express)</h5><h5 id="SPI-Serial-Peripheral-Interface"><a href="#SPI-Serial-Peripheral-Interface" class="headerlink" title="SPI (Serial Peripheral Interface)"></a>SPI (Serial Peripheral Interface)</h5><h5 id="UART-Universal-Asynchronous-Receiver-Transmitter"><a href="#UART-Universal-Asynchronous-Receiver-Transmitter" class="headerlink" title="UART (Universal Asynchronous Receiver&#x2F;Transmitter)"></a>UART (Universal Asynchronous Receiver&#x2F;Transmitter)</h5><h5 id="USB-Universal-Serial-Bus"><a href="#USB-Universal-Serial-Bus" class="headerlink" title="USB (Universal Serial Bus)"></a>USB (Universal Serial Bus)</h5><h4 id="中断控制模块"><a href="#中断控制模块" class="headerlink" title="中断控制模块"></a>中断控制模块</h4><p>(待补充)</p>
-<h4 id="时钟外设"><a href="#时钟外设" class="headerlink" title="时钟外设"></a>时钟外设</h4><p>(待补充)</p>
-<h4 id="功耗管理模块"><a href="#功耗管理模块" class="headerlink" title="功耗管理模块"></a>功耗管理模块</h4><p>(待补充)</p>
-<h2 id="Lecture-3"><a href="#Lecture-3" class="headerlink" title="Lecture 3"></a>Lecture 3</h2>]]></content>
+    <title>笨办法学C</title>
+    <url>/2024/04/19/%E7%AC%A8%E5%8A%9E%E6%B3%95%E5%AD%A6C/</url>
+    <content><![CDATA[<h1 id="Learn-C-the-hard-way"><a href="#Learn-C-the-hard-way" class="headerlink" title="Learn C the hard way"></a>Learn C the hard way</h1><h2 id="C语法"><a href="#C语法" class="headerlink" title="C语法"></a>C语法</h2><p>略</p>
+<h2 id="一些技巧"><a href="#一些技巧" class="headerlink" title="一些技巧"></a>一些技巧</h2><h3 id="语法糖"><a href="#语法糖" class="headerlink" title="语法糖"></a>语法糖</h3><p>使用宏定义构建语法糖。<br><code>&quot;语法糖&quot;是一种编程术语，用来描述那些没有给编程语言添加新功能，但是可以使代码更易读或易写的语法。这些语法通过提供更加方便、简洁的编写方式，使得程序员能够更加快速、更加直观地表达程序设计的意图。 在C语言中，也存在一些语法糖。例如，数组的下标运算就是一种语法糖。例如，array[i]实际上就是*(array + i)的简化写法。另一个例子是for循环，它实际上可以使用while循环和一些额外的语句来实现，但for循环提供了一种更加简洁、易读的方式来编写循环。 虽然语法糖可以使代码更简洁、易读，但并不会影响程序的功能或效率。使用或不使用语法糖，都不会影响程序的运行结果。</code></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 语法糖, 写入obj-&gt;_(N), 等价于 obj-&gt;proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> _(N) proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NEW(T, N) Object_new(sizeof(T), T##Proto, N)</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="assert宏"><a href="#assert宏" class="headerlink" title="assert宏"></a>assert宏</h3><p>&lt;assert.h&gt; 是 C 语言的一个标准库，主要提供了一个名为 assert 的宏，用于在程序开发和调试过程中进行条件测试。<br>assert 宏允许程序员在代码中插入诊断信息。如果在运行时，assert 的条件测试失败（即，测试的表达式结果为假），那么程序会立即终止，并显示一条错误消息。这条消息通常包括文件名、源代码行号以及测试失败的表达式。</p>
+<p>例如：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> Person *<span class="title function_">Person_create</span><span class="params">(<span class="type">char</span> *name, <span class="type">int</span> age, <span class="type">int</span> height, <span class="type">int</span> weight)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Person</span> *<span class="title">who</span> =</span> <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> Person));</span><br><span class="line">    assert(who != <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    who-&gt;name = strdup(name);</span><br><span class="line">    who-&gt;age = age;</span><br><span class="line">    who-&gt;height = height;</span><br><span class="line">    who-&gt;weight = weight;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> who;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里使用assert宏来检查内存是否被成功分配。</p>
+<h3 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h3><p>众所周知C不支持面向对象，但是可以通过一些技巧实现类似继承的功能：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//定义一个基类 Object</span></span><br><span class="line"><span class="comment">//注意这里使用了函数指针，从而可以实现函数重载</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">char</span> *description;</span><br><span class="line">    <span class="type">int</span> (*init)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*describe)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*destroy)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> *(*move)(<span class="type">void</span> *self, Direction direction);</span><br><span class="line">    <span class="type">int</span> (*attack)(<span class="type">void</span> *self, <span class="type">int</span> damage);</span><br><span class="line">&#125; Object;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//基类的构造函数</span></span><br><span class="line"><span class="type">void</span> *<span class="title function_">Object_new</span><span class="params">(<span class="type">size_t</span> size, Object proto, <span class="type">char</span> *description)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// setup the default functions in case they aren&#x27;t set</span></span><br><span class="line">    <span class="keyword">if</span>(!proto.init) proto.init = Object_init;</span><br><span class="line">    <span class="keyword">if</span>(!proto.describe) proto.describe = Object_describe;</span><br><span class="line">    <span class="keyword">if</span>(!proto.destroy) proto.destroy = Object_destroy;</span><br><span class="line">    <span class="keyword">if</span>(!proto.attack) proto.attack = Object_attack;</span><br><span class="line">    <span class="keyword">if</span>(!proto.move) proto.move = Object_move;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// this seems weird, but we can make a struct of one size,</span></span><br><span class="line">    <span class="comment">// then point a different pointer at it to &quot;cast&quot; it</span></span><br><span class="line">    Object *el = <span class="built_in">calloc</span>(<span class="number">1</span>, size);</span><br><span class="line">    *el = proto;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// copy the description over</span></span><br><span class="line">    el-&gt;description = strdup(description);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// initialize it with whatever init we were given</span></span><br><span class="line">    <span class="keyword">if</span>(!el-&gt;init(el)) &#123;</span><br><span class="line">        <span class="comment">// looks like it didn&#x27;t initialize properly</span></span><br><span class="line">        el-&gt;destroy(el);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// all done, we made an object of any type</span></span><br><span class="line">        <span class="keyword">return</span> el;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//对每个需要继承基类的子类，用以下方法定义：</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Map</span> &#123;</span></span><br><span class="line">    Object proto;</span><br><span class="line">    Room *start;</span><br><span class="line">    Room *location;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//指定需要重载的方法：</span></span><br><span class="line">Object MapProto = &#123;</span><br><span class="line">    .init = Map_init,</span><br><span class="line">    .move = Map_move,</span><br><span class="line">    .attack = Map_attack</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//使用之前的语法糖进行初始化：</span></span><br><span class="line">Map *game = NEW(Map, <span class="string">&quot;The Hall of the Minotaur.&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+]]></content>
       <categories>
         <category>notes</category>
       </categories>
       <tags>
-        <tag>SoC</tag>
+        <tag>Programming Language</tag>
       </tags>
   </entry>
   <entry>
@@ -1595,162 +1816,6 @@ assert 将 property 应用于实际的硬件设计，以确保在运行时满足
       </tags>
   </entry>
   <entry>
-    <title>LearnPerl</title>
-    <url>/2024/05/08/LearnPerl/</url>
-    <content><![CDATA[<h1 id="Learn-Perl"><a href="#Learn-Perl" class="headerlink" title="Learn Perl"></a>Learn Perl</h1><h2 id="ch2-标量数据"><a href="#ch2-标量数据" class="headerlink" title="ch2 标量数据"></a>ch2 标量数据</h2><h3 id="第一个Helloword-程序"><a href="#第一个Helloword-程序" class="headerlink" title="第一个Helloword 程序"></a>第一个Helloword 程序</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">&quot;Hello, world!\n&quot;</span>;</span><br></pre></td></tr></table></figure>
-
-<p>perl是一种脚本语言，一般已经被内置在类unix系统中。类似的还有shell，bash,csh,tcl,python等。</p>
-<p>第一行的<code>#!</code>读作shell bang。shell bang 是一个用于指定脚本解释器的特殊字符组合。它由 <code>#</code>（井号）和 <code>!</code>（感叹号）组合而成，通常位于脚本的第一行。当一个脚本被执行时，系统会参考 shebang 指定的解释器来执行这个脚本。</p>
-<p>例如，如果一个脚本的第一行是 <code>#!/bin/bash</code>，那么这个脚本就会使用 Bash 作为其解释器。如果改为 <code>#!/usr/bin/python3</code>，那么这个脚本就会使用 Python 3 作为其解释器。</p>
-<p>linux默认的脚本解释器总是在&#x2F;usr&#x2F;bin目录下，如果解释器安装在其他目录下，则需要修改对应的路径。</p>
-<p>由于有shell bang的存在，perl程序不需要有特定的扩展名，而只需要是<strong>可执行</strong>的。（为了区分可以加上<code>.pl</code>）的后缀。</p>
-<p>此外也可以直接通过<code>perl</code>命令执行脚本。这2种方式大部分情况下是相同的，然而有时候也会产生不同的效果。</p>
-<p><img src="/2024/05/08/LearnPerl/image.png"><br>目前本人还没搞清楚这种情况出现的原因。</p>
-<p>反引号&#96;&#96;可以用于执行外部命令:</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"> @lines = <span class="string">`ls -a`</span>;</span><br><span class="line"> <span class="keyword">foreach</span> (@lines) &#123;</span><br><span class="line">  <span class="keyword">print</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-
-<h3 id="标量数据"><a href="#标量数据" class="headerlink" title="标量数据"></a>标量数据</h3><p>字符串，数字都被看做标量数据。</p>
-<p>perl会根据数据的操作符判断执行代数运算还是字符串操作。</p>
-<p>变量采用美元符号声明：</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">$alef  = <span class="keyword">chr</span>( <span class="number">0x05D0</span> );</span><br><span class="line">$alpha = <span class="keyword">chr</span>( <span class="keyword">hex</span>(<span class="string">&#x27;03B1&#x27;</span>) );</span><br><span class="line">$omega = <span class="keyword">chr</span>( <span class="number">0x03C9</span> );</span><br><span class="line"></span><br><span class="line"><span class="keyword">say</span> <span class="string">&quot;alpha:&quot;</span>.$alpha;</span><br><span class="line"><span class="keyword">say</span> <span class="string">&quot;alef:&quot;</span>.$alef;</span><br><span class="line"><span class="keyword">say</span> <span class="string">&quot;omega:&quot;</span>.$omega;</span><br><span class="line"></span><br><span class="line">$code_point = <span class="keyword">ord</span>( <span class="string">&#x27;א&#x27;</span> );</span><br><span class="line"></span><br><span class="line"><span class="keyword">say</span> $code_point;</span><br></pre></td></tr></table></figure>
-<p><img src="/2024/05/08/LearnPerl/image2.png"><br>chr函数会将对应的ascii字符进行转换。ord则相反。</p>
-<p>使用<code>x</code>可以将字符串重复对应的次数。</p>
-<p><img src="/2024/05/08/LearnPerl/image1.png"></p>
-<p><code>say</code>和<code>print</code>类似，区别是会自动换行。（需要5.10以上的版本）</p>
-<p>使用<code>.</code>可以连接2个字符串。</p>
-<h3 id="其他特性"><a href="#其他特性" class="headerlink" title="其他特性"></a>其他特性</h3><p>获取标准输入：<code>&lt;STDIN&gt;</code></p>
-<p><img src="/2024/05/08/LearnPerl/image-1.png"></p>
-<p><img src="/2024/05/08/LearnPerl/image-2.png"></p>
-<p><code>chomp</code>的作用是去掉字符串末尾的换行符。</p>
-<h2 id="ch3"><a href="#ch3" class="headerlink" title="ch3"></a>ch3</h2><h3 id="list"><a href="#list" class="headerlink" title="list"></a>list</h3><p>数组和标量的声明方式完全相同。</p>
-<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">10</span>;</span><br><span class="line">$word[<span class="number">0</span>]= <span class="string">&quot;s&quot;</span>;</span><br><span class="line"></span><br><span class="line">$word[<span class="number">1</span>]= <span class="string">&quot;h&quot;</span>;</span><br><span class="line">$word[<span class="number">2</span>]= <span class="string">&quot;i&quot;</span>;</span><br><span class="line">$word[<span class="number">3</span>]= <span class="string">&quot;t&quot;</span>;</span><br><span class="line"></span><br><span class="line">$a = $#word;</span><br><span class="line"><span class="keyword">say</span> $a;</span><br><span class="line"><span class="keyword">say</span>  $word[-<span class="number">4</span>].$word[-<span class="number">3</span>].$word[-<span class="number">2</span>].$word[-<span class="number">1</span>];</span><br></pre></td></tr></table></figure>
-<figure class="highlight plaintext"><table><tr><td class="code"><pre><span class="line">wenkai@LAPTOP-36N49UJG:~/perl/ex3$ ./array</span><br><span class="line">3</span><br><span class="line">shit</span><br></pre></td></tr></table></figure>
-
-
-<p><code>$#</code>得到数组的长度(减一)</p>
-<h3 id="array"><a href="#array" class="headerlink" title="array"></a>array</h3>]]></content>
-      <categories>
-        <category>notes</category>
-      </categories>
-      <tags>
-        <tag>Programming Language</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>笨办法学C</title>
-    <url>/2024/04/19/%E7%AC%A8%E5%8A%9E%E6%B3%95%E5%AD%A6C/</url>
-    <content><![CDATA[<h1 id="Learn-C-the-hard-way"><a href="#Learn-C-the-hard-way" class="headerlink" title="Learn C the hard way"></a>Learn C the hard way</h1><h2 id="C语法"><a href="#C语法" class="headerlink" title="C语法"></a>C语法</h2><p>略</p>
-<h2 id="一些技巧"><a href="#一些技巧" class="headerlink" title="一些技巧"></a>一些技巧</h2><h3 id="语法糖"><a href="#语法糖" class="headerlink" title="语法糖"></a>语法糖</h3><p>使用宏定义构建语法糖。<br><code>&quot;语法糖&quot;是一种编程术语，用来描述那些没有给编程语言添加新功能，但是可以使代码更易读或易写的语法。这些语法通过提供更加方便、简洁的编写方式，使得程序员能够更加快速、更加直观地表达程序设计的意图。 在C语言中，也存在一些语法糖。例如，数组的下标运算就是一种语法糖。例如，array[i]实际上就是*(array + i)的简化写法。另一个例子是for循环，它实际上可以使用while循环和一些额外的语句来实现，但for循环提供了一种更加简洁、易读的方式来编写循环。 虽然语法糖可以使代码更简洁、易读，但并不会影响程序的功能或效率。使用或不使用语法糖，都不会影响程序的运行结果。</code></p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 语法糖, 写入obj-&gt;_(N), 等价于 obj-&gt;proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> _(N) proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NEW(T, N) Object_new(sizeof(T), T##Proto, N)</span></span><br></pre></td></tr></table></figure>
-
-
-<h3 id="assert宏"><a href="#assert宏" class="headerlink" title="assert宏"></a>assert宏</h3><p>&lt;assert.h&gt; 是 C 语言的一个标准库，主要提供了一个名为 assert 的宏，用于在程序开发和调试过程中进行条件测试。<br>assert 宏允许程序员在代码中插入诊断信息。如果在运行时，assert 的条件测试失败（即，测试的表达式结果为假），那么程序会立即终止，并显示一条错误消息。这条消息通常包括文件名、源代码行号以及测试失败的表达式。</p>
-<p>例如：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> Person *<span class="title function_">Person_create</span><span class="params">(<span class="type">char</span> *name, <span class="type">int</span> age, <span class="type">int</span> height, <span class="type">int</span> weight)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Person</span> *<span class="title">who</span> =</span> <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> Person));</span><br><span class="line">    assert(who != <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    who-&gt;name = strdup(name);</span><br><span class="line">    who-&gt;age = age;</span><br><span class="line">    who-&gt;height = height;</span><br><span class="line">    who-&gt;weight = weight;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> who;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里使用assert宏来检查内存是否被成功分配。</p>
-<h3 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h3><p>众所周知C不支持面向对象，但是可以通过一些技巧实现类似继承的功能：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//定义一个基类 Object</span></span><br><span class="line"><span class="comment">//注意这里使用了函数指针，从而可以实现函数重载</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">char</span> *description;</span><br><span class="line">    <span class="type">int</span> (*init)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*describe)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*destroy)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> *(*move)(<span class="type">void</span> *self, Direction direction);</span><br><span class="line">    <span class="type">int</span> (*attack)(<span class="type">void</span> *self, <span class="type">int</span> damage);</span><br><span class="line">&#125; Object;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//基类的构造函数</span></span><br><span class="line"><span class="type">void</span> *<span class="title function_">Object_new</span><span class="params">(<span class="type">size_t</span> size, Object proto, <span class="type">char</span> *description)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// setup the default functions in case they aren&#x27;t set</span></span><br><span class="line">    <span class="keyword">if</span>(!proto.init) proto.init = Object_init;</span><br><span class="line">    <span class="keyword">if</span>(!proto.describe) proto.describe = Object_describe;</span><br><span class="line">    <span class="keyword">if</span>(!proto.destroy) proto.destroy = Object_destroy;</span><br><span class="line">    <span class="keyword">if</span>(!proto.attack) proto.attack = Object_attack;</span><br><span class="line">    <span class="keyword">if</span>(!proto.move) proto.move = Object_move;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// this seems weird, but we can make a struct of one size,</span></span><br><span class="line">    <span class="comment">// then point a different pointer at it to &quot;cast&quot; it</span></span><br><span class="line">    Object *el = <span class="built_in">calloc</span>(<span class="number">1</span>, size);</span><br><span class="line">    *el = proto;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// copy the description over</span></span><br><span class="line">    el-&gt;description = strdup(description);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// initialize it with whatever init we were given</span></span><br><span class="line">    <span class="keyword">if</span>(!el-&gt;init(el)) &#123;</span><br><span class="line">        <span class="comment">// looks like it didn&#x27;t initialize properly</span></span><br><span class="line">        el-&gt;destroy(el);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// all done, we made an object of any type</span></span><br><span class="line">        <span class="keyword">return</span> el;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//对每个需要继承基类的子类，用以下方法定义：</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Map</span> &#123;</span></span><br><span class="line">    Object proto;</span><br><span class="line">    Room *start;</span><br><span class="line">    Room *location;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//指定需要重载的方法：</span></span><br><span class="line">Object MapProto = &#123;</span><br><span class="line">    .init = Map_init,</span><br><span class="line">    .move = Map_move,</span><br><span class="line">    .attack = Map_attack</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//使用之前的语法糖进行初始化：</span></span><br><span class="line">Map *game = NEW(Map, <span class="string">&quot;The Hall of the Minotaur.&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>notes</category>
-      </categories>
-      <tags>
-        <tag>Programming Language</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CORDIC Algorithm</title>
-    <url>/2024/02/28/CORDIC-Algorithm/</url>
-    <content><![CDATA[<h1 id="Coordinate-Rotation-Dlgital-Computer-CORDIC-算法"><a href="#Coordinate-Rotation-Dlgital-Computer-CORDIC-算法" class="headerlink" title="Coordinate Rotation Dlgital Computer(CORDIC)算法"></a>Coordinate Rotation Dlgital Computer(CORDIC)算法</h1><p>参考：Computer Arithmetic: Algorithm and Hardware Design</p>
-<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><h3 id="角度模式"><a href="#角度模式" class="headerlink" title="角度模式"></a>角度模式</h3><p>考虑平面直角坐标系下的旋转，如图：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image.png" alt="basic"></p>
-<p>点$E^{(i)}$旋转$\alpha^{(i)}$后得到了点$E^{(i+1)}$</p>
-<p>那么假设$E^{(i)}$的坐标为：$E^{(i)}$:   $(x^{(i)},y^{(i)})&#x3D;(R^{(i)}cos\theta,R^{(i)}cos\theta)$</p>
-<p>$E^{(i+1)}$的坐标可以表示为：<br>$x^{(i)+1} &#x3D; R^{(i)}cos(\theta+\alpha) &#x3D; x^{(i)}cos\alpha - y^{(i)}sin\alpha \ &#x3D;\frac{ x^{(i)}-y^{(i)}tan\alpha}{\frac{1}{cos\alpha}}\ &#x3D; \frac{ x^{(i)}-y^{(i)}tan\alpha}{(1+tan^2\alpha)^{1&#x2F;2}}$</p>
-<p>同理有：<br>$y^{(i+1)} &#x3D; R^{(i)}sin(\theta+\alpha) &#x3D; x^{(i)}sin\alpha + y^{(i)}cos\alpha \ &#x3D;\frac{ x^{(i)}tan\alpha + y^{(i)} }{\frac{1}{cos\alpha}}\ &#x3D; \frac{  x^{(i)}tan\alpha + y^{(i)}}{(1+tan^2\alpha)^{1&#x2F;2}}$</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-1.png"></p>
-<p>上述公式是一个迭代式，<br>$ z^{(i)}$表示当前旋转之前向量与x轴的夹角，$ z^{(i+1)}$表示在旋转后与x轴的夹角（顺时针为正）。</p>
-<p>现在考虑一种图中的一种伪旋转，对公式2边同时除以$\cos\alpha^{(i)}$,得到$E’^{(i)}$的坐标：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-3.png"><br><img src="/2024/02/28/CORDIC-Algorithm/image-2.png"></p>
-<p>令$x^{(0)}&#x3D;x,  y^{(0)}&#x3D;y,  z^{(0)}&#x3D;z$，则对于一个m次迭代的真旋转，有：<br><img src="/2024/02/28/CORDIC-Algorithm/image-4.png"></p>
-<p>对伪旋转：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-5.png"></p>
-<p>考虑每次迭代的角度选取，如果使$tan\alpha$恰好等于 $2^{-i},i&#x3D;0,1,2,3…$则上式变为：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-6.png"></p>
-<p>其中$d_i \in {−1,1}$ </p>
-<p>则每次真旋转迭代的计算可以通过：1次查表，2次移位，3次加(减)法实现。</p>
-<p>对于伪旋转，由于每次的角度选取是固定值，因此K为常数，K &#x3D; 1.646 760 258 121….</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-7.png"></p>
-<p>考虑计算 $cosz$,可以令$x^{(0)}&#x3D;1,  y^{(0)}&#x3D;0,  \sum\alpha^{(i)}&#x3D;z$此时有：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-10.png"></p>
-<p>如果计算$cos30^\circ$,可以：<br><img src="/2024/02/28/CORDIC-Algorithm/image-8.png"></p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-9.png"></p>
-<p>由于表中的角度表示范围达到了$−99.7^\circ ≤ z ≤ 99.7^\circ$,因此可以通过上述方法加上基本三角变化求出任何角的正余弦值。</p>
-<h3 id="向量模式"><a href="#向量模式" class="headerlink" title="向量模式"></a>向量模式</h3><p>通过令$y\rightarrow 0$,可以计算反三角函数值$tan^{-1}y$,此时，</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-12.png"><br>带入</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-5.png"></p>
-<p>可得<br><img src="/2024/02/28/CORDIC-Algorithm/image-13.png"></p>
-<p>故可以取(1,y),将其旋转到x轴上，此时旋转过的角度即为$tan^{-1}y$</p>
-<h3 id="一个简单的python验证程序"><a href="#一个简单的python验证程序" class="headerlink" title="一个简单的python验证程序"></a>一个简单的python验证程序</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line">lookuptable = &#123;&#125;</span><br><span class="line"></span><br><span class="line">lookuptable[<span class="number">0</span>]=<span class="number">45.0</span></span><br><span class="line">lookuptable[<span class="number">1</span>]=<span class="number">26.5650</span></span><br><span class="line">lookuptable[<span class="number">2</span>]=<span class="number">14.0362</span></span><br><span class="line">lookuptable[<span class="number">3</span>]=<span class="number">7.1250</span></span><br><span class="line">lookuptable[<span class="number">4</span>]=<span class="number">3.5763</span></span><br><span class="line">lookuptable[<span class="number">5</span>]=<span class="number">1.7899</span></span><br><span class="line">lookuptable[<span class="number">6</span>]=<span class="number">0.8951</span></span><br><span class="line">lookuptable[<span class="number">7</span>]=<span class="number">0.4476</span></span><br><span class="line">lookuptable[<span class="number">8</span>]=<span class="number">0.2238</span></span><br><span class="line">lookuptable[<span class="number">9</span>]=<span class="number">0.1119</span></span><br><span class="line">lookuptable[<span class="number">10</span>]=<span class="number">0.0230</span></span><br><span class="line">lookuptable[<span class="number">11</span>]=<span class="number">0.0140</span></span><br><span class="line">lookuptable[<span class="number">12</span>]=<span class="number">0.0070</span></span><br><span class="line">lookuptable[<span class="number">13</span>]=<span class="number">0.0035</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cordic</span>(<span class="params">value,  mode</span>):</span><br><span class="line">    z = <span class="number">0</span></span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">        x =  <span class="number">0.607252935</span></span><br><span class="line">        y = <span class="number">0.0</span> </span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">1</span>):</span><br><span class="line">        x = <span class="number">1</span></span><br><span class="line">        y = value</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">13</span>):</span><br><span class="line">        <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">            d = np.sign(value)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            d = -np.sign(y)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(d==<span class="number">0</span>):d = <span class="number">1</span></span><br><span class="line">        value -= d*lookuptable[i]</span><br><span class="line"></span><br><span class="line">        z -= d*lookuptable[i]</span><br><span class="line"></span><br><span class="line">        temp = x</span><br><span class="line">        x -= d * y * <span class="number">2.0</span>**(-i)</span><br><span class="line">        y +=  d* temp * <span class="number">2.0</span>**(-i)</span><br><span class="line">        <span class="comment"># print(&quot;y:&quot;,y)</span></span><br><span class="line">        <span class="comment"># print(&quot;x:&quot;,x)</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;sin:&quot;</span>,y)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;cos:&quot;</span>,x)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;theta:&quot;</span>,z)</span><br><span class="line"></span><br><span class="line">cordic(<span class="number">4</span>,<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
-
-<h3 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h3><p>对一个n位的cordic运算，若采用纯硬件实现，每一位需要1次查表，2次移位，3次加法，其计算复杂度是$O(n)$这个量级的。</p>
-<p>考虑硬件实现，一个最简单的版本是这样的：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-14.png"></p>
-<p>在不考虑优化版本时，图中的加法器可以用串行进位的方式实现，此时，对于k位的操作数，计算需要的时钟周期为$O(k^2)$。</p>
-<h3 id="通用版本"><a href="#通用版本" class="headerlink" title="通用版本"></a>通用版本</h3><p><img src="/2024/02/28/CORDIC-Algorithm/image-15.png"></p>
-<p>CORDIC算法可以被拓展，用于线性和双曲函数的计算。其通用公式为：<br><img src="/2024/02/28/CORDIC-Algorithm/image-17.png"><br><img src="/2024/02/28/CORDIC-Algorithm/image-16.png"></p>
-<p>推理过程如下：<br>参考：（A unified algorithm for elementary functions）</p>
-<p>考虑一个从二维直角坐标系到极坐标的非线性映射：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-18.png"></p>
-<p>其中R是映射后的向量长度，A是其与坐标轴的夹角。</p>
-<p>显然当m取1时，该映射为从直角坐标系到极坐标系的坐标变换。<br>当m取0时， 该变换总是落在一条相同的直线上<br>当m&#x3D;-1时，该变换为落在一条双曲线$x^2-y^2&#x3D;1$上。</p>
-<p>事实上，如果将R看作特定曲线与x轴交点到原点的距离，根据上述定义，总是有：<br>$A &#x3D; \frac{2S}{R^2}$<br><img src="/2024/02/28/CORDIC-Algorithm/image-19.png"></p>
-<p>其中S为变换前的点P与点O,R围成的阴影部分面积。</p>
-<p>如果给出一个迭代式：<br><img src="/2024/02/28/CORDIC-Algorithm/image-20.png"></p>
-<p>其中$\delta_i$时任意值，而m是映射中的参数。那么每次迭代后的点经过非线性映射后，在极坐标下可以表示为：<br><img src="/2024/02/28/CORDIC-Algorithm/image-21.png"></p>
-<p>其中<br><img src="/2024/02/28/CORDIC-Algorithm/image-22.png"></p>
-<p>即每次迭代可以看作是一次旋转和放缩。对n次迭代，最后得到的长度和角度为：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-23.png"></p>
-<p>其中<img src="/2024/02/28/CORDIC-Algorithm/image-24.png"></p>
-<p>如果再定义一个新的变量<br><img src="/2024/02/28/CORDIC-Algorithm/image-25.png"></p>
-<p>则经过n次迭代后的点经过逆映射后，可以得到其在直角坐标系下的坐标：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-26.png"></p>
-<p>同样的，注意到当m&#x3D;1时，该迭代式与之前推出的角度模式下的伪旋转迭代式一模一样。</p>
-<p>而当m&#x3D;0时，分别让$y\rightarrow0$和$z\rightarrow 0$,可以得到如下不同的迭代结果：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-27.png"><br>且在m&#x3D;0时，多轮迭代后的缩放因子为1.</p>
-<p>上述公式说明，直线迭代可以用于计算乘法，除法或直接计算一个乘加、除加操作。</p>
-<p>而对双曲映射，迭代结果分别为：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-28.png"></p>
-<p>其中缩放因子<code>K&#39;=0.8281593609602</code>。</p>
-<p>上述公式说明，双曲映射可以被用来计算双曲正弦，双曲余弦和双曲正切函数。</p>
-<p>另外需要注意的是，对于双曲映射，并不总是收敛的，这是因为对于tan函数，总是有：<br> $tan^{−1}(2^{−(i+1)}) ≥ 0.5tan^{−1}(2^{−i})$</p>
-<p>而同样的关系:放在双曲正切中却并不总是成立。</p>
-<p>$tanh^{−1}(2^{−(i+1)}) ≥ 0.5tanh^{−1}(2^{−i})$</p>
-<p>一个简单的收敛方法为，当迭代次数为:$ i &#x3D; 4, 13, 40, 121, …,3j + 1$时，该次迭代必须再重复一遍。即：<br>1,2,3,4,4,5,6,7,8,9,10,11,12,13,13,14….<br>(收敛性分析在原论文中有比较严格的推导，我懒得手推一遍，这里就不重复了，直接使用其结果)</p>
-<p>计算范围为： <code>With these provisions, convergence in computing  hyperbolic sine and cosine functions is guaranteed for |z| &lt; 1.13 and in the case of the  tanh−1 function, for |y| &lt; 0.81.</code></p>
-<p>此外，以下函数也可以被间接计算出来：<br><img src="/2024/02/28/CORDIC-Algorithm/image-29.png"></p>
-<h3 id="收敛性仿真"><a href="#收敛性仿真" class="headerlink" title="收敛性仿真"></a>收敛性仿真</h3><p>写一个简单的双曲迭代来验证上述方法的收敛性：</p>
-<p>以cosh为例，以下是一段简单的python代码：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">20</span>): </span><br><span class="line">    lookuptable_tanh[i] = math.atanh(<span class="number">2</span>**(-i))</span><br><span class="line">    <span class="built_in">print</span>(math.atanh(<span class="number">2</span>**(-i)))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_tanh</span>(<span class="params">value</span>):</span><br><span class="line">    k=<span class="number">0.8281593609602</span></span><br><span class="line">    x=<span class="number">1</span>/k</span><br><span class="line">    y=<span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">20</span>):</span><br><span class="line">        <span class="keyword">if</span>(value)&gt;<span class="number">0</span>:</span><br><span class="line">            d=<span class="number">1</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            d=-<span class="number">1</span></span><br><span class="line">        </span><br><span class="line">        value = value - d*lookuptable_tanh[i]</span><br><span class="line">        temp=x</span><br><span class="line">        x = x + d*y*<span class="number">2</span>**-i</span><br><span class="line">        y = y + d*temp*<span class="number">2</span>**-i</span><br><span class="line"></span><br><span class="line">        <span class="comment"># if(i==4 or i==13):</span></span><br><span class="line">        <span class="comment">#     if(value)&gt;0:</span></span><br><span class="line">        <span class="comment">#         d=1</span></span><br><span class="line">        <span class="comment">#     else:</span></span><br><span class="line">        <span class="comment">#         d=-1</span></span><br><span class="line">        <span class="comment">#     value = value - d*lookuptable_tanh[i]</span></span><br><span class="line">        <span class="comment">#     temp=x</span></span><br><span class="line">        <span class="comment">#     x = x + d*y*2**-i</span></span><br><span class="line">        <span class="comment">#     y = y + d*temp*2**-i</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_cosh:&quot;</span>,x)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_sinh:&quot;</span>,y)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_tanh:&quot;</span>,y/x)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span>(x,y,y/x)</span><br><span class="line"></span><br><span class="line">x = np.arange(-<span class="number">1</span>, <span class="number">1</span>, <span class="number">0.01</span>)</span><br><span class="line"><span class="comment"># 计算对应的 cosh 函数值</span></span><br><span class="line">y_numpy = np.cosh(x)</span><br><span class="line"></span><br><span class="line">y_custom=[]</span><br><span class="line"><span class="keyword">for</span> value <span class="keyword">in</span> x:</span><br><span class="line">    y,_,_ = my_tanh(value)</span><br><span class="line">    y_custom.append(y)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 绘制图形</span></span><br><span class="line">plt.plot(x, y_numpy, label=<span class="string">&#x27;numpy.cosh(x)&#x27;</span>)</span><br><span class="line">plt.plot(x, y_custom, label=<span class="string">&#x27;my_cosh(x)&#x27;</span>)</span><br><span class="line">plt.xlabel(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">plt.ylabel(<span class="string">&#x27;cosh(x)&#x27;</span>)</span><br><span class="line">plt.title(<span class="string">&#x27;Comparison of cosh(x) functions&#x27;</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.grid(<span class="literal">True</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
-
-
-<p>在不用重复第4次和第13次迭代时，结果如下：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-30.png"></p>
-<p>可以看到蓝色线和橙色线不完全重合，局部放大后结果如下：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-31.png"></p>
-<p>取消对应注释，重复第4和第13次迭代，结果如下：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-32.png"></p>
-<p>可以看到蓝色线和橙色线基本完全重合，局部放大后结果如下：<br><img src="/2024/02/28/CORDIC-Algorithm/image-33.png"></p>
-<h3 id="硬件实现"><a href="#硬件实现" class="headerlink" title="硬件实现"></a>硬件实现</h3>]]></content>
-      <tags>
-        <tag>数字集成电路</tag>
-        <tag>ICer</tag>
-        <tag>Hardware Algorithm</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>高等数字集成电路设计</title>
     <url>/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/</url>
     <content><![CDATA[<h1 id="高等数字集成电路设计"><a href="#高等数字集成电路设计" class="headerlink" title="高等数字集成电路设计"></a>高等数字集成电路设计</h1><h2 id="Lecture1-introduction"><a href="#Lecture1-introduction" class="headerlink" title="Lecture1 introduction"></a>Lecture1 introduction</h2><p>本节主要对IC产业的发展进行概述，以及介绍一些数字IC设计中的常用概念和基本指标。</p>
@@ -2187,7 +2252,319 @@ assert 将 property 应用于实际的硬件设计，以确保在运行时满足
 <p>此外可以在多米诺逻辑的基础上省略下面的管设计出footless的多米诺：</p>
 <p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-134.png"></p>
 <p>以及省略中间的反相器，做成np-CMOS：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-135.png"></p>
-<h2 id="Lecture5-时序逻辑"><a href="#Lecture5-时序逻辑" class="headerlink" title="Lecture5 时序逻辑"></a>Lecture5 时序逻辑</h2>]]></content>
+<h2 id="Lecture5-时序逻辑"><a href="#Lecture5-时序逻辑" class="headerlink" title="Lecture5 时序逻辑"></a>Lecture5 时序逻辑</h2><p>时序逻辑与组合逻辑的最大区别在于，电路的输出不止由输入决定，也由电路当前的状态决定。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-136.png"></p>
+<h3 id="锁存器-latch-和寄存器-register"><a href="#锁存器-latch-和寄存器-register" class="headerlink" title="锁存器(latch)和寄存器(register)"></a>锁存器(latch)和寄存器(register)</h3><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-137.png"></p>
+<p>区别在于，latch在整个时钟拉高的阶段都进行计算，register只在时钟上升沿发生变化。</p>
+<h3 id="时序参数"><a href="#时序参数" class="headerlink" title="时序参数"></a>时序参数</h3><p>对寄存器来说，有以下几个重要的时序参数：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-138.png"></p>
+<ol>
+<li>set up time: 时钟到来之前，数据需要提前准备好的时间</li>
+<li>hold time： 时钟到来之后，数据需要保持不变的时间</li>
+<li>$t_{c2q}$:顾名思义，指时钟开始发生变化，到数据完成计算保持稳定的时间。可以看作是clk到q的传播延迟。</li>
+</ol>
+<p>接下来定义如下参数：</p>
+<h4 id="传播延迟"><a href="#传播延迟" class="headerlink" title="传播延迟"></a>传播延迟</h4><p>污染延迟指输入信号开始变化后，输出信号完成变化的时间。也就是说，在传播延迟之后，数据才运算结束。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-139.png"><br>在这里要注意的是，传输延迟和数据端D无关，而是与时钟信号clk有关。</p>
+<p>而$t_{p,reg}$不止需要经过寄存器的c to q传播，还需要数据提前准备好，所以要加上set up time。在传输延迟之后，数据不会有新的变化(一周期之内)</p>
+<p>传播延迟决定时钟周期。</p>
+<h4 id="污染延迟"><a href="#污染延迟" class="headerlink" title="污染延迟"></a>污染延迟</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-140.png"></p>
+<p>污染延迟指输入信号开始变化后，输出信号开始变化的时间。也就是说，在污染延迟之内，数据未发生任何变化。因此污染延迟被用来计算保持时间。</p>
+<h4 id="建立时间"><a href="#建立时间" class="headerlink" title="建立时间"></a>建立时间</h4><p>对于一个流水线结构，时钟周期满足如下关系：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-141.png"></p>
+<h4 id="保持时间"><a href="#保持时间" class="headerlink" title="保持时间"></a>保持时间</h4><p>对于一个有限状态系统，保持时间满足如下关系：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-143.png" alt="alt text"></p>
+<p>如果电路不满足建立时间，可以适当降频增大时钟周期，如果电路不满足保持时间，需要重新设计电路(例如可以通过插入buffer)的方式解决。</p>
+<h3 id="静态latch-和-register"><a href="#静态latch-和-register" class="headerlink" title="静态latch 和 register"></a>静态latch 和 register</h3><p>如果需要用电路存储01这两种不同的状态，需要电路在高低电平时均能保持稳定，这需要构造一个双稳态电路。最简单的双稳态电路如下：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-144.png"></p>
+<p>双稳态的蝶形曲线，可以保证任何向两端便宜的电压都会得到自我强化，最终达到一个稳定的端点：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-145.png"></p>
+<p>然而，注意到在电路的C端，同样是一个可能成立的点。如果电路停留在C点而没有任何外部绕的的话，则处于一种”亚稳态”。</p>
+<h4 id="数据的存储"><a href="#数据的存储" class="headerlink" title="数据的存储"></a>数据的存储</h4><p>使用晶体管存储电路一般有2种方式：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-146.png"></p>
+<p>一种是通过双稳态电路静态存储，状态在通电状态下可以一直保存(类别SRAM)</p>
+<p>一种是通过电容存储，需要定期刷新(参考DRAM)</p>
+<h4 id="数据的写入"><a href="#数据的写入" class="headerlink" title="数据的写入"></a>数据的写入</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-147.png"></p>
+<p>左边的写入方式是强行覆盖，需要晶体管有足够的驱动能力，需要sizing,右边的写入方式则相当于另外增加了写入通路。</p>
+<h3 id="latch的实现"><a href="#latch的实现" class="headerlink" title="latch的实现"></a>latch的实现</h3><h4 id="基于mux的实现方式"><a href="#基于mux的实现方式" class="headerlink" title="基于mux的实现方式"></a>基于mux的实现方式</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-148.png"></p>
+<p>如图，通过反馈连接的Mux可以实现latch的功能</p>
+<h4 id="基于传输门的latch"><a href="#基于传输门的latch" class="headerlink" title="基于传输门的latch"></a>基于传输门的latch</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-149.png"></p>
+<p>这种实现下clk信号要驱动4个负载晶体管</p>
+<h4 id="基于NMOS实现"><a href="#基于NMOS实现" class="headerlink" title="基于NMOS实现"></a>基于NMOS实现</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-150.png"></p>
+<p>这种实现需要clk和clk非信号之间直接没有重叠</p>
+<h3 id="静态register的实现"><a href="#静态register的实现" class="headerlink" title="静态register的实现"></a>静态register的实现</h3><p>register可以通过将2级latch进行串联实现(可以用船闸进行类比)</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-151.png"></p>
+<p>当clk为低时，数据被QM点采样，当clk为高时，QM保持不变并被Q采样。</p>
+<p>此外，我们还可以对上述register做以下分析：</p>
+<ol>
+<li>clk信号的负载是6个晶体管</li>
+<li>建立时间：</li>
+</ol>
+<p>分析上述电路的建立时间：<br>时钟上升沿到来之前(clk&#x3D;0)，$T_1$打开，$T_2$关闭，信号D通过$I_1$,$T_1$,$I_3$,$I_2$（以及$I_4$）写入双稳态电路。如果不考虑分支造成影响，则建立时间为：</p>
+<p>$$t_{setup} &#x3D; 3t_{p_{inv}} + t_{p_{tx}}$$</p>
+<p>即建立时间至少为3个反相器加一个传输管的传输延迟。</p>
+<ol start="3">
+<li>传输延迟</li>
+</ol>
+<p>时钟上升沿到来后，$T_3$打开。Q端有输出，需要信号经过$T_3$,$I_6$,即：<br>$$t_{prop}  &#x3D; t_{p_{inv}} + t_{p_{tx}}$$</p>
+<ol start="4">
+<li>保持时间为0.这是因为一旦clk升高，$T_1$便关断，信号立即被阻断。</li>
+</ol>
+<h4 id="时钟交叠的问题"><a href="#时钟交叠的问题" class="headerlink" title="时钟交叠的问题"></a>时钟交叠的问题</h4><p>上述电路的问题在于，$\bar{clk}$信号是通过一个反相器产生的，而这导致原信号与非信号并不完全同步，会有时钟交叠的问题：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-152.png"></p>
+<p>而当2个信号同时为高时，会存在从Q到D的直接通路，造成亚稳态。</p>
+<p>可以通过2个不重叠的时钟解决上述问题：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-153.png"></p>
+<p>使用如下电路生成非交叠时钟信号：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-154.png"></p>
+<h3 id="动态latch和register"><a href="#动态latch和register" class="headerlink" title="动态latch和register"></a>动态latch和register</h3><p>静态latch和register的缺点在于电路一般比较负责，同时面积过大。同时，对于依靠时钟驱动的电路，信号值一般只需要暂时保存(例如几个clk cycle)，因此便有了动态存储的思想。</p>
+<p>动态存储不使用双稳态电路中稳定的电平进行存储，而是使用电容中的电荷进行存储。</p>
+<h4 id="动态reg示例"><a href="#动态reg示例" class="headerlink" title="动态reg示例"></a>动态reg示例</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-155.png"></p>
+<p>如图，使用一个大电容对电荷进行存储，同样能达到register的效果。</p>
+<p>同时，可以在每一级Latch中增加一个反馈回路，使得电容的电荷更加稳定：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-156.png"></p>
+<p>当然，即使做了改进，由于耦合，漏电和vdd跳变的影响，该电路的稳定性还是不如静态register。</p>
+<h3 id="其他类型的reg-latch"><a href="#其他类型的reg-latch" class="headerlink" title="其他类型的reg&#x2F;latch"></a>其他类型的reg&#x2F;latch</h3><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-157.png"></p>
+<p>图中是一种C2MOS,当clk为低，$\bar{D}0$被写入X，当clk为高，X的非传到Q。</p>
+<p>这种寄存器的好处是不存在时钟交叠问题，因为当clk和其非信号都为1或0时，D值无法传到X</p>
+<h3 id="单相register"><a href="#单相register" class="headerlink" title="单相register"></a>单相register</h3><p>上述寄存器的实现都同时用到了clk和其非信号，实际上还可以只用clk信号，从而避免时钟交叠问题。</p>
+<p>如下所示：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-158.png"></p>
+<p>为了将上述latch变成register，首先将其拆分成2半：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-159.png"></p>
+<p>之后，我们加入一个动态逻辑中的inverter:</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-160.png"><br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-161.png"></p>
+<p>再将上述三部分合在一起，加上一个额外的反相器，即可构成一个register:<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-162.png"></p>
+<p>其工作原来如下：<br>clk&#x3D;0时，D的非被传输到X，同时Y被预充为高。CLK&#x3D;1后，Y点进行计算，得到X的非也就是D的值，同时Y的值经过半个Latch传到Q前面的反相器，再经过一级反相器达到Q。</p>
+<p>其参数分析如下：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-163.png"></p>
+<h3 id="低功耗register设计"><a href="#低功耗register设计" class="headerlink" title="低功耗register设计"></a>低功耗register设计</h3><p>在现代处理器中，FlipFlops占据总功耗的约20%，因此低功耗的寄存器设计是有必要的。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-164.png"></p>
+<p>一个好的寄存器应当具有以下特点：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-165.png"></p>
+<h4 id="案例分析-S2CFF"><a href="#案例分析-S2CFF" class="headerlink" title="案例分析: S2CFF"></a>案例分析: S2CFF</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-166.png"></p>
+<p>(待补充)</p>
+<h3 id="非双稳态电路"><a href="#非双稳态电路" class="headerlink" title="非双稳态电路"></a>非双稳态电路</h3><h4 id="施密特触发器"><a href="#施密特触发器" class="headerlink" title="施密特触发器"></a>施密特触发器</h4><p>施密特触发器的特性在于拥有非对称的电压阈值：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-167.png"><br>对于从低电压的传输，需要更高的电压阈值；对于低电压的传输，需要更低的电压阈值。</p>
+<p>其电路符号如下：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-168.png"></p>
+<p>施密特触发器一般被用作整流器，从而抑制电路的噪声：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-169.png"></p>
+<p>其CMOS实现如下：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-170.png"></p>
+<p>当VIN为0时，X为1，通过一个反相器的反馈，将M4打开，M3逐渐关闭，逐步将VOUT降到0.</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-171.png"><br>VIN&#x3D;VDD时，通过M3逐步将X拉低，将VOUT升高到VDD</p>
+<h4 id="环形震荡器"><a href="#环形震荡器" class="headerlink" title="环形震荡器"></a>环形震荡器</h4><p>(待补充)</p>
+<h2 id="Lecture6-低功耗设计"><a href="#Lecture6-低功耗设计" class="headerlink" title="Lecture6 低功耗设计"></a>Lecture6 低功耗设计</h2><p>关于低功耗设计的内容占据3个课时</p>
+<h3 id="现代集成电路中的功耗问题"><a href="#现代集成电路中的功耗问题" class="headerlink" title="现代集成电路中的功耗问题"></a>现代集成电路中的功耗问题</h3><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-172.png"></p>
+<p>在数据中心服务中，功耗意味着成本，在高性能计算领域，功耗和散热制约着电路的性能，在移动端，功耗影响电池寿命。</p>
+<h4 id="power-vs-energy"><a href="#power-vs-energy" class="headerlink" title="power vs energy"></a>power vs energy</h4><p>功耗和能耗是不同概念。</p>
+<p>对于同一个计算来讲，消化的能量是功耗和时间的乘积(曲线的面积)，一个低功耗电路意味着电路的瞬时功率更小（曲线的高度），但是有可能因为耗时更长使得总能耗变大。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-173.png"></p>
+<h4 id="功耗分布情况"><a href="#功耗分布情况" class="headerlink" title="功耗分布情况"></a>功耗分布情况</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-174.png"></p>
+<p>集成电路中，功耗分为静态功耗，动态功耗和静态电流(DB端的反偏PN结电流)</p>
+<h4 id="动态功耗-1"><a href="#动态功耗-1" class="headerlink" title="动态功耗"></a>动态功耗</h4><p>动态功耗正比于翻转频率：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-175.png"></p>
+<p>动态功耗的的来源有3个：</p>
+<ol>
+<li>电容的充放电</li>
+<li>电流翻转过程中的短路电流</li>
+<li>临时产生的毛刺(gliches)</li>
+</ol>
+<h5 id="电路功能对动态功耗的影响"><a href="#电路功能对动态功耗的影响" class="headerlink" title="电路功能对动态功耗的影响"></a>电路功能对动态功耗的影响</h5><p>由于CMOS电路的动态功耗只与输出从0向1变化有关(参见前面对反相器的分析)，所以动态功耗的表达式如下：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-176.png"></p>
+<p>假设输入的概率均匀分布(0和1各占一半)，则相同时钟频率下，不同逻辑功能从0翻转到1的概率不同。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-177.png"></p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-178.png"></p>
+<p>这个概览在多级或多输入的情况下更加明显：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-179.png"></p>
+<p>而对于动态逻辑，差分逻辑来讲，其动态功耗都大于CMOS逻辑。</p>
+<h5 id="CMOS中的毛刺"><a href="#CMOS中的毛刺" class="headerlink" title="CMOS中的毛刺"></a>CMOS中的毛刺</h5><p>考虑如下电路：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-180.png"></p>
+<p>ABC同时由101变为000，在AB由10变为00时，输出信号X由0变为1，这个时间晚于C，导致中间有一个阶段，X&#x3D;0,C&#x3D;0,Z被短暂的拉高。当X完成计算后，Z又被重新拉低。</p>
+<p>这种问题也被称作动态冒险(dynamic hazard)：是指输入的一次变化造成了输出的多次变化。</p>
+<p>分析这种毛刺产生的原因，是因为最后一级逻辑门的输入没有同时到达。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-181.png"></p>
+<p>如果重新调整电路的结构，使各条路径上的延迟尽量平衡，则可以消除掉相应的毛刺。</p>
+<h5 id="短路电流"><a href="#短路电流" class="headerlink" title="短路电流"></a>短路电流</h5><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-182.png"></p>
+<p>短路电流产生的原因是在输出翻转的过程中，有一个阶段上拉网络和下拉网络同时导通。</p>
+<p>通过调整上升延迟和下降延迟的时间尽量相等，可以把短路电流功耗占据动态功耗的比值降低到10%~15%</p>
+<h4 id="静态功耗中的漏电流"><a href="#静态功耗中的漏电流" class="headerlink" title="静态功耗中的漏电流"></a>静态功耗中的漏电流</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-183.png"></p>
+<h5 id="亚阈值漏电-sub-threshold-leakage"><a href="#亚阈值漏电-sub-threshold-leakage" class="headerlink" title="亚阈值漏电 sub-threshold leakage"></a>亚阈值漏电 sub-threshold leakage</h5><p>一般而言栅电压低于阈值电压时，我们认为晶体管被关闭。但晶体管并非理想器件，实际上在关闭时仍存在漏电流。且器件的阈值电压越低，这个漏电流越大，且呈指数增长。(这也是为什么finfet效果更好，因为关断的效果更明显)。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-184.png"></p>
+<h5 id="堆叠效应-stack-effect"><a href="#堆叠效应-stack-effect" class="headerlink" title="堆叠效应 stack effect"></a>堆叠效应 stack effect</h5><p>有趣的是，当多个管子堆叠时，可以有效降低亚阈值漏电：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-185.png"><br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-186.png"></p>
+<p>然而，堆叠效应同时也会造成电荷共享问题。</p>
+<h3 id="低功耗优化策略"><a href="#低功耗优化策略" class="headerlink" title="低功耗优化策略"></a>低功耗优化策略</h3><p>针对不同的功耗和电路工况，可以总结出如下所示的低功耗优化策略矩阵：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-187.png"></p>
+<p>不同的优化测量分布对于矩阵中的如下位置：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-188.png"></p>
+<h4 id="多电压域-multiple-supply-voltages"><a href="#多电压域-multiple-supply-voltages" class="headerlink" title="多电压域 multiple supply voltages"></a>多电压域 multiple supply voltages</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-189.png"></p>
+<p>分为2种，一种时block内的多电压，一种是不同function块的多电压。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-190.png"></p>
+<p>例如可以针对同一个组合逻辑中的关键路径提高电源电压，以达到更快的计算速度。其他模块则采用较低的电压。</p>
+<p>上升电路中的电压转换寄存器(level convertiong FF)的实现方式如下：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-191.png"></p>
+<p>可以实现d&#x3D;vddl,q&#x3D;vddh的变化</p>
+<p>通过模块内的多电压域技术，实际上是提高了非关键逻辑的延迟。由此带来的问题是，改变了不同路径的延迟分布，有可能带来电路稳定性的问题（从统计学的角度）：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-192.png"></p>
+<p>具体的多电压域有以下2种实现方式：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-193.png"></p>
+<h4 id="降低电源电压-supply-voltage-reduction"><a href="#降低电源电压-supply-voltage-reduction" class="headerlink" title="降低电源电压 supply voltage reduction"></a>降低电源电压 supply voltage reduction</h4><p>数字IC中一个典型的数据通路如下：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-194.png"></p>
+<p>其功耗与电源电压的平方，以及电容， 电路的频率成正比，因此理论上降低这三个值中的任何一个都可以有效降低功耗。</p>
+<h5 id="并行降低功耗"><a href="#并行降低功耗" class="headerlink" title="并行降低功耗"></a>并行降低功耗</h5><p>通过并行技术可以有效降低电路的功耗，其原理如下：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-195.png"></p>
+<p>通过将组合逻辑的硬件复制多份，将其计算能力提高N倍。<br>注意，组合电路执行的并不是相同的逻辑运算，而是分时运算。</p>
+<p>例如，如果将前面采样寄存器的时钟周期保持不变，而在每个周期内送入n组不同的输入，它们分别被送入不同的n组组合电路中进行运算。经过原来的一个时钟周期后，所有计算完成。将输出频率提升n倍，通过mux将其结果输出，就可以在原来的一个时钟周期内得到n个不同的计算结果，相当于将电路性能提升了N倍。</p>
+<p>而低功耗技术则是保持末端采样的频率不变，而将前方的采样频率降低为原来的1&#x2F;N。由于采样频率的降低，组合逻辑可以用更长的时间完成计算，因此可以降低电压。</p>
+<p>更细节的分析如下：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-196.png"></p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-197.png"></p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-198.png"></p>
+<p>即通过并行后将电源电压降低为原来的$\beta$倍，功耗降低为原来的$\beta^2$倍。</p>
+<h5 id="流水线降低功耗"><a href="#流水线降低功耗" class="headerlink" title="流水线降低功耗"></a>流水线降低功耗</h5><p>流水线降低功耗的原理是，通过流水线提高电路的工作频率，然后降低工作电压，最终达到降低功耗的目的：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-199.png"></p>
+<p>不同方法的总结如下表：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-200.png"></p>
+<h4 id="DVFS-Dynamic-voltage-and-frequency-scaling"><a href="#DVFS-Dynamic-voltage-and-frequency-scaling" class="headerlink" title="DVFS Dynamic voltage and frequency scaling"></a>DVFS Dynamic voltage and frequency scaling</h4><p>动机： 在实际应用中，电路的活动频率和时间的相关性很大。例如在PC的日常使用中，CPU大部分时间是在待机，只有少部分时间执行高密度计算任务：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-201.png"></p>
+<p>如果单纯降低工作频率，无法满足高性能计算的实时性要求：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-202.png"></p>
+<p>通过DVFS技术，则可以有效提高电路的瞬时性能，而保持总能量消耗不变：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-203.png"></p>
+<p>(这有点像人，同一件工作如果紧急，就提高效率争取快速做完。如果并不很着急，就暂时摆烂慢慢完成)</p>
+<p>电源电压和工作频率的关系如下：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-204.png"></p>
+<p>在先进工艺下，频率和电压基本成线性关系。</p>
+<h5 id="DVFS框架"><a href="#DVFS框架" class="headerlink" title="DVFS框架"></a>DVFS框架</h5><p>一个典型的DFVS框架如下：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-205.png"></p>
+<p>应用来决定任务的DDL,操作系统根据性能评估CPU的工作负载，选择合适的电源电压和频率节点。</p>
+<p>通过软件控制硬件完成相应的DVFS操作。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-206.png"></p>
+<p>例如，对苹果A13处理器，从待机到全功率运行需要大约100ms的时间：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-207.png"></p>
+<h5 id="DVFS的开销"><a href="#DVFS的开销" class="headerlink" title="DVFS的开销"></a>DVFS的开销</h5><p>DVFS会对系统造成额外开销，主要有以下几个方面：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-208.png"></p>
+<h4 id="clock-gating-technique-门控时钟技术"><a href="#clock-gating-technique-门控时钟技术" class="headerlink" title="clock gating technique 门控时钟技术"></a>clock gating technique 门控时钟技术</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-209.png"></p>
+<p>通过为时钟信号加上一个disable（或者enable），实现时钟的控制，后面的电路在没有时钟信号时都不再翻转，从而省电。</p>
+<p>相应的verilog代码如下：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-210.png"></p>
+<p>通过clock gating技术可以显著减少能耗(70%)</p>
+<h4 id="power-gating-电源门控"><a href="#power-gating-电源门控" class="headerlink" title="power gating  电源门控"></a>power gating  电源门控</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-211.png"></p>
+<ol>
+<li>电源门控控制器（Power Gating Controller）： 控制芯片中关断模块的电源何时关闭并给特殊的cell如retention register输出必要的使能信号；</li>
+<li>电源切换结构（Power Switching Fabric）： 也称电源开关（Power Switch），实现电源关闭的逻辑单元，一般由后端实现阶段加入并按照一定规则摆放；</li>
+<li>始终开启模块（Always-on Module）：电源一直保持打开的模块；</li>
+<li>隔离单元（Isolation Cells）：简称ISO，一般在关断模块到电源始终开启模块方向的信号需要加入此类cell；</li>
+<li>保留DFFs（Retention DFFs）：特殊的寄存器能够在主电源关断的情况下保持数据不丢失，只有当关断电源时仍然需要保留部分数据的时候才需要此类cell。</li>
+</ol>
+<h5 id="门控电源域"><a href="#门控电源域" class="headerlink" title="门控电源域"></a>门控电源域</h5><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-212.png"></p>
+<p>通过门控决定电源是否接入或接地。</p>
+<p>一般使用基于PMOS的”header”,有时也使用基于NMOS的”footer”。在实际应用中，电源门控的方式主要有两种：关闭VDD或者关闭VSS，但在实际应用方面以关闭VDD为主。</p>
+<h5 id="隔离单元-ISO"><a href="#隔离单元-ISO" class="headerlink" title="隔离单元 ISO"></a>隔离单元 ISO</h5><p>隔离单元在电源关断（Power Gating）技术中的主要作用是在模块的电源被切断时，隔离该模块与其他模块之间的信号传递，防止因模块电源关闭而对其他模块产生影响。也就是说，当一个模块的电源被关闭时，隔离单元可以阻断该模块的输出信号，防止这些信号对其他模块产生干扰。</p>
+<p>方法是通过产生纯净的0或1信号。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-213.png"></p>
+<h5 id="数据保留-data-retention"><a href="#数据保留-data-retention" class="headerlink" title="数据保留 data retention"></a>数据保留 data retention</h5><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-214.png"></p>
+<h5 id="添加Power-gating-的示例"><a href="#添加Power-gating-的示例" class="headerlink" title="添加Power gating 的示例"></a>添加Power gating 的示例</h5><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-215.png"></p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-216.png"></p>
+<p>使用高阈值晶体管实现，N管比P管节约更多面积。</p>
+<h5 id="门控电源的问题"><a href="#门控电源的问题" class="headerlink" title="门控电源的问题"></a>门控电源的问题</h5><p>门控电源会带来2个问题：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-217.png"></p>
+<p>由于门控电源的加入，工作时虚拟vdd 和虚拟vss 2根线上可能存在噪声。</p>
+<p>当模块关闭后，虚拟功能线上的电压很快发生变化，电路中保持的状态迅速丢失。</p>
+<h5 id="添加解耦电容-decoupling-capacitor"><a href="#添加解耦电容-decoupling-capacitor" class="headerlink" title="添加解耦电容 decoupling capacitor"></a>添加解耦电容 decoupling capacitor</h5><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-218.png"></p>
+<p>解耦电容可以有效保证电路工作时的性能，同时让其中的信号更长时间保持稳定。也能够有效降低氧化层漏电。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-219.png"></p>
+<h5 id="苏醒时间问题"><a href="#苏醒时间问题" class="headerlink" title="苏醒时间问题"></a>苏醒时间问题</h5><p>传统的门控电源在休眠后，需要很长时间苏醒才能正常工作(大约1k~1M时钟周期不等)，这使得对于一些只需要短期休眠的任务无法应用。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-220.png"></p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-221.png"></p>
+<p>苏醒时间慢的原因是需要对电路的中间节点通过footer进行放电。</p>
+<h5 id="一种改进方案："><a href="#一种改进方案：" class="headerlink" title="一种改进方案："></a>一种改进方案：</h5><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-222.png"></p>
+<h5 id="体偏电压调节"><a href="#体偏电压调节" class="headerlink" title="体偏电压调节"></a>体偏电压调节</h5><p>通过第二节器件的知识我们已经知道，晶体管的阈值电压与体效应有关，通过调节体偏电压的大小，可以控制阈值电压。而阈值电压决定漏电流的大小。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-223.png"></p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-224.png"></p>
+<p>动态体偏电压的调节有2个思路：</p>
+<ol>
+<li>电路工作时，设置为正偏，降低VTH,提高性能</li>
+<li>电路休眠时，设置为反偏，提升VTH，降低功耗。</li>
+</ol>
+<h5 id="Supply-Voltage-Ramping-SVR"><a href="#Supply-Voltage-Ramping-SVR" class="headerlink" title="Supply Voltage Ramping (SVR)"></a>Supply Voltage Ramping (SVR)</h5><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-225.png"></p>
+<p>在休眠时，干脆关闭电源电压或降低电源电压，以进一步节约功耗。</p>
+<p>可以有效减小漏电流</p>
+<h5 id="power-gating总结"><a href="#power-gating总结" class="headerlink" title="power gating总结"></a>power gating总结</h5><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-226.png"></p>
+<h3 id="超低电压计算"><a href="#超低电压计算" class="headerlink" title="超低电压计算"></a>超低电压计算</h3><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-227.png"></p>
+<p>要获得最高的计算性能，需要将工作电压提高，以加快电路的计算速度。<br>然而如果想要是电路每次操作的耗电达到最低，则工作电压降低到阈值附件。</p>
+<p>在一些边缘侧的供电受限，且不需要高性能的设备中，这类设计是很有用的。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-228.png"></p>
+<p>工作电压VDD不能无限降低，因为再低下去电路的漏电会很大。</p>
+<h4 id="logic-sizing"><a href="#logic-sizing" class="headerlink" title="logic sizing"></a>logic sizing</h4><p>在超低电压下，漏电电流变得和驱动电流大小接近。需要考虑电路的sizing问题。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-229.png"></p>
+<p>同时要考虑工艺角问题：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-230.png"></p>
+<h4 id="Dynamic-Leakage-Suppression-Logic-动态漏电流抑制"><a href="#Dynamic-Leakage-Suppression-Logic-动态漏电流抑制" class="headerlink" title="Dynamic Leakage-Suppression Logic 动态漏电流抑制"></a>Dynamic Leakage-Suppression Logic 动态漏电流抑制</h4><p>(待补充)</p>
+<h4 id="Variation-Adaptive-Circuits-自适应电路"><a href="#Variation-Adaptive-Circuits-自适应电路" class="headerlink" title="Variation Adaptive Circuits 自适应电路"></a>Variation Adaptive Circuits 自适应电路</h4><h4 id="Timing-Resilient-Circuits"><a href="#Timing-Resilient-Circuits" class="headerlink" title="Timing Resilient Circuits"></a>Timing Resilient Circuits</h4><p>（待补充）</p>
+<h2 id="Lecture7-Arithmetic-Circuits-算数电路"><a href="#Lecture7-Arithmetic-Circuits-算数电路" class="headerlink" title="Lecture7 Arithmetic Circuits 算数电路"></a>Lecture7 Arithmetic Circuits 算数电路</h2><h3 id="加法器"><a href="#加法器" class="headerlink" title="加法器"></a>加法器</h3><p>加法器作为算数逻辑运算的基石，很多时候也是电路的性能瓶颈。<br>对加法器的优化主要在于2方面：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-231.png"></p>
+<h4 id="全加器"><a href="#全加器" class="headerlink" title="全加器"></a>全加器</h4><p>全加器接受3个输入信号(A,B,$C_i$)和2给输出信号(S,$C_o$)。又被称为3-2压缩器。</p>
+<p>其中输出和输入的逻辑如下：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-232.png"></p>
+<p>此外我们还可定义如下的中间变量，用于后续推理。</p>
+<p>$$G &#x3D; AB $$<br>$$P &#x3D; A\oplus B$$<br>$$D &#x3D; \bar{A}\bar{B}$$</p>
+<p>其中G代表generation,表示进位的产生。P代表propagation，表示如果上级产生一个进位，则可以被传播到下一级。D代表delete,表示任何进位都会在这一级消失。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-233.png"></p>
+<h4 id="行波进位加法器-The-Ripple-Carry-Adder"><a href="#行波进位加法器-The-Ripple-Carry-Adder" class="headerlink" title="行波进位加法器 The Ripple-Carry Adder"></a>行波进位加法器 The Ripple-Carry Adder</h4><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-234.png"></p>
+<p>一个最简单的加法器实现就是将多个全加器串联，得到行波进位加法器。其中进位由低到高逐级产生。</p>
+<p>电路的关键路径是n-1级的进位加上最后一级的求和。</p>
+<p>这样的加法器，其关键路径延迟是很长的，与加法器的位宽成线性关系。</p>
+<h4 id="全加器的电路架构"><a href="#全加器的电路架构" class="headerlink" title="全加器的电路架构"></a>全加器的电路架构</h4><p>我们重构全加器的逻辑表达式：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-235.png"></p>
+<p>上述逻辑可以用以下的28管CMOS电路实现：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-236.png"></p>
+<p>上述实现的优缺点如下：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-237.png"></p>
+<h5 id="改进措施"><a href="#改进措施" class="headerlink" title="改进措施"></a>改进措施</h5><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-238.png"></p>
+<p>同一计算逻辑，如果将输入反向，输出逻辑也反向，则得到的结果不变。</p>
+<p>通过将奇偶方向加上或去掉反相器，最终每4位可以去掉2个反相器，同时在关键路径上减少了4个反相器：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-239.png"></p>
+<h4 id="曼彻斯特进位链加法器"><a href="#曼彻斯特进位链加法器" class="headerlink" title="曼彻斯特进位链加法器"></a>曼彻斯特进位链加法器</h4><p>(待补充)</p>
+<h4 id="旁路进位加法器"><a href="#旁路进位加法器" class="headerlink" title="旁路进位加法器"></a>旁路进位加法器</h4><p>旁路进位加法器的思路很简单：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-240.png"></p>
+<p>通过计算进位是否可以向下传递，通过添加一个Mux提前算出进位结果。</p>
+<p>最坏情况下的关键路径如下：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-241.png"></p>
+<p>和行波进位加法器一样，旁路进位加法器的延迟与位数也是线性关系的：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-242.png"></p>
+<h4 id="进位选择加法器"><a href="#进位选择加法器" class="headerlink" title="进位选择加法器"></a>进位选择加法器</h4><p>进位选择加法器的思路是，提前计算carry&#x3D;0和carry&#x3D;1的2种结果，通过传入的carry来选择最终的输出。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-243.png"></p>
+<p>平分各个级数时：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-244.png"></p>
+<p>也可以按照平方的形式划分：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-245.png"></p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-246.png"></p>
+<p>对于位数更高的加法器优化效果更好。</p>
+<h4 id="超前进位加法器"><a href="#超前进位加法器" class="headerlink" title="超前进位加法器"></a>超前进位加法器</h4><h5 id="基础理论"><a href="#基础理论" class="headerlink" title="基础理论"></a>基础理论</h5><p>加法器本质是组合逻辑，只要知道各位输入和进位输入，就可以得到进位输出。</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-247.png"></p>
+<p>考虑第K位的进位输出：<br>$$C_{o,k} &#x3D; f(A_k,B_k,C_{o,k-1}) &#x3D; G_k+P_kC_{o,k-1}$$</p>
+<p>即：第K位的进位产生有2种可能，一种是直接在第K位产生，另一种是低位产生的进位经由第K位传播。</p>
+<p>注意到上面的$C_{o,k}$是一个迭代公式，可以一直迭代到最低位：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-248.png"></p>
+<h5 id="Lookahead-Mirror"><a href="#Lookahead-Mirror" class="headerlink" title="Lookahead Mirror"></a>Lookahead Mirror</h5><p>上面的公式可以通过下面的结构来实现：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-249.png"></p>
+<p>这个结构的问题在于虽然实现起来比较直观，但是扇入很大，位数一高延迟也很大。</p>
+<h5 id="块进位"><a href="#块进位" class="headerlink" title="块进位"></a>块进位</h5><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-250.png"></p>
+<p>重新组合进位传播公式，我们可以发现，如果将中间的几位看作一个整体，可以从块进位和块传播的角度理解进位公式。</p>
+<p>其中<br>$P_{i:j}$表示产生的进位可以经由加法器的第i到j位传播，即：<br>$$P_{i,j} &#x3D; P_iP_{i-1}P_{i-2}\cdots P_j$$</p>
+<p>$G_{i:j}$表示在加法器的第i到j位这个区间能够产生进位。显然有多种可能：<br>$$G_{i:j}&#x3D;G_i+ P_iG_{i-1:j} &#x3D; G_i+P_i(G_{i-1}+P_{i-1}G_{i-2:j})&#x3D;G_{i,k}+G_{k-1,j}P_{i,k}$$</p>
+<p>定义一种新的算子：</p>
+<p>$$(G,P)\bullet(G’,P’)&#x3D;(G+PG’,PP’)$$</p>
+<p>例如要计算<br>$$(G_{3:2},P_{3:2})\bullet (G_{1:0},P_{1:0})\<br>&#x3D;(G_{3:2}+P_{3:2}G_{1:0},P_{3:2}P_{1:0})\<br>&#x3D;(G_{3:0},P_{3:0})$$</p>
+<p>新算子$\bullet$能够将2个区间的进位产生和进位传播连接起来。其输入为4，输出为2，计算了一个乘加和一个与操作。</p>
+<p>通过这个算子，我们可以自由组合控制进位的传播：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-251.png"></p>
+<p>从而得到这样的树形加法器。</p>
+<p>图中相邻2位的P和G产生过程如下：</p>
+<p>$$(G_{1:0},P_{1:0}) &#x3D; (G_{1:1},P_{1:1})\bullet (G_{0:0},P_{0:0})\<br>&#x3D;(A_1B_1,A_1\oplus B_1)\bullet (A_0B_0,A_0\oplus B_0)$$</p>
+<h3 id="乘法器"><a href="#乘法器" class="headerlink" title="乘法器"></a>乘法器</h3><p>二进制乘法器的原理可以表示为：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-252.png"><br>即我们熟悉的部分积之和的形式：</p>
+<p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-253.png"></p>
+<p>一般的乘法器可以做出下面的加法器阵列的形式。问题在于关键路径需要考虑多种进位情况。<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-254.png"></p>
+<p>一种优化思路是进行对角线形式的进位，缩短关键路径：<br><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-255.png"></p>
+<h3 id="Wallace-Tree-乘法器"><a href="#Wallace-Tree-乘法器" class="headerlink" title="Wallace-Tree 乘法器"></a>Wallace-Tree 乘法器</h3><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-256.png"></p>
+<p>核心思路在于，半加器相当于2-2压缩器，全加器相当于3-2压缩器，通过重新排列全加器和半加器的位置，优化关键路径。</p>
+<h3 id="移位器"><a href="#移位器" class="headerlink" title="移位器"></a>移位器</h3><p><img src="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/image-258.png" alt="alt text"></p>
+<h2 id="Lecture8-Timing-Issue-时序问题"><a href="#Lecture8-Timing-Issue-时序问题" class="headerlink" title="Lecture8 Timing Issue 时序问题"></a>Lecture8 Timing Issue 时序问题</h2>]]></content>
       <categories>
         <category>notes</category>
       </categories>
