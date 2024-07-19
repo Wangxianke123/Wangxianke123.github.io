@@ -1,6 +1,96 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>CORDIC Algorithm</title>
+    <url>/2024/02/28/CORDIC-Algorithm/</url>
+    <content><![CDATA[<h1 id="Coordinate-Rotation-Dlgital-Computer-CORDIC-算法"><a href="#Coordinate-Rotation-Dlgital-Computer-CORDIC-算法" class="headerlink" title="Coordinate Rotation Dlgital Computer(CORDIC)算法"></a>Coordinate Rotation Dlgital Computer(CORDIC)算法</h1><p>参考：Computer Arithmetic: Algorithm and Hardware Design</p>
+<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><h3 id="角度模式"><a href="#角度模式" class="headerlink" title="角度模式"></a>角度模式</h3><p>考虑平面直角坐标系下的旋转，如图：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image.png" alt="basic"></p>
+<p>点$E^{(i)}$旋转$\alpha^{(i)}$后得到了点$E^{(i+1)}$</p>
+<p>那么假设$E^{(i)}$的坐标为：$E^{(i)}$:   $(x^{(i)},y^{(i)})&#x3D;(R^{(i)}cos\theta,R^{(i)}cos\theta)$</p>
+<p>$E^{(i+1)}$的坐标可以表示为：<br>$x^{(i)+1} &#x3D; R^{(i)}cos(\theta+\alpha) &#x3D; x^{(i)}cos\alpha - y^{(i)}sin\alpha \ &#x3D;\frac{ x^{(i)}-y^{(i)}tan\alpha}{\frac{1}{cos\alpha}}\ &#x3D; \frac{ x^{(i)}-y^{(i)}tan\alpha}{(1+tan^2\alpha)^{1&#x2F;2}}$</p>
+<p>同理有：<br>$y^{(i+1)} &#x3D; R^{(i)}sin(\theta+\alpha) &#x3D; x^{(i)}sin\alpha + y^{(i)}cos\alpha \ &#x3D;\frac{ x^{(i)}tan\alpha + y^{(i)} }{\frac{1}{cos\alpha}}\ &#x3D; \frac{  x^{(i)}tan\alpha + y^{(i)}}{(1+tan^2\alpha)^{1&#x2F;2}}$</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-1.png"></p>
+<p>上述公式是一个迭代式，<br>$ z^{(i)}$表示当前旋转之前向量与x轴的夹角，$ z^{(i+1)}$表示在旋转后与x轴的夹角（顺时针为正）。</p>
+<p>现在考虑一种图中的一种伪旋转，对公式2边同时除以$\cos\alpha^{(i)}$,得到$E’^{(i)}$的坐标：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-3.png"><br><img src="/2024/02/28/CORDIC-Algorithm/image-2.png"></p>
+<p>令$x^{(0)}&#x3D;x,  y^{(0)}&#x3D;y,  z^{(0)}&#x3D;z$，则对于一个m次迭代的真旋转，有：<br><img src="/2024/02/28/CORDIC-Algorithm/image-4.png"></p>
+<p>对伪旋转：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-5.png"></p>
+<p>考虑每次迭代的角度选取，如果使$tan\alpha$恰好等于 $2^{-i},i&#x3D;0,1,2,3…$则上式变为：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-6.png"></p>
+<p>其中$d_i \in {−1,1}$ </p>
+<p>则每次真旋转迭代的计算可以通过：1次查表，2次移位，3次加(减)法实现。</p>
+<p>对于伪旋转，由于每次的角度选取是固定值，因此K为常数，K &#x3D; 1.646 760 258 121….</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-7.png"></p>
+<p>考虑计算 $cosz$,可以令$x^{(0)}&#x3D;1,  y^{(0)}&#x3D;0,  \sum\alpha^{(i)}&#x3D;z$此时有：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-10.png"></p>
+<p>如果计算$cos30^\circ$,可以：<br><img src="/2024/02/28/CORDIC-Algorithm/image-8.png"></p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-9.png"></p>
+<p>由于表中的角度表示范围达到了$−99.7^\circ ≤ z ≤ 99.7^\circ$,因此可以通过上述方法加上基本三角变化求出任何角的正余弦值。</p>
+<h3 id="向量模式"><a href="#向量模式" class="headerlink" title="向量模式"></a>向量模式</h3><p>通过令$y\rightarrow 0$,可以计算反三角函数值$tan^{-1}y$,此时，</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-12.png"><br>带入</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-5.png"></p>
+<p>可得<br><img src="/2024/02/28/CORDIC-Algorithm/image-13.png"></p>
+<p>故可以取(1,y),将其旋转到x轴上，此时旋转过的角度即为$tan^{-1}y$</p>
+<h3 id="一个简单的python验证程序"><a href="#一个简单的python验证程序" class="headerlink" title="一个简单的python验证程序"></a>一个简单的python验证程序</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line">lookuptable = &#123;&#125;</span><br><span class="line"></span><br><span class="line">lookuptable[<span class="number">0</span>]=<span class="number">45.0</span></span><br><span class="line">lookuptable[<span class="number">1</span>]=<span class="number">26.5650</span></span><br><span class="line">lookuptable[<span class="number">2</span>]=<span class="number">14.0362</span></span><br><span class="line">lookuptable[<span class="number">3</span>]=<span class="number">7.1250</span></span><br><span class="line">lookuptable[<span class="number">4</span>]=<span class="number">3.5763</span></span><br><span class="line">lookuptable[<span class="number">5</span>]=<span class="number">1.7899</span></span><br><span class="line">lookuptable[<span class="number">6</span>]=<span class="number">0.8951</span></span><br><span class="line">lookuptable[<span class="number">7</span>]=<span class="number">0.4476</span></span><br><span class="line">lookuptable[<span class="number">8</span>]=<span class="number">0.2238</span></span><br><span class="line">lookuptable[<span class="number">9</span>]=<span class="number">0.1119</span></span><br><span class="line">lookuptable[<span class="number">10</span>]=<span class="number">0.0230</span></span><br><span class="line">lookuptable[<span class="number">11</span>]=<span class="number">0.0140</span></span><br><span class="line">lookuptable[<span class="number">12</span>]=<span class="number">0.0070</span></span><br><span class="line">lookuptable[<span class="number">13</span>]=<span class="number">0.0035</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cordic</span>(<span class="params">value,  mode</span>):</span><br><span class="line">    z = <span class="number">0</span></span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">        x =  <span class="number">0.607252935</span></span><br><span class="line">        y = <span class="number">0.0</span> </span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">1</span>):</span><br><span class="line">        x = <span class="number">1</span></span><br><span class="line">        y = value</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">13</span>):</span><br><span class="line">        <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">            d = np.sign(value)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            d = -np.sign(y)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(d==<span class="number">0</span>):d = <span class="number">1</span></span><br><span class="line">        value -= d*lookuptable[i]</span><br><span class="line"></span><br><span class="line">        z -= d*lookuptable[i]</span><br><span class="line"></span><br><span class="line">        temp = x</span><br><span class="line">        x -= d * y * <span class="number">2.0</span>**(-i)</span><br><span class="line">        y +=  d* temp * <span class="number">2.0</span>**(-i)</span><br><span class="line">        <span class="comment"># print(&quot;y:&quot;,y)</span></span><br><span class="line">        <span class="comment"># print(&quot;x:&quot;,x)</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;sin:&quot;</span>,y)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;cos:&quot;</span>,x)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;theta:&quot;</span>,z)</span><br><span class="line"></span><br><span class="line">cordic(<span class="number">4</span>,<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
+
+<h3 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h3><p>对一个n位的cordic运算，若采用纯硬件实现，每一位需要1次查表，2次移位，3次加法，其计算复杂度是$O(n)$这个量级的。</p>
+<p>考虑硬件实现，一个最简单的版本是这样的：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-14.png"></p>
+<p>在不考虑优化版本时，图中的加法器可以用串行进位的方式实现，此时，对于k位的操作数，计算需要的时钟周期为$O(k^2)$。</p>
+<h3 id="通用版本"><a href="#通用版本" class="headerlink" title="通用版本"></a>通用版本</h3><p><img src="/2024/02/28/CORDIC-Algorithm/image-15.png"></p>
+<p>CORDIC算法可以被拓展，用于线性和双曲函数的计算。其通用公式为：<br><img src="/2024/02/28/CORDIC-Algorithm/image-17.png"><br><img src="/2024/02/28/CORDIC-Algorithm/image-16.png"></p>
+<p>推理过程如下：<br>参考：（A unified algorithm for elementary functions）</p>
+<p>考虑一个从二维直角坐标系到极坐标的非线性映射：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-18.png"></p>
+<p>其中R是映射后的向量长度，A是其与坐标轴的夹角。</p>
+<p>显然当m取1时，该映射为从直角坐标系到极坐标系的坐标变换。<br>当m取0时， 该变换总是落在一条相同的直线上<br>当m&#x3D;-1时，该变换为落在一条双曲线$x^2-y^2&#x3D;1$上。</p>
+<p>事实上，如果将R看作特定曲线与x轴交点到原点的距离，根据上述定义，总是有：<br>$A &#x3D; \frac{2S}{R^2}$<br><img src="/2024/02/28/CORDIC-Algorithm/image-19.png"></p>
+<p>其中S为变换前的点P与点O,R围成的阴影部分面积。</p>
+<p>如果给出一个迭代式：<br><img src="/2024/02/28/CORDIC-Algorithm/image-20.png"></p>
+<p>其中$\delta_i$时任意值，而m是映射中的参数。那么每次迭代后的点经过非线性映射后，在极坐标下可以表示为：<br><img src="/2024/02/28/CORDIC-Algorithm/image-21.png"></p>
+<p>其中<br><img src="/2024/02/28/CORDIC-Algorithm/image-22.png"></p>
+<p>即每次迭代可以看作是一次旋转和放缩。对n次迭代，最后得到的长度和角度为：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-23.png"></p>
+<p>其中<img src="/2024/02/28/CORDIC-Algorithm/image-24.png"></p>
+<p>如果再定义一个新的变量<br><img src="/2024/02/28/CORDIC-Algorithm/image-25.png"></p>
+<p>则经过n次迭代后的点经过逆映射后，可以得到其在直角坐标系下的坐标：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-26.png"></p>
+<p>同样的，注意到当m&#x3D;1时，该迭代式与之前推出的角度模式下的伪旋转迭代式一模一样。</p>
+<p>而当m&#x3D;0时，分别让$y\rightarrow0$和$z\rightarrow 0$,可以得到如下不同的迭代结果：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-27.png"><br>且在m&#x3D;0时，多轮迭代后的缩放因子为1.</p>
+<p>上述公式说明，直线迭代可以用于计算乘法，除法或直接计算一个乘加、除加操作。</p>
+<p>而对双曲映射，迭代结果分别为：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-28.png"></p>
+<p>其中缩放因子<code>K&#39;=0.8281593609602</code>。</p>
+<p>上述公式说明，双曲映射可以被用来计算双曲正弦，双曲余弦和双曲正切函数。</p>
+<p>另外需要注意的是，对于双曲映射，并不总是收敛的，这是因为对于tan函数，总是有：<br> $tan^{−1}(2^{−(i+1)}) ≥ 0.5tan^{−1}(2^{−i})$</p>
+<p>而同样的关系:放在双曲正切中却并不总是成立。</p>
+<p>$tanh^{−1}(2^{−(i+1)}) ≥ 0.5tanh^{−1}(2^{−i})$</p>
+<p>一个简单的收敛方法为，当迭代次数为:$ i &#x3D; 4, 13, 40, 121, …,3j + 1$时，该次迭代必须再重复一遍。即：<br>1,2,3,4,4,5,6,7,8,9,10,11,12,13,13,14….<br>(收敛性分析在原论文中有比较严格的推导，我懒得手推一遍，这里就不重复了，直接使用其结果)</p>
+<p>计算范围为： <code>With these provisions, convergence in computing  hyperbolic sine and cosine functions is guaranteed for |z| &lt; 1.13 and in the case of the  tanh−1 function, for |y| &lt; 0.81.</code></p>
+<p>此外，以下函数也可以被间接计算出来：<br><img src="/2024/02/28/CORDIC-Algorithm/image-29.png"></p>
+<h3 id="收敛性仿真"><a href="#收敛性仿真" class="headerlink" title="收敛性仿真"></a>收敛性仿真</h3><p>写一个简单的双曲迭代来验证上述方法的收敛性：</p>
+<p>以cosh为例，以下是一段简单的python代码：</p>
+<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">20</span>): </span><br><span class="line">    lookuptable_tanh[i] = math.atanh(<span class="number">2</span>**(-i))</span><br><span class="line">    <span class="built_in">print</span>(math.atanh(<span class="number">2</span>**(-i)))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_tanh</span>(<span class="params">value</span>):</span><br><span class="line">    k=<span class="number">0.8281593609602</span></span><br><span class="line">    x=<span class="number">1</span>/k</span><br><span class="line">    y=<span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">20</span>):</span><br><span class="line">        <span class="keyword">if</span>(value)&gt;<span class="number">0</span>:</span><br><span class="line">            d=<span class="number">1</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            d=-<span class="number">1</span></span><br><span class="line">        </span><br><span class="line">        value = value - d*lookuptable_tanh[i]</span><br><span class="line">        temp=x</span><br><span class="line">        x = x + d*y*<span class="number">2</span>**-i</span><br><span class="line">        y = y + d*temp*<span class="number">2</span>**-i</span><br><span class="line"></span><br><span class="line">        <span class="comment"># if(i==4 or i==13):</span></span><br><span class="line">        <span class="comment">#     if(value)&gt;0:</span></span><br><span class="line">        <span class="comment">#         d=1</span></span><br><span class="line">        <span class="comment">#     else:</span></span><br><span class="line">        <span class="comment">#         d=-1</span></span><br><span class="line">        <span class="comment">#     value = value - d*lookuptable_tanh[i]</span></span><br><span class="line">        <span class="comment">#     temp=x</span></span><br><span class="line">        <span class="comment">#     x = x + d*y*2**-i</span></span><br><span class="line">        <span class="comment">#     y = y + d*temp*2**-i</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_cosh:&quot;</span>,x)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_sinh:&quot;</span>,y)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_tanh:&quot;</span>,y/x)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span>(x,y,y/x)</span><br><span class="line"></span><br><span class="line">x = np.arange(-<span class="number">1</span>, <span class="number">1</span>, <span class="number">0.01</span>)</span><br><span class="line"><span class="comment"># 计算对应的 cosh 函数值</span></span><br><span class="line">y_numpy = np.cosh(x)</span><br><span class="line"></span><br><span class="line">y_custom=[]</span><br><span class="line"><span class="keyword">for</span> value <span class="keyword">in</span> x:</span><br><span class="line">    y,_,_ = my_tanh(value)</span><br><span class="line">    y_custom.append(y)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 绘制图形</span></span><br><span class="line">plt.plot(x, y_numpy, label=<span class="string">&#x27;numpy.cosh(x)&#x27;</span>)</span><br><span class="line">plt.plot(x, y_custom, label=<span class="string">&#x27;my_cosh(x)&#x27;</span>)</span><br><span class="line">plt.xlabel(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">plt.ylabel(<span class="string">&#x27;cosh(x)&#x27;</span>)</span><br><span class="line">plt.title(<span class="string">&#x27;Comparison of cosh(x) functions&#x27;</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.grid(<span class="literal">True</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
+
+
+<p>在不用重复第4次和第13次迭代时，结果如下：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-30.png"></p>
+<p>可以看到蓝色线和橙色线不完全重合，局部放大后结果如下：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-31.png"></p>
+<p>取消对应注释，重复第4和第13次迭代，结果如下：</p>
+<p><img src="/2024/02/28/CORDIC-Algorithm/image-32.png"></p>
+<p>可以看到蓝色线和橙色线基本完全重合，局部放大后结果如下：<br><img src="/2024/02/28/CORDIC-Algorithm/image-33.png"></p>
+<h3 id="硬件实现"><a href="#硬件实现" class="headerlink" title="硬件实现"></a>硬件实现</h3>]]></content>
+      <tags>
+        <tag>Hardware Algorithm</tag>
+        <tag>ICer</tag>
+        <tag>数字集成电路</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>LFSR</title>
     <url>/2024/04/18/LFSR/</url>
     <content><![CDATA[<h1 id="LSFR"><a href="#LSFR" class="headerlink" title="LSFR"></a>LSFR</h1><h2 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h2><p>LFSR 全称为Linear Feedback Shift Register, 线性反馈移位寄存器。LFSR 可以用来<br>产生可重复的伪随机序列，从而被广泛使用在计数器，解码器，密码系统，BIST等方<br>面。<br>一般的LFSR分为2种，内部反馈型和外部反馈型的LFSR，如图2–1所示。其中内<br>部反馈型LFSR又称为伽罗瓦LFSR，而外部反馈型LFSR又称为斐波那契型LFSR。</p>
@@ -30,6 +120,238 @@
       <tags>
         <tag>数字集成电路</tag>
         <tag>Basic Module</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>SoC设计方法</title>
+    <url>/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/</url>
+    <content><![CDATA[<h1 id="SoC设计方法"><a href="#SoC设计方法" class="headerlink" title="SoC设计方法"></a>SoC设计方法</h1><h2 id="Soc设计概述及流程"><a href="#Soc设计概述及流程" class="headerlink" title="Soc设计概述及流程"></a>Soc设计概述及流程</h2><h3 id="什么是SoC"><a href="#什么是SoC" class="headerlink" title="什么是SoC?"></a>什么是SoC?</h3><p>半导体产业模式及其基本分工：<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image.png" alt="半导体产业链"></p>
+<h4 id="SoC的基本概念："><a href="#SoC的基本概念：" class="headerlink" title="SoC的基本概念："></a>SoC的基本概念：</h4><pre><code>SoC(System on Chip)：系统级芯片，片上系统
+</code></pre>
+<p>SoC的诞生是集成电路领域发展的必然趋势。SoC的应用场景：<br>➢高性能计算<br>➢智能手机<br>➢汽车主控<br>➢物联网设备</p>
+<h4 id="SoC的优势"><a href="#SoC的优势" class="headerlink" title="SoC的优势"></a>SoC的优势</h4><ol>
+<li>有利于复杂系统的集成</li>
+<li>缩短设计时间</li>
+<li>可靠性更高</li>
+<li>延迟更低(内部连线短，传输延迟更小。内部晶体管阻抗低，较小的门延迟)</li>
+<li>低能耗</li>
+<li>低成本（IP复用）</li>
+</ol>
+<h4 id="SoC发展的挑战"><a href="#SoC发展的挑战" class="headerlink" title="SoC发展的挑战"></a>SoC发展的挑战</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-1.png" alt="设计成本"></p>
+<ol>
+<li><p>随着工艺节点的迭代，研发费用指数上升。</p>
+</li>
+<li><p>软硬件功能的划分（通用vs专用）<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-2.png" alt="不同划分带来不同成本占比"></p>
+</li>
+<li><p>复杂性提升导致的验证难度提升</p>
+</li>
+<li><p>制造成本高（7nm工艺下，$400mm^2$的芯片良率只有大约55%），设计错误不可接受</p>
+</li>
+</ol>
+<h4 id="新型SoC-Chiplet"><a href="#新型SoC-Chiplet" class="headerlink" title="新型SoC: Chiplet"></a>新型SoC: Chiplet</h4><p>芯粒(Chiplet):将功能丰富面积较大的裸片（die）拆分成多个芯粒（chiplet）通过先进封装组合在一起形成一个系统芯片</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-3.png"></p>
+<h4 id="SoC设计总结"><a href="#SoC设计总结" class="headerlink" title="SoC设计总结"></a>SoC设计总结</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-4.png"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-5.png"></p>
+<h3 id="SoC设计流程"><a href="#SoC设计流程" class="headerlink" title="SoC设计流程"></a>SoC设计流程</h3><p>SoC系统是软件和硬件的结合，需要综合评估系统的性能，设计相应的硬件和软件架构：</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-6.png" alt="SoC的软硬件协同设计流程"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-7.png" alt="SoC的软件设计流程"></p>
+<h4 id="SoC的硬件设计流程"><a href="#SoC的硬件设计流程" class="headerlink" title="SoC的硬件设计流程"></a>SoC的硬件设计流程</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-8.png" alt="SoC硬件设计流程-前端部分"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-9.png" alt="SoC硬件设计流程-后端部分"></p>
+<p>步骤基本可以分为： </p>
+<ol>
+<li><strong>设计规范（spec）</strong>：确定芯片的顶层架构，规格参数，划分模块定义</li>
+<li>模块设计与IP复用，顶端集成</li>
+<li>前仿真：验证设计逻辑的正确性</li>
+<li>验证</li>
+<li>逻辑综合：代码翻译为电路（理想器件）</li>
+<li>静态时序分析：检查设计是否符合时序要求，有无违例</li>
+</ol>
+<p>其中电路的抽象层次如下：</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-19.png"></p>
+<p>分别为：</p>
+<ol>
+<li>系统级</li>
+<li>RTL级</li>
+<li>门级(gate level)</li>
+<li>集体管级(transistor level)</li>
+<li>版图级 (lay-out level)</li>
+</ol>
+<h3 id="静态时序分析"><a href="#静态时序分析" class="headerlink" title="静态时序分析"></a>静态时序分析</h3><h4 id="setup-time-建立时间"><a href="#setup-time-建立时间" class="headerlink" title="setup time 建立时间"></a>setup time 建立时间</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-10.png" alt="建立时间"></p>
+<p>在时钟信号到来之前，数据需要提前一段时间准备好。这个时间称为建立时间</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-11.png" alt="建立时间与时钟周期的关系"></p>
+<p>如图，$t_{pcq}$指从时钟信号变化(50%)开始，到q端信号变化所需的时间(由寄存器本身的特性决定)；</p>
+<p>$t_{pd}$是组合逻辑的传输延迟。</p>
+<p>由于在下一个时钟到来之前，下一级寄存器的输入数据应当准备好，因此有：<br>$T_c \geq t_{pcq} + t_{pd} + t_{setup}$</p>
+<h4 id="hold-time-保持时间"><a href="#hold-time-保持时间" class="headerlink" title="hold time 保持时间"></a>hold time 保持时间</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-12.png" alt="保持时间"></p>
+<p>在时钟信号变化之后，输入如数据不能立马跳变，而是需要保持原来的值一定时间，保证数据被完全写入寄存器。这个时间称为保持时间。</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-13.png" alt="保持时间的时序约束"></p>
+<p>如图，对于理想时钟，clk总是同时到达。</p>
+<p>$t_{ccq}$是时钟信号变化（50%）后，q1变化的时间。 </p>
+<p>$t_{cd}$是组合逻辑的传播延时，则从时钟变化后，经过$t_{ccq}+t_{cd}$的时间，D2的数据会发生变化。</p>
+<p>按照保持时间的定义，需满足：</p>
+<p>$t_{ccq}+t_{cd} \geq t_{hold}$</p>
+<h4 id="recovery-removal-time"><a href="#recovery-removal-time" class="headerlink" title="recovery&#x2F;removal time"></a>recovery&#x2F;removal time</h4><p>异步电路的复位信号，需要满足的时序关系：</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-14.png" alt="alt text"></p>
+<h4 id="时钟偏斜-time-skew"><a href="#时钟偏斜-time-skew" class="headerlink" title="时钟偏斜 time skew"></a>时钟偏斜 time skew</h4><p>理论上clk对每个寄存器的clk端都应该相同，但实际上时钟到达每个元件的时间会有偏差，这个偏差称作time skew<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-15.png" alt="alt text"></p>
+<p>可以通过插入buffer的办法尽量消除时钟偏向(时钟树综合)</p>
+<h4 id="data-arrival-time-和-clk-arrival-time"><a href="#data-arrival-time-和-clk-arrival-time" class="headerlink" title="data arrival time 和 clk arrival  time"></a>data arrival time 和 clk arrival  time</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-16.png" alt="data arrival time"></p>
+<p>分析第二个寄存器的D端，数据到达需要经过：</p>
+<ol>
+<li>时钟启动时间(launch edge)</li>
+<li>clk1相对于时钟源的延迟$T_{clk1}$</li>
+<li>寄存器的内部延迟（时钟变化到数据变化需要的时间）$T_{co}$</li>
+<li>组合逻辑的数据延迟 $T_{data}$</li>
+</ol>
+<p>分析第二个寄存器的时钟到达时间：<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-17.png" alt="clk arrival time"></p>
+<ol>
+<li>时钟启动时间(launch edge)</li>
+<li>clk2相对于时钟源的延迟$T_{clk2}$</li>
+</ol>
+<p>根据建立时间，数据需要提前于时钟到达，并保持稳定：</p>
+<p>$data\  required\  time（setup）  &#x3D; clk\  arrival \ time - t_{setup} - setup\ uncertainty$</p>
+<p>根据保持时间的定义，在时钟到达后，数据需要保持稳定一段时间：</p>
+<p>$data\  required\  time（hold）  &#x3D; clk\  arrival \ time + t_{hold} + hold\ uncertainty$</p>
+<h4 id="时间裕量-time-slack"><a href="#时间裕量-time-slack" class="headerlink" title="时间裕量 time slack"></a>时间裕量 time slack</h4><p>对建立时间来说，由于数据应该提前到达，并保持一定时间的裕量，有：</p>
+<p>$data \ arrival \ time(setup) + setup \ slack &#x3D; data \ required \ time$<br>$setup \ slack &#x3D; data \ required \ time - data \ arrival \ time \<br>  &#x3D;  clk\  arrival \ time - data \ arrival \ time - t_{setup} - setup\ uncertainty  $</p>
+<p>set up slack应当大于0，才能保证时序正确。</p>
+<p>对保持时间，时钟到达后数据需要保持一定的时间裕量，有：<br>$ data \ required \ time(hold) + hold \ slack &#x3D;data \ arrival \ time$</p>
+<p>$hold \ slack &#x3D; data \ arrival \ time - data \ required \ time(hold)\<br> &#x3D;data \ arrival \ time -  clk\  arrival \ time - t_{hold} - hold\ uncertainty$</p>
+<h4 id="例"><a href="#例" class="headerlink" title="例"></a>例</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-18.png"></p>
+<p>计算最大工作频率。 考虑建立时间，使 setup slack为0：</p>
+<p>$T{clk_1}+ T_{co} + T_{data} + T_{setup} &#x3D;T_{c} + T_{clk2}$</p>
+<p>$f_{max} &#x3D; \frac{1}{T_{co} + T_{data} + T_{setup} + T{clk_1} - T_{clk2}}$</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-20.png"></p>
+<h2 id="SoC架构"><a href="#SoC架构" class="headerlink" title="SoC架构"></a>SoC架构</h2><h3 id="SoC架构概述"><a href="#SoC架构概述" class="headerlink" title="SoC架构概述"></a>SoC架构概述</h3><p>一个典型的SoC架构如下图：<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-21.png"></p>
+<p>SoC的同样遵循冯诺依曼架构，分别包括：</p>
+<ol>
+<li>中央处理器(计算，控制)</li>
+<li>存储系统</li>
+<li>总线</li>
+<li>外设 (I&#x2F;O)</li>
+<li>协处理器(可选，用于异构计算)</li>
+</ol>
+<h3 id="中央处理器CPU"><a href="#中央处理器CPU" class="headerlink" title="中央处理器CPU"></a>中央处理器CPU</h3><p>略</p>
+<h3 id="系统总线"><a href="#系统总线" class="headerlink" title="系统总线"></a>系统总线</h3><p>在SoC（System-on-a-Chip）系统中，总线是用来连接各个组件和模块，实现数据、地址和控制信号的传输。</p>
+<p>常见的总线包括ARM公司的AMBA（advanced microcontroller Bus Architecture）, 包括：</p>
+<ol>
+<li>AHB (Advanced High-performance Bus)</li>
+<li>AXI (Advanced eXtensibleInterface)</li>
+<li>APB (Advanced Peripheral Bus)</li>
+</ol>
+<h4 id="APB总线协议"><a href="#APB总线协议" class="headerlink" title="APB总线协议"></a>APB总线协议</h4><p>(待补充)</p>
+<h4 id="AHB总线协议"><a href="#AHB总线协议" class="headerlink" title="AHB总线协议"></a>AHB总线协议</h4><p>(待补充)</p>
+<h4 id="AXI总线协议"><a href="#AXI总线协议" class="headerlink" title="AXI总线协议"></a>AXI总线协议</h4><p>(待补充)</p>
+<h3 id="接口控制模块"><a href="#接口控制模块" class="headerlink" title="接口控制模块"></a>接口控制模块</h3><p>SoC一般包含多种不同的串&#x2F;并接口，常见的有:</p>
+<ol>
+<li>SPI</li>
+<li>UART</li>
+<li>USB</li>
+<li>PCIe</li>
+</ol>
+<p>此外还包括：</p>
+<ol>
+<li>中断控制器(Interrupt Controller, INTC)</li>
+<li>实时时钟(Real Time Clock, RTC) 、Timer、Watchdog</li>
+<li>功耗管理模块(Power Management Controller, PMC)</li>
+</ol>
+<p>等功能模块。</p>
+<h4 id="串-并行通信接口"><a href="#串-并行通信接口" class="headerlink" title="串&#x2F;并行通信接口"></a>串&#x2F;并行通信接口</h4><h5 id="串行-解串器"><a href="#串行-解串器" class="headerlink" title="串行&#x2F;解串器"></a>串行&#x2F;解串器</h5><h5 id="PCIe-Peripheral-Component-Interconnect-Express"><a href="#PCIe-Peripheral-Component-Interconnect-Express" class="headerlink" title="PCIe (Peripheral Component Interconnect Express)"></a>PCIe (Peripheral Component Interconnect Express)</h5><h5 id="SPI-Serial-Peripheral-Interface"><a href="#SPI-Serial-Peripheral-Interface" class="headerlink" title="SPI (Serial Peripheral Interface)"></a>SPI (Serial Peripheral Interface)</h5><h5 id="UART-Universal-Asynchronous-Receiver-Transmitter"><a href="#UART-Universal-Asynchronous-Receiver-Transmitter" class="headerlink" title="UART (Universal Asynchronous Receiver&#x2F;Transmitter)"></a>UART (Universal Asynchronous Receiver&#x2F;Transmitter)</h5><h5 id="USB-Universal-Serial-Bus"><a href="#USB-Universal-Serial-Bus" class="headerlink" title="USB (Universal Serial Bus)"></a>USB (Universal Serial Bus)</h5><h4 id="中断控制模块"><a href="#中断控制模块" class="headerlink" title="中断控制模块"></a>中断控制模块</h4><p>(待补充)</p>
+<h4 id="时钟外设"><a href="#时钟外设" class="headerlink" title="时钟外设"></a>时钟外设</h4><p>(待补充)</p>
+<h4 id="功耗管理模块"><a href="#功耗管理模块" class="headerlink" title="功耗管理模块"></a>功耗管理模块</h4><p>(待补充)</p>
+<h2 id="Lecture-3-系统级建模"><a href="#Lecture-3-系统级建模" class="headerlink" title="Lecture 3 系统级建模"></a>Lecture 3 系统级建模</h2><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-22.png"></p>
+<p>在传统的top-down设计流程中，其余环节都可以比较好的形式化，量化，然而顶层的功能需求定义等工作还是依赖文档和设计者对于文档的理解。</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-23.png"></p>
+<p>通过加强系统级建模，可以更好的克服非形式化手段带来的不精确性，有效将需求转化为产品。</p>
+<h3 id="系统级建模ELS"><a href="#系统级建模ELS" class="headerlink" title="系统级建模ELS"></a>系统级建模ELS</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-24.png"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-25.png"></p>
+<p>通过更高层次的建模来提高开发效率</p>
+<p>ELS功能：</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-26.png"></p>
+<h4 id="ELS设计阶段"><a href="#ELS设计阶段" class="headerlink" title="ELS设计阶段"></a>ELS设计阶段</h4><p>ELS设计分为3个阶段：</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-27.png"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-28.png"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-29.png"></p>
+<h3 id="ELS设计模型"><a href="#ELS设计模型" class="headerlink" title="ELS设计模型"></a>ELS设计模型</h3><h4 id="事物级建模"><a href="#事物级建模" class="headerlink" title="事物级建模"></a>事物级建模</h4><p>事务指模块之间的数据和事件的交互。数据交换可以是一个或多个字，<br>或者是一种数据结构。而诸如同步或者中断等则属于事件的交互<br>•事务级建模的核心概念是在一个系统建模过程中将运算功能和通信功<br>能分开，模块之间的通信通过函数调用来实现</p>
+<p>与寄存器传输级模型相比较，事务级建模可以减少事件和信息的处理，<br>所需的程序代码更少，执行速度更快<br>• 根据实际需要提供足够的设计精度，根据描述系统精度的不同，事务<br>级模型可以分为三种：<br>• 没有时序信息的模型<br>• 周期近似的模型<br>• 周期精确的模型</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-30.png"></p>
+<h4 id="ELS设计语言"><a href="#ELS设计语言" class="headerlink" title="ELS设计语言"></a>ELS设计语言</h4><p>业界获得较多支持和应用较为广泛的语言是SystemVerilog和SystemC<br>SystemVerilog是在Verilog上的扩展，吸收了C&#x2F;C++中的一些特性，可以实<br>现和C的仿真。由于是在Verilog上的扩展，SystemVerilog的优势在于基于<br>时钟的建模能力和验证能力。但在TLM的抽象上还存在一些不足，如缺少<br>抽象的数据类型<br>• 更为成功的是SystemC，SystemC是OSCI推出的基于C++扩展的描述语言。<br>是一种可以完成电子系统从软件到硬件的全部建模过程的语言。在目前的<br>设计中软件开发占到设计任务的60%-90%，基于C++扩展的语言SystemC<br>比从HDL扩展的语言有更加有利的发展趋势。SystemC完全支持TLM建模，<br>而且OSCI已经提出了TLM建模的标准。而其他语言目前还没有完全支持<br>TLM建模。</p>
+<h2 id="Lecture-4-SoC验证"><a href="#Lecture-4-SoC验证" class="headerlink" title="Lecture 4 SoC验证"></a>Lecture 4 SoC验证</h2><p>设计验证(Verification)的目的是确认设计的功能正确性和性能（速度和功耗等）满足设计要求，贯穿于设计的整个过程。</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-31.png"></p>
+<p>随着系统复杂的的提高，bug的数量也在提高，而找出bug的代价更大。</p>
+<h3 id="SoC验证方法学"><a href="#SoC验证方法学" class="headerlink" title="SoC验证方法学"></a>SoC验证方法学</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-32.png"></p>
+<p>根据验证的方式可以分为：</p>
+<p>Formal,Simulation,Emulation,Protyping</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-33.png"></p>
+<p>从方式来分类可以分解基于仿真的验证和基于形式的验证2大类。</p>
+<p>基于仿真的方法需要设置输入向量和预期结果，然后进行结果对比。</p>
+<h3 id="事件驱动的仿真-simulation"><a href="#事件驱动的仿真-simulation" class="headerlink" title="事件驱动的仿真 simulation"></a>事件驱动的仿真 simulation</h3><p>时间驱动的仿真，将各个时间节点发生的时间进行归类，然后以特定顺序调用，以此模拟真实的系统。</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-34.png"></p>
+<h4 id="代码覆盖率和功能覆盖率"><a href="#代码覆盖率和功能覆盖率" class="headerlink" title="代码覆盖率和功能覆盖率"></a>代码覆盖率和功能覆盖率</h4><p>(参考SV课程中的内容)</p>
+<h4 id="仿真simulation和模拟emulation的区别"><a href="#仿真simulation和模拟emulation的区别" class="headerlink" title="仿真simulation和模拟emulation的区别"></a>仿真simulation和模拟emulation的区别</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-35.png"></p>
+<p>核心在于emulation采取一套不同的硬件系统来验证功能</p>
+<p>Emulation的问题在于成本过高。</p>
+<h3 id="形式化验证"><a href="#形式化验证" class="headerlink" title="形式化验证"></a>形式化验证</h3><p>可以达到100%覆盖率<br>仅适用于小尺寸的有限状态系统</p>
+<p>对于类似soc这样的复杂系统，其输入空间的组合近似无穷大，如果不用形式验证的方法，很难穷尽所有的输入可能。</p>
+<h4 id="形式化验证的分类"><a href="#形式化验证的分类" class="headerlink" title="形式化验证的分类"></a>形式化验证的分类</h4><p>主要分为模型检查和等价性检查。</p>
+<p>其中等价性检查又分为LEC(logic equivalence)和SEC(sequential equivalence)</p>
+<h4 id="基于AI和深度学习的验证"><a href="#基于AI和深度学习的验证" class="headerlink" title="基于AI和深度学习的验证"></a>基于AI和深度学习的验证</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-36.png"></p>
+<h3 id="测试平台搭建"><a href="#测试平台搭建" class="headerlink" title="测试平台搭建"></a>测试平台搭建</h3><h3 id="SoC混合信号验证"><a href="#SoC混合信号验证" class="headerlink" title="SoC混合信号验证"></a>SoC混合信号验证</h3><h2 id="Lecture5-逻辑综合"><a href="#Lecture5-逻辑综合" class="headerlink" title="Lecture5 逻辑综合"></a>Lecture5 逻辑综合</h2><p>gtech: 与工艺无关的门级网表</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-37.png"></p>
+<h3 id="逻辑综合要解决的问题"><a href="#逻辑综合要解决的问题" class="headerlink" title="逻辑综合要解决的问题"></a>逻辑综合要解决的问题</h3><p> 单的综合只需要将RTL读入综合软件并elaborate即可得到门级网表，但<br>这并不代表综合真正成功<br>• 对于同步逻辑电路，综合成功表示综合后的电路中，触发器等时序逻辑部<br>件能在正确的时间(时钟沿)得到正确的数据，即满足时序要求，同时需要满<br>足扇出、负载等约束<br>• 触发器正确读取数据的关键<br>• 数据在时钟沿之前稳定足够的时间，即数据不要到达太晚，应满足建立时间(setup<br>time)要求<br>• 数据在时钟沿之后稳定足够的时间，即数据不能到达太早，应满足保持时间(hold<br>time)要求<br>• 时钟沿会在正确的时刻出现，即时钟质量要满足要求<br>• 可简单认为综合主要是为了保证建立时间、保持时间、时钟这几项要求</p>
+<h3 id="Synopsys-DC-综合流程"><a href="#Synopsys-DC-综合流程" class="headerlink" title="Synopsys DC 综合流程"></a>Synopsys DC 综合流程</h3><ol>
+<li>set library</li>
+<li>Read design</li>
+<li>Defign environment </li>
+<li>Sent design constraints</li>
+<li>Select compile strategy</li>
+<li>Optimize the design</li>
+<li>Analyze and resolve design problems</li>
+<li>save design data</li>
+</ol>
+<h3 id="CCS-模型"><a href="#CCS-模型" class="headerlink" title="CCS 模型"></a>CCS 模型</h3><p>CCS模型即复合电流源模型Composite Current Source，精度可达HSpice的2%以内，但CCS库尺寸比NLDM库大一个数量级。</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-38.png"></p>
+<h3 id="无法综合的部分"><a href="#无法综合的部分" class="headerlink" title="无法综合的部分"></a>无法综合的部分</h3><p>类似memory之类的模型无法由逻辑综合直接得到，而是需要专用工具或使用成型IP：</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-39.png"></p>
+<h3 id="需要约束的时序路径"><a href="#需要约束的时序路径" class="headerlink" title="需要约束的时序路径"></a>需要约束的时序路径</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-40.png"></p>
+<h3 id="电路优化"><a href="#电路优化" class="headerlink" title="电路优化"></a>电路优化</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-41.png"></p>
+<h3 id="高层次综合HLS"><a href="#高层次综合HLS" class="headerlink" title="高层次综合HLS"></a>高层次综合HLS</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-42.png"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-43.png"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-44.png"></p>
+<h2 id="Lecture-6-STA"><a href="#Lecture-6-STA" class="headerlink" title="Lecture 6 STA"></a>Lecture 6 STA</h2><h3 id="建立时间和保持时间"><a href="#建立时间和保持时间" class="headerlink" title="建立时间和保持时间"></a>建立时间和保持时间</h3><p>Setup Time – 建立时间，数据在时钟沿之前必须保持稳定的时间长度</p>
+<p>Hold Time – 保持时间，数据在时钟沿之后必须保持稳定的时间长度</p>
+<h3 id="亚稳态"><a href="#亚稳态" class="headerlink" title="亚稳态"></a>亚稳态</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-45.png"></p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-46.png"></p>
+<h3 id="Negative-hold-time"><a href="#Negative-hold-time" class="headerlink" title="Negative hold time"></a>Negative hold time</h3><p>建立时间总是正的，但保持时间可以为正值、零，甚至负值<br>• 某些触发器可能需要set-reset-enable或者scan-enable功能，或者其它<br>原因，使得触发器第一个传输门前存在部分组合逻辑<br>• 这些额外的组合逻辑会在输入数据D到第一个传输门的路径中引入额<br>外的延迟，此额外的延迟可能使得保持时间为正、零或者负</p>
+<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-47.png"></p>
+]]></content>
+      <categories>
+        <category>notes</category>
+      </categories>
+      <tags>
+        <tag>SoC</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>笨办法学C</title>
+    <url>/2024/04/19/%E7%AC%A8%E5%8A%9E%E6%B3%95%E5%AD%A6C/</url>
+    <content><![CDATA[<h1 id="Learn-C-the-hard-way"><a href="#Learn-C-the-hard-way" class="headerlink" title="Learn C the hard way"></a>Learn C the hard way</h1><h2 id="C语法"><a href="#C语法" class="headerlink" title="C语法"></a>C语法</h2><p>略</p>
+<h2 id="一些技巧"><a href="#一些技巧" class="headerlink" title="一些技巧"></a>一些技巧</h2><h3 id="语法糖"><a href="#语法糖" class="headerlink" title="语法糖"></a>语法糖</h3><p>使用宏定义构建语法糖。<br><code>&quot;语法糖&quot;是一种编程术语，用来描述那些没有给编程语言添加新功能，但是可以使代码更易读或易写的语法。这些语法通过提供更加方便、简洁的编写方式，使得程序员能够更加快速、更加直观地表达程序设计的意图。 在C语言中，也存在一些语法糖。例如，数组的下标运算就是一种语法糖。例如，array[i]实际上就是*(array + i)的简化写法。另一个例子是for循环，它实际上可以使用while循环和一些额外的语句来实现，但for循环提供了一种更加简洁、易读的方式来编写循环。 虽然语法糖可以使代码更简洁、易读，但并不会影响程序的功能或效率。使用或不使用语法糖，都不会影响程序的运行结果。</code></p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 语法糖, 写入obj-&gt;_(N), 等价于 obj-&gt;proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> _(N) proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NEW(T, N) Object_new(sizeof(T), T##Proto, N)</span></span><br></pre></td></tr></table></figure>
+
+
+<h3 id="assert宏"><a href="#assert宏" class="headerlink" title="assert宏"></a>assert宏</h3><p>&lt;assert.h&gt; 是 C 语言的一个标准库，主要提供了一个名为 assert 的宏，用于在程序开发和调试过程中进行条件测试。<br>assert 宏允许程序员在代码中插入诊断信息。如果在运行时，assert 的条件测试失败（即，测试的表达式结果为假），那么程序会立即终止，并显示一条错误消息。这条消息通常包括文件名、源代码行号以及测试失败的表达式。</p>
+<p>例如：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> Person *<span class="title function_">Person_create</span><span class="params">(<span class="type">char</span> *name, <span class="type">int</span> age, <span class="type">int</span> height, <span class="type">int</span> weight)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Person</span> *<span class="title">who</span> =</span> <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> Person));</span><br><span class="line">    assert(who != <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    who-&gt;name = strdup(name);</span><br><span class="line">    who-&gt;age = age;</span><br><span class="line">    who-&gt;height = height;</span><br><span class="line">    who-&gt;weight = weight;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> who;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这里使用assert宏来检查内存是否被成功分配。</p>
+<h3 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h3><p>众所周知C不支持面向对象，但是可以通过一些技巧实现类似继承的功能：</p>
+<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//定义一个基类 Object</span></span><br><span class="line"><span class="comment">//注意这里使用了函数指针，从而可以实现函数重载</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">char</span> *description;</span><br><span class="line">    <span class="type">int</span> (*init)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*describe)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*destroy)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> *(*move)(<span class="type">void</span> *self, Direction direction);</span><br><span class="line">    <span class="type">int</span> (*attack)(<span class="type">void</span> *self, <span class="type">int</span> damage);</span><br><span class="line">&#125; Object;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//基类的构造函数</span></span><br><span class="line"><span class="type">void</span> *<span class="title function_">Object_new</span><span class="params">(<span class="type">size_t</span> size, Object proto, <span class="type">char</span> *description)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// setup the default functions in case they aren&#x27;t set</span></span><br><span class="line">    <span class="keyword">if</span>(!proto.init) proto.init = Object_init;</span><br><span class="line">    <span class="keyword">if</span>(!proto.describe) proto.describe = Object_describe;</span><br><span class="line">    <span class="keyword">if</span>(!proto.destroy) proto.destroy = Object_destroy;</span><br><span class="line">    <span class="keyword">if</span>(!proto.attack) proto.attack = Object_attack;</span><br><span class="line">    <span class="keyword">if</span>(!proto.move) proto.move = Object_move;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// this seems weird, but we can make a struct of one size,</span></span><br><span class="line">    <span class="comment">// then point a different pointer at it to &quot;cast&quot; it</span></span><br><span class="line">    Object *el = <span class="built_in">calloc</span>(<span class="number">1</span>, size);</span><br><span class="line">    *el = proto;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// copy the description over</span></span><br><span class="line">    el-&gt;description = strdup(description);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// initialize it with whatever init we were given</span></span><br><span class="line">    <span class="keyword">if</span>(!el-&gt;init(el)) &#123;</span><br><span class="line">        <span class="comment">// looks like it didn&#x27;t initialize properly</span></span><br><span class="line">        el-&gt;destroy(el);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// all done, we made an object of any type</span></span><br><span class="line">        <span class="keyword">return</span> el;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//对每个需要继承基类的子类，用以下方法定义：</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Map</span> &#123;</span></span><br><span class="line">    Object proto;</span><br><span class="line">    Room *start;</span><br><span class="line">    Room *location;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//指定需要重载的方法：</span></span><br><span class="line">Object MapProto = &#123;</span><br><span class="line">    .init = Map_init,</span><br><span class="line">    .move = Map_move,</span><br><span class="line">    .attack = Map_attack</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//使用之前的语法糖进行初始化：</span></span><br><span class="line">Map *game = NEW(Map, <span class="string">&quot;The Hall of the Minotaur.&quot;</span>);</span><br></pre></td></tr></table></figure>
+
+]]></content>
+      <categories>
+        <category>notes</category>
+      </categories>
+      <tags>
+        <tag>Programming Language</tag>
       </tags>
   </entry>
   <entry>
@@ -780,215 +1102,6 @@ RISC：(Reduced Instruction Set Computer)精简指令集计算机  代表：MIPS
       </tags>
   </entry>
   <entry>
-    <title>SoC设计方法</title>
-    <url>/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/</url>
-    <content><![CDATA[<h1 id="SoC设计方法"><a href="#SoC设计方法" class="headerlink" title="SoC设计方法"></a>SoC设计方法</h1><h2 id="Soc设计概述及流程"><a href="#Soc设计概述及流程" class="headerlink" title="Soc设计概述及流程"></a>Soc设计概述及流程</h2><h3 id="什么是SoC"><a href="#什么是SoC" class="headerlink" title="什么是SoC?"></a>什么是SoC?</h3><p>半导体产业模式及其基本分工：<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image.png" alt="半导体产业链"></p>
-<h4 id="SoC的基本概念："><a href="#SoC的基本概念：" class="headerlink" title="SoC的基本概念："></a>SoC的基本概念：</h4><pre><code>SoC(System on Chip)：系统级芯片，片上系统
-</code></pre>
-<p>SoC的诞生是集成电路领域发展的必然趋势。SoC的应用场景：<br>➢高性能计算<br>➢智能手机<br>➢汽车主控<br>➢物联网设备</p>
-<h4 id="SoC的优势"><a href="#SoC的优势" class="headerlink" title="SoC的优势"></a>SoC的优势</h4><ol>
-<li>有利于复杂系统的集成</li>
-<li>缩短设计时间</li>
-<li>可靠性更高</li>
-<li>延迟更低(内部连线短，传输延迟更小。内部晶体管阻抗低，较小的门延迟)</li>
-<li>低能耗</li>
-<li>低成本（IP复用）</li>
-</ol>
-<h4 id="SoC发展的挑战"><a href="#SoC发展的挑战" class="headerlink" title="SoC发展的挑战"></a>SoC发展的挑战</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-1.png" alt="设计成本"></p>
-<ol>
-<li><p>随着工艺节点的迭代，研发费用指数上升。</p>
-</li>
-<li><p>软硬件功能的划分（通用vs专用）<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-2.png" alt="不同划分带来不同成本占比"></p>
-</li>
-<li><p>复杂性提升导致的验证难度提升</p>
-</li>
-<li><p>制造成本高（7nm工艺下，$400mm^2$的芯片良率只有大约55%），设计错误不可接受</p>
-</li>
-</ol>
-<h4 id="新型SoC-Chiplet"><a href="#新型SoC-Chiplet" class="headerlink" title="新型SoC: Chiplet"></a>新型SoC: Chiplet</h4><p>芯粒(Chiplet):将功能丰富面积较大的裸片（die）拆分成多个芯粒（chiplet）通过先进封装组合在一起形成一个系统芯片</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-3.png"></p>
-<h4 id="SoC设计总结"><a href="#SoC设计总结" class="headerlink" title="SoC设计总结"></a>SoC设计总结</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-4.png"></p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-5.png"></p>
-<h3 id="SoC设计流程"><a href="#SoC设计流程" class="headerlink" title="SoC设计流程"></a>SoC设计流程</h3><p>SoC系统是软件和硬件的结合，需要综合评估系统的性能，设计相应的硬件和软件架构：</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-6.png" alt="SoC的软硬件协同设计流程"></p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-7.png" alt="SoC的软件设计流程"></p>
-<h4 id="SoC的硬件设计流程"><a href="#SoC的硬件设计流程" class="headerlink" title="SoC的硬件设计流程"></a>SoC的硬件设计流程</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-8.png" alt="SoC硬件设计流程-前端部分"></p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-9.png" alt="SoC硬件设计流程-后端部分"></p>
-<p>步骤基本可以分为： </p>
-<ol>
-<li><strong>设计规范（spec）</strong>：确定芯片的顶层架构，规格参数，划分模块定义</li>
-<li>模块设计与IP复用，顶端集成</li>
-<li>前仿真：验证设计逻辑的正确性</li>
-<li>验证</li>
-<li>逻辑综合：代码翻译为电路（理想器件）</li>
-<li>静态时序分析：检查设计是否符合时序要求，有无违例</li>
-</ol>
-<p>其中电路的抽象层次如下：</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-19.png"></p>
-<p>分别为：</p>
-<ol>
-<li>系统级</li>
-<li>RTL级</li>
-<li>门级(gate level)</li>
-<li>集体管级(transistor level)</li>
-<li>版图级 (lay-out level)</li>
-</ol>
-<h3 id="静态时序分析"><a href="#静态时序分析" class="headerlink" title="静态时序分析"></a>静态时序分析</h3><h4 id="setup-time-建立时间"><a href="#setup-time-建立时间" class="headerlink" title="setup time 建立时间"></a>setup time 建立时间</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-10.png" alt="建立时间"></p>
-<p>在时钟信号到来之前，数据需要提前一段时间准备好。这个时间称为建立时间</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-11.png" alt="建立时间与时钟周期的关系"></p>
-<p>如图，$t_{pcq}$指从时钟信号变化(50%)开始，到q端信号变化所需的时间(由寄存器本身的特性决定)；</p>
-<p>$t_{pd}$是组合逻辑的传输延迟。</p>
-<p>由于在下一个时钟到来之前，下一级寄存器的输入数据应当准备好，因此有：<br>$T_c \geq t_{pcq} + t_{pd} + t_{setup}$</p>
-<h4 id="hold-time-保持时间"><a href="#hold-time-保持时间" class="headerlink" title="hold time 保持时间"></a>hold time 保持时间</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-12.png" alt="保持时间"></p>
-<p>在时钟信号变化之后，输入如数据不能立马跳变，而是需要保持原来的值一定时间，保证数据被完全写入寄存器。这个时间称为保持时间。</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-13.png" alt="保持时间的时序约束"></p>
-<p>如图，对于理想时钟，clk总是同时到达。</p>
-<p>$t_{ccq}$是时钟信号变化（50%）后，q1变化的时间。 </p>
-<p>$t_{cd}$是组合逻辑的传播延时，则从时钟变化后，经过$t_{ccq}+t_{cd}$的时间，D2的数据会发生变化。</p>
-<p>按照保持时间的定义，需满足：</p>
-<p>$t_{ccq}+t_{cd} \geq t_{hold}$</p>
-<h4 id="recovery-removal-time"><a href="#recovery-removal-time" class="headerlink" title="recovery&#x2F;removal time"></a>recovery&#x2F;removal time</h4><p>异步电路的复位信号，需要满足的时序关系：</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-14.png" alt="alt text"></p>
-<h4 id="时钟偏斜-time-skew"><a href="#时钟偏斜-time-skew" class="headerlink" title="时钟偏斜 time skew"></a>时钟偏斜 time skew</h4><p>理论上clk对每个寄存器的clk端都应该相同，但实际上时钟到达每个元件的时间会有偏差，这个偏差称作time skew<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-15.png" alt="alt text"></p>
-<p>可以通过插入buffer的办法尽量消除时钟偏向(时钟树综合)</p>
-<h4 id="data-arrival-time-和-clk-arrival-time"><a href="#data-arrival-time-和-clk-arrival-time" class="headerlink" title="data arrival time 和 clk arrival  time"></a>data arrival time 和 clk arrival  time</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-16.png" alt="data arrival time"></p>
-<p>分析第二个寄存器的D端，数据到达需要经过：</p>
-<ol>
-<li>时钟启动时间(launch edge)</li>
-<li>clk1相对于时钟源的延迟$T_{clk1}$</li>
-<li>寄存器的内部延迟（时钟变化到数据变化需要的时间）$T_{co}$</li>
-<li>组合逻辑的数据延迟 $T_{data}$</li>
-</ol>
-<p>分析第二个寄存器的时钟到达时间：<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-17.png" alt="clk arrival time"></p>
-<ol>
-<li>时钟启动时间(launch edge)</li>
-<li>clk2相对于时钟源的延迟$T_{clk2}$</li>
-</ol>
-<p>根据建立时间，数据需要提前于时钟到达，并保持稳定：</p>
-<p>$data\  required\  time（setup）  &#x3D; clk\  arrival \ time - t_{setup} - setup\ uncertainty$</p>
-<p>根据保持时间的定义，在时钟到达后，数据需要保持稳定一段时间：</p>
-<p>$data\  required\  time（hold）  &#x3D; clk\  arrival \ time + t_{hold} + hold\ uncertainty$</p>
-<h4 id="时间裕量-time-slack"><a href="#时间裕量-time-slack" class="headerlink" title="时间裕量 time slack"></a>时间裕量 time slack</h4><p>对建立时间来说，由于数据应该提前到达，并保持一定时间的裕量，有：</p>
-<p>$data \ arrival \ time(setup) + setup \ slack &#x3D; data \ required \ time$<br>$setup \ slack &#x3D; data \ required \ time - data \ arrival \ time \<br>  &#x3D;  clk\  arrival \ time - data \ arrival \ time - t_{setup} - setup\ uncertainty  $</p>
-<p>set up slack应当大于0，才能保证时序正确。</p>
-<p>对保持时间，时钟到达后数据需要保持一定的时间裕量，有：<br>$ data \ required \ time(hold) + hold \ slack &#x3D;data \ arrival \ time$</p>
-<p>$hold \ slack &#x3D; data \ arrival \ time - data \ required \ time(hold)\<br> &#x3D;data \ arrival \ time -  clk\  arrival \ time - t_{hold} - hold\ uncertainty$</p>
-<h4 id="例"><a href="#例" class="headerlink" title="例"></a>例</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-18.png"></p>
-<p>计算最大工作频率。 考虑建立时间，使 setup slack为0：</p>
-<p>$T{clk_1}+ T_{co} + T_{data} + T_{setup} &#x3D;T_{c} + T_{clk2}$</p>
-<p>$f_{max} &#x3D; \frac{1}{T_{co} + T_{data} + T_{setup} + T{clk_1} - T_{clk2}}$</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-20.png"></p>
-<h2 id="SoC架构"><a href="#SoC架构" class="headerlink" title="SoC架构"></a>SoC架构</h2><h3 id="SoC架构概述"><a href="#SoC架构概述" class="headerlink" title="SoC架构概述"></a>SoC架构概述</h3><p>一个典型的SoC架构如下图：<br><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-21.png"></p>
-<p>SoC的同样遵循冯诺依曼架构，分别包括：</p>
-<ol>
-<li>中央处理器(计算，控制)</li>
-<li>存储系统</li>
-<li>总线</li>
-<li>外设 (I&#x2F;O)</li>
-<li>协处理器(可选，用于异构计算)</li>
-</ol>
-<h3 id="中央处理器CPU"><a href="#中央处理器CPU" class="headerlink" title="中央处理器CPU"></a>中央处理器CPU</h3><p>略</p>
-<h3 id="系统总线"><a href="#系统总线" class="headerlink" title="系统总线"></a>系统总线</h3><p>在SoC（System-on-a-Chip）系统中，总线是用来连接各个组件和模块，实现数据、地址和控制信号的传输。</p>
-<p>常见的总线包括ARM公司的AMBA（advanced microcontroller Bus Architecture）, 包括：</p>
-<ol>
-<li>AHB (Advanced High-performance Bus)</li>
-<li>AXI (Advanced eXtensibleInterface)</li>
-<li>APB (Advanced Peripheral Bus)</li>
-</ol>
-<h4 id="APB总线协议"><a href="#APB总线协议" class="headerlink" title="APB总线协议"></a>APB总线协议</h4><p>(待补充)</p>
-<h4 id="AHB总线协议"><a href="#AHB总线协议" class="headerlink" title="AHB总线协议"></a>AHB总线协议</h4><p>(待补充)</p>
-<h4 id="AXI总线协议"><a href="#AXI总线协议" class="headerlink" title="AXI总线协议"></a>AXI总线协议</h4><p>(待补充)</p>
-<h3 id="接口控制模块"><a href="#接口控制模块" class="headerlink" title="接口控制模块"></a>接口控制模块</h3><p>SoC一般包含多种不同的串&#x2F;并接口，常见的有:</p>
-<ol>
-<li>SPI</li>
-<li>UART</li>
-<li>USB</li>
-<li>PCIe</li>
-</ol>
-<p>此外还包括：</p>
-<ol>
-<li>中断控制器(Interrupt Controller, INTC)</li>
-<li>实时时钟(Real Time Clock, RTC) 、Timer、Watchdog</li>
-<li>功耗管理模块(Power Management Controller, PMC)</li>
-</ol>
-<p>等功能模块。</p>
-<h4 id="串-并行通信接口"><a href="#串-并行通信接口" class="headerlink" title="串&#x2F;并行通信接口"></a>串&#x2F;并行通信接口</h4><h5 id="串行-解串器"><a href="#串行-解串器" class="headerlink" title="串行&#x2F;解串器"></a>串行&#x2F;解串器</h5><h5 id="PCIe-Peripheral-Component-Interconnect-Express"><a href="#PCIe-Peripheral-Component-Interconnect-Express" class="headerlink" title="PCIe (Peripheral Component Interconnect Express)"></a>PCIe (Peripheral Component Interconnect Express)</h5><h5 id="SPI-Serial-Peripheral-Interface"><a href="#SPI-Serial-Peripheral-Interface" class="headerlink" title="SPI (Serial Peripheral Interface)"></a>SPI (Serial Peripheral Interface)</h5><h5 id="UART-Universal-Asynchronous-Receiver-Transmitter"><a href="#UART-Universal-Asynchronous-Receiver-Transmitter" class="headerlink" title="UART (Universal Asynchronous Receiver&#x2F;Transmitter)"></a>UART (Universal Asynchronous Receiver&#x2F;Transmitter)</h5><h5 id="USB-Universal-Serial-Bus"><a href="#USB-Universal-Serial-Bus" class="headerlink" title="USB (Universal Serial Bus)"></a>USB (Universal Serial Bus)</h5><h4 id="中断控制模块"><a href="#中断控制模块" class="headerlink" title="中断控制模块"></a>中断控制模块</h4><p>(待补充)</p>
-<h4 id="时钟外设"><a href="#时钟外设" class="headerlink" title="时钟外设"></a>时钟外设</h4><p>(待补充)</p>
-<h4 id="功耗管理模块"><a href="#功耗管理模块" class="headerlink" title="功耗管理模块"></a>功耗管理模块</h4><p>(待补充)</p>
-<h2 id="Lecture-3-系统级建模"><a href="#Lecture-3-系统级建模" class="headerlink" title="Lecture 3 系统级建模"></a>Lecture 3 系统级建模</h2><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-22.png"></p>
-<p>在传统的top-down设计流程中，其余环节都可以比较好的形式化，量化，然而顶层的功能需求定义等工作还是依赖文档和设计者对于文档的理解。</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-23.png"></p>
-<p>通过加强系统级建模，可以更好的克服非形式化手段带来的不精确性，有效将需求转化为产品。</p>
-<h3 id="系统级建模ELS"><a href="#系统级建模ELS" class="headerlink" title="系统级建模ELS"></a>系统级建模ELS</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-24.png"></p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-25.png"></p>
-<p>通过更高层次的建模来提高开发效率</p>
-<p>ELS功能：</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-26.png"></p>
-<h4 id="ELS设计阶段"><a href="#ELS设计阶段" class="headerlink" title="ELS设计阶段"></a>ELS设计阶段</h4><p>ELS设计分为3个阶段：</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-27.png"></p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-28.png"></p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-29.png"></p>
-<h3 id="ELS设计模型"><a href="#ELS设计模型" class="headerlink" title="ELS设计模型"></a>ELS设计模型</h3><h4 id="事物级建模"><a href="#事物级建模" class="headerlink" title="事物级建模"></a>事物级建模</h4><p>事务指模块之间的数据和事件的交互。数据交换可以是一个或多个字，<br>或者是一种数据结构。而诸如同步或者中断等则属于事件的交互<br>•事务级建模的核心概念是在一个系统建模过程中将运算功能和通信功<br>能分开，模块之间的通信通过函数调用来实现</p>
-<p>与寄存器传输级模型相比较，事务级建模可以减少事件和信息的处理，<br>所需的程序代码更少，执行速度更快<br>• 根据实际需要提供足够的设计精度，根据描述系统精度的不同，事务<br>级模型可以分为三种：<br>• 没有时序信息的模型<br>• 周期近似的模型<br>• 周期精确的模型</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-30.png"></p>
-<h4 id="ELS设计语言"><a href="#ELS设计语言" class="headerlink" title="ELS设计语言"></a>ELS设计语言</h4><p>业界获得较多支持和应用较为广泛的语言是SystemVerilog和SystemC<br>SystemVerilog是在Verilog上的扩展，吸收了C&#x2F;C++中的一些特性，可以实<br>现和C的仿真。由于是在Verilog上的扩展，SystemVerilog的优势在于基于<br>时钟的建模能力和验证能力。但在TLM的抽象上还存在一些不足，如缺少<br>抽象的数据类型<br>• 更为成功的是SystemC，SystemC是OSCI推出的基于C++扩展的描述语言。<br>是一种可以完成电子系统从软件到硬件的全部建模过程的语言。在目前的<br>设计中软件开发占到设计任务的60%-90%，基于C++扩展的语言SystemC<br>比从HDL扩展的语言有更加有利的发展趋势。SystemC完全支持TLM建模，<br>而且OSCI已经提出了TLM建模的标准。而其他语言目前还没有完全支持<br>TLM建模。</p>
-<h2 id="Lecture-4-SoC验证"><a href="#Lecture-4-SoC验证" class="headerlink" title="Lecture 4 SoC验证"></a>Lecture 4 SoC验证</h2><p>设计验证(Verification)的目的是确认设计的功能正确性和性能（速度和功耗等）满足设计要求，贯穿于设计的整个过程。</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-31.png"></p>
-<p>随着系统复杂的的提高，bug的数量也在提高，而找出bug的代价更大。</p>
-<h3 id="SoC验证方法学"><a href="#SoC验证方法学" class="headerlink" title="SoC验证方法学"></a>SoC验证方法学</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-32.png"></p>
-<p>根据验证的方式可以分为：</p>
-<p>Formal,Simulation,Emulation,Protyping</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-33.png"></p>
-<p>从方式来分类可以分解基于仿真的验证和基于形式的验证2大类。</p>
-<p>基于仿真的方法需要设置输入向量和预期结果，然后进行结果对比。</p>
-<h3 id="事件驱动的仿真-simulation"><a href="#事件驱动的仿真-simulation" class="headerlink" title="事件驱动的仿真 simulation"></a>事件驱动的仿真 simulation</h3><p>时间驱动的仿真，将各个时间节点发生的时间进行归类，然后以特定顺序调用，以此模拟真实的系统。</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-34.png"></p>
-<h4 id="代码覆盖率和功能覆盖率"><a href="#代码覆盖率和功能覆盖率" class="headerlink" title="代码覆盖率和功能覆盖率"></a>代码覆盖率和功能覆盖率</h4><p>(参考SV课程中的内容)</p>
-<h4 id="仿真simulation和模拟emulation的区别"><a href="#仿真simulation和模拟emulation的区别" class="headerlink" title="仿真simulation和模拟emulation的区别"></a>仿真simulation和模拟emulation的区别</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-35.png"></p>
-<p>核心在于emulation采取一套不同的硬件系统来验证功能</p>
-<p>Emulation的问题在于成本过高。</p>
-<h3 id="形式化验证"><a href="#形式化验证" class="headerlink" title="形式化验证"></a>形式化验证</h3><p>可以达到100%覆盖率<br>仅适用于小尺寸的有限状态系统</p>
-<p>对于类似soc这样的复杂系统，其输入空间的组合近似无穷大，如果不用形式验证的方法，很难穷尽所有的输入可能。</p>
-<h4 id="形式化验证的分类"><a href="#形式化验证的分类" class="headerlink" title="形式化验证的分类"></a>形式化验证的分类</h4><p>主要分为模型检查和等价性检查。</p>
-<p>其中等价性检查又分为LEC(logic equivalence)和SEC(sequential equivalence)</p>
-<h4 id="基于AI和深度学习的验证"><a href="#基于AI和深度学习的验证" class="headerlink" title="基于AI和深度学习的验证"></a>基于AI和深度学习的验证</h4><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-36.png"></p>
-<h3 id="测试平台搭建"><a href="#测试平台搭建" class="headerlink" title="测试平台搭建"></a>测试平台搭建</h3><h3 id="SoC混合信号验证"><a href="#SoC混合信号验证" class="headerlink" title="SoC混合信号验证"></a>SoC混合信号验证</h3><h2 id="Lecture5-逻辑综合"><a href="#Lecture5-逻辑综合" class="headerlink" title="Lecture5 逻辑综合"></a>Lecture5 逻辑综合</h2><p>gtech: 与工艺无关的门级网表</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-37.png"></p>
-<h3 id="逻辑综合要解决的问题"><a href="#逻辑综合要解决的问题" class="headerlink" title="逻辑综合要解决的问题"></a>逻辑综合要解决的问题</h3><p> 单的综合只需要将RTL读入综合软件并elaborate即可得到门级网表，但<br>这并不代表综合真正成功<br>• 对于同步逻辑电路，综合成功表示综合后的电路中，触发器等时序逻辑部<br>件能在正确的时间(时钟沿)得到正确的数据，即满足时序要求，同时需要满<br>足扇出、负载等约束<br>• 触发器正确读取数据的关键<br>• 数据在时钟沿之前稳定足够的时间，即数据不要到达太晚，应满足建立时间(setup<br>time)要求<br>• 数据在时钟沿之后稳定足够的时间，即数据不能到达太早，应满足保持时间(hold<br>time)要求<br>• 时钟沿会在正确的时刻出现，即时钟质量要满足要求<br>• 可简单认为综合主要是为了保证建立时间、保持时间、时钟这几项要求</p>
-<h3 id="Synopsys-DC-综合流程"><a href="#Synopsys-DC-综合流程" class="headerlink" title="Synopsys DC 综合流程"></a>Synopsys DC 综合流程</h3><ol>
-<li>set library</li>
-<li>Read design</li>
-<li>Defign environment </li>
-<li>Sent design constraints</li>
-<li>Select compile strategy</li>
-<li>Optimize the design</li>
-<li>Analyze and resolve design problems</li>
-<li>save design data</li>
-</ol>
-<h3 id="CCS-模型"><a href="#CCS-模型" class="headerlink" title="CCS 模型"></a>CCS 模型</h3><p>CCS模型即复合电流源模型Composite Current Source，精度可达HSpice的2%以内，但CCS库尺寸比NLDM库大一个数量级。</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-38.png"></p>
-<h3 id="无法综合的部分"><a href="#无法综合的部分" class="headerlink" title="无法综合的部分"></a>无法综合的部分</h3><p>类似memory之类的模型无法由逻辑综合直接得到，而是需要专用工具或使用成型IP：</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-39.png"></p>
-<h3 id="需要约束的时序路径"><a href="#需要约束的时序路径" class="headerlink" title="需要约束的时序路径"></a>需要约束的时序路径</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-40.png"></p>
-<h3 id="电路优化"><a href="#电路优化" class="headerlink" title="电路优化"></a>电路优化</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-41.png"></p>
-<h3 id="高层次综合HLS"><a href="#高层次综合HLS" class="headerlink" title="高层次综合HLS"></a>高层次综合HLS</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-42.png"></p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-43.png"></p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-44.png"></p>
-<h2 id="Lecture-6-STA"><a href="#Lecture-6-STA" class="headerlink" title="Lecture 6 STA"></a>Lecture 6 STA</h2><h3 id="建立时间和保持时间"><a href="#建立时间和保持时间" class="headerlink" title="建立时间和保持时间"></a>建立时间和保持时间</h3><p>Setup Time – 建立时间，数据在时钟沿之前必须保持稳定的时间长度</p>
-<p>Hold Time – 保持时间，数据在时钟沿之后必须保持稳定的时间长度</p>
-<h3 id="亚稳态"><a href="#亚稳态" class="headerlink" title="亚稳态"></a>亚稳态</h3><p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-45.png"></p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-46.png"></p>
-<h3 id="Negative-hold-time"><a href="#Negative-hold-time" class="headerlink" title="Negative hold time"></a>Negative hold time</h3><p>建立时间总是正的，但保持时间可以为正值、零，甚至负值<br>• 某些触发器可能需要set-reset-enable或者scan-enable功能，或者其它<br>原因，使得触发器第一个传输门前存在部分组合逻辑<br>• 这些额外的组合逻辑会在输入数据D到第一个传输门的路径中引入额<br>外的延迟，此额外的延迟可能使得保持时间为正、零或者负</p>
-<p><img src="/2024/02/20/SoC%E8%AE%BE%E8%AE%A1%E6%96%B9%E6%B3%95-1/image-47.png"></p>
-]]></content>
-      <categories>
-        <category>notes</category>
-      </categories>
-      <tags>
-        <tag>SoC</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>LearnPerl</title>
     <url>/2024/05/08/LearnPerl/</url>
     <content><![CDATA[<h1 id="Learn-Perl"><a href="#Learn-Perl" class="headerlink" title="Learn Perl"></a>Learn Perl</h1><h2 id="ch2-标量数据"><a href="#ch2-标量数据" class="headerlink" title="ch2 标量数据"></a>ch2 标量数据</h2><h3 id="第一个Helloword-程序"><a href="#第一个Helloword-程序" class="headerlink" title="第一个Helloword 程序"></a>第一个Helloword 程序</h3><figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">print</span> <span class="string">&quot;Hello, world!\n&quot;</span>;</span><br></pre></td></tr></table></figure>
@@ -1299,7 +1412,7 @@ RISC：(Reduced Instruction Set Computer)精简指令集计算机  代表：MIPS
 <p>如果需要匹配一个真正的点号，则需要用反斜杠进行转义：<code>\.</code></p>
 <p>同理为了匹配反斜杠，需要转义反斜杠本身：<code>\\</code>。</p>
 <p><code> \N</code>也能达到和点号相同的效果。</p>
-<h3 id="量词"><a href="#量词" class="headerlink" title="量词"></a>量词</h3><p><code>?</code>表示前面的符号出现1次或0次。<br><code>*</code>表示前面的符号出现0次或多次。</p>
+<h3 id="量词-，-m-n"><a href="#量词-，-m-n" class="headerlink" title="量词 *,?, +，{m,n}"></a>量词 <code>*</code>,<code>?</code>, <code>+</code>，<code>&#123;m,n&#125;</code></h3><p><code>?</code>表示前面的符号出现1次或0次。<br><code>*</code>表示前面的符号出现0次或多次。</p>
 <p><code>.*</code>星号与点号搭配，即可表示出现0次或任意次数的任意字符，即可以匹配除了换号外的任意字符串。</p>
 <figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#! /usr/bin/perl</span></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">22</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span>( &lt;STDIN&gt; ) &#123;</span><br><span class="line"> <span class="keyword">chomp</span>;</span><br><span class="line"> <span class="keyword">if</span> ( <span class="regexp">/.*/</span> ) &#123;</span><br><span class="line"> <span class="keyword">print</span> <span class="string">&quot;\tMatches\n&quot;</span>;</span><br><span class="line"> &#125;</span><br><span class="line"> <span class="keyword">else</span> &#123;</span><br><span class="line"> <span class="keyword">print</span> <span class="string">&quot;\tDoesn&#x27;t match\n&quot;</span>;</span><br><span class="line"> &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
 <p><img src="/2024/05/08/LearnPerl/image-61.png"></p>
@@ -1315,7 +1428,7 @@ RISC：(Reduced Instruction Set Computer)精简指令集计算机  代表：MIPS
 <figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">$_ = <span class="string">&quot;yabbbba dabbba doo.&quot;</span>;</span><br><span class="line"><span class="keyword">if</span> (<span class="regexp">/ab&#123;3,&#125;a/</span>) &#123;</span><br><span class="line"> <span class="keyword">print</span> <span class="string">&quot;It matched!\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
 <p>关于量词的总结如下：<br><img src="/2024/05/08/LearnPerl/image-62.png"></p>
-<h3 id="模式分组"><a href="#模式分组" class="headerlink" title="模式分组"></a>模式分组</h3><p>量词只能作用于它前面一项，如果想让量词作用于多个字符，则可以通过小括号<code>()</code>对量词进行模式分组。</p>
+<h3 id="模式分组"><a href="#模式分组" class="headerlink" title="模式分组 ()"></a>模式分组 <code>()</code></h3><p>量词只能作用于它前面一项，如果想让量词作用于多个字符，则可以通过小括号<code>()</code>对量词进行模式分组。</p>
 <p>通过反斜杠加数字的办法可以和括号配合实现反向引用<code>\1</code>。反向引用是指前面的括号中匹配到的模式。例如：</p>
 <figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">$_ = <span class="string">&quot;abba&quot;</span>;</span><br><span class="line"><span class="keyword">if</span> (<span class="regexp">/(.)\1/</span>) &#123; <span class="comment"># matches &#x27;bb&#x27;</span></span><br><span class="line"> <span class="keyword">print</span> <span class="string">&quot;It matched same character next to itself!\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
@@ -1332,7 +1445,123 @@ RISC：(Reduced Instruction Set Computer)精简指令集计算机  代表：MIPS
 <p>同时，引用的编号也可以为负数，相对反向引用，即基于当前位置向前计数得到的捕获模式：</p>
 <figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> v5.<span class="number">10</span>;</span><br><span class="line"><span class="keyword">my</span> $str = <span class="string">&quot;abcabc&quot;</span>;</span><br><span class="line"><span class="keyword">if</span> ($str =~ <span class="regexp">/(a)(b)(c)\g&#123;-3&#125;\g&#123;-2&#125;\g&#123;-1&#125;/</span>) &#123;</span><br><span class="line">    <span class="keyword">print</span> <span class="string">&quot;Match found!\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
-<h3 id="选择"><a href="#选择" class="headerlink" title="选择"></a>选择</h3>]]></content>
+<h3 id="选择符"><a href="#选择符" class="headerlink" title="选择符 |"></a>选择符 <code>|</code></h3><p>竖线代表或操作，左右2边的字符串将会分别参与匹配。</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">foreach</span> ( <span class="string">qw(fred betty barney dino)</span> ) &#123;</span><br><span class="line"> <span class="keyword">if</span> ( <span class="regexp">/fred|barney/</span> ) &#123;</span><br><span class="line"> <span class="keyword">print</span> <span class="string">&quot;$_ matched\n&quot;</span>;</span><br><span class="line"> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>由于竖线会把前后当作2个独立的字符串进行处理，因此有时需要配合括号使用：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">$_ = <span class="string">&quot;Fred Rubble&quot;</span>;</span><br><span class="line"><span class="keyword">if</span>( <span class="regexp">/Fred|Wilma Flintstone/</span> ) &#123; <span class="comment"># unexpectedly matches</span></span><br><span class="line"> <span class="keyword">print</span> <span class="string">&quot;It matched!\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>改为：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">$_ = <span class="string">&quot;Fred Rubble&quot;</span>;</span><br><span class="line"><span class="keyword">if</span>( <span class="regexp">/(Fred|Wilma) Flintstone/</span> ) &#123; <span class="comment"># doesn&#x27;t match</span></span><br><span class="line"> <span class="keyword">print</span> <span class="string">&quot;It matched!\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="字符集"><a href="#字符集" class="headerlink" title="字符集[]"></a>字符集<code>[]</code></h3><p>方括号中的单个字符会被逐一匹配。</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">$_ = <span class="string">&quot;Bamm-Bamm&quot;</span>;</span><br><span class="line"><span class="keyword">if</span> (<span class="regexp">/Bamm-?[Bb]amm/</span>) &#123;</span><br><span class="line"> <span class="keyword">print</span> <span class="string">&quot;The string has Bamm-Bamm\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>此外可以用<code>^</code>符号进行补集操作，可以匹配除了方括号中字符的其他所有字符。</p>
+<p><img src="/2024/05/08/LearnPerl/image-63.png"></p>
+<h3 id="字符集的简写"><a href="#字符集的简写" class="headerlink" title="字符集的简写"></a>字符集的简写</h3><p>对于一些高频出现的字符集，正则表达式为其设计了简写模式：</p>
+<p><img src="/2024/05/08/LearnPerl/image-64.png"></p>
+<h3 id="Unicode-特性"><a href="#Unicode-特性" class="headerlink" title="Unicode 特性"></a>Unicode 特性</h3><p>对于一些Unicode字符集，perl使用<code>\p&#123;&#125;</code>的方式进行描述，详见<br><a href="https://perldoc.perl.org/perluniprops">https://perldoc.perl.org/perluniprops</a></p>
+<h3 id="锚点Anchor"><a href="#锚点Anchor" class="headerlink" title="锚点Anchor"></a>锚点Anchor</h3><p><code>\A</code>用于强调必须从字符串开头进行匹配，<code>\z</code>强调必须匹配词尾。<br><code>\Z</code>强调除了必须匹配词尾以外，还可以加上一个空行符或不加。</p>
+<h3 id="词锚-word-anchor"><a href="#词锚-word-anchor" class="headerlink" title="词锚 word anchor"></a>词锚 word anchor</h3><p><code>\b</code>用于锚定单词的词尾。例如</p>
+<p><code>/\bfred\b/</code>可以匹配fred本身，而不会匹配Alfred 或fredstone。</p>
+<p><code>\b</code>可以锚定所有<code>\w</code>可以表示的字符的结尾，即数字，字母和下划线。而<code>\B</code>锚定所有<code>\W</code>可以表示的字符的结尾，即上述内容的补集。</p>
+<h3 id="习题-4"><a href="#习题-4" class="headerlink" title="习题"></a>习题</h3><p><img src="/2024/05/08/LearnPerl/image-65.png"></p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">22</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (&lt;&gt;)&#123;</span><br><span class="line">    <span class="keyword">chomp</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="regexp">/fred/</span>)&#123;</span><br><span class="line">        <span class="keyword">say</span> <span class="string">&quot;$_ match&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">say</span> <span class="string">&quot;$_ don&#x27;t match!&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/2024/05/08/LearnPerl/image-67.png"></p>
+<p><img src="/2024/05/08/LearnPerl/image-66.png"></p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">22</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (&lt;&gt;)&#123;</span><br><span class="line">    <span class="keyword">chomp</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="regexp">/[Ff]red/</span>)&#123;</span><br><span class="line">        <span class="keyword">say</span> <span class="string">&quot;$_ match&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">say</span> <span class="string">&quot;$_ don&#x27;t match!&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/2024/05/08/LearnPerl/image-68.png"></p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">22</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (&lt;&gt;)&#123;</span><br><span class="line">    <span class="keyword">chomp</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="regexp">/\./</span>)&#123;</span><br><span class="line">        <span class="keyword">say</span> <span class="string">&quot;$_ match&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">say</span> <span class="string">&quot;$_ don&#x27;t match!&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2024/05/08/LearnPerl/image-69.png"></p>
+<p><img src="/2024/05/08/LearnPerl/image-70.png"></p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">22</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (&lt;&gt;)&#123;</span><br><span class="line">    <span class="keyword">chomp</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="regexp">/\A[A-Z]+[a-z]+/</span>)&#123;</span><br><span class="line">        <span class="keyword">say</span> <span class="string">&quot;$_ match&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">say</span> <span class="string">&quot;$_ don&#x27;t match!&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2024/05/08/LearnPerl/image-71.png"></p>
+<p><img src="/2024/05/08/LearnPerl/image-72.png"></p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">22</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (&lt;&gt;)&#123;</span><br><span class="line">    <span class="keyword">chomp</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="regexp">/(.+)\g&#123;-1&#125;/</span>)&#123;</span><br><span class="line">        <span class="keyword">say</span> <span class="string">&quot;$_ match&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">say</span> <span class="string">&quot;$_ don&#x27;t match!&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2024/05/08/LearnPerl/image-73.png"></p>
+<p><img src="/2024/05/08/LearnPerl/image-74.png"></p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">22</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (&lt;&gt;)&#123;</span><br><span class="line">    <span class="keyword">chomp</span>;</span><br><span class="line">    <span class="keyword">if</span> (<span class="regexp">/fred/</span>&amp;&amp;<span class="regexp">/wilma/</span>)&#123;</span><br><span class="line">        <span class="keyword">say</span> <span class="string">&quot;$_ match&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">say</span> <span class="string">&quot;$_ don&#x27;t match!&quot;</span>;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="ch8-正则表达式进行匹配"><a href="#ch8-正则表达式进行匹配" class="headerlink" title="ch8 正则表达式进行匹配"></a>ch8 正则表达式进行匹配</h2><p>perl用m来进行匹配操作，之前的双斜杠<code>//</code>写法其实是匹配的简写。m像qw一样，可以搭配任意成对的括号使用。</p>
+<p>例如<code>m(fred), m\&lt;fred&gt;, m&#123;fred&#125;, or m[fred]</code></p>
+<h3 id="i进行大小写无关的匹配"><a href="#i进行大小写无关的匹配" class="headerlink" title="/i进行大小写无关的匹配"></a><code>/i</code>进行大小写无关的匹配</h3><p>当使用i进行修饰时，会忽略字符串的大小写区别。</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">print</span> <span class="string">&quot;Would you like to play a game? &quot;</span>;</span><br><span class="line"><span class="keyword">chomp</span>($_ = &lt;STDIN&gt;);</span><br><span class="line"><span class="keyword">if</span> (<span class="regexp">/yes/i</span>) &#123; <span class="comment"># case-insensitive match</span></span><br><span class="line"> <span class="keyword">print</span> <span class="string">&quot;In that case, I recommend that you go bowling.\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>注意修饰符是放在外面的，和被引用的正则表达式不再同一个括号里。因此同样可以写成：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">22</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">print</span> <span class="string">&quot;Would you like to play a game? &quot;</span>;</span><br><span class="line"><span class="keyword">chomp</span>($_ = &lt;STDIN&gt;);</span><br><span class="line"><span class="keyword">if</span> (<span class="regexp">m&#123;yes&#125;i</span>) &#123; <span class="comment"># case-insensitive match</span></span><br><span class="line"> <span class="keyword">print</span> <span class="string">&quot;In that case, I recommend that you go bowling.\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="s进行任意字符的匹配"><a href="#s进行任意字符的匹配" class="headerlink" title="/s进行任意字符的匹配"></a><code>/s</code>进行任意字符的匹配</h3><p>由于<code>.*</code>可以匹配除了换行符以外的任意字符串，因此为了处理字符串中的换行符，可以用<code>s</code>进行修饰。</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">$_ = <span class="string">&quot;I saw Barney\ndown at the bowling alley\nwith Fred\nlast night.\n&quot;</span>;</span><br><span class="line"><span class="keyword">if</span> (<span class="regexp">/Barney.*Fred/s</span>) &#123;</span><br><span class="line"> <span class="keyword">print</span> <span class="string">&quot;That string mentions Fred after Barney!\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><code>\s</code>的修饰会让所有<code>.</code>变得能匹配换行符。如果想让表达式中的个别<code>.</code>保持对换行符的不匹配，可以换成<code>[^\n]</code>或<code>\N</code>。</p>
+<h3 id="x加入空白符"><a href="#x加入空白符" class="headerlink" title="/x加入空白符"></a><code>/x</code>加入空白符</h3><p>使用<code>x</code>修饰可以使得表达式中的变量，使得其中的空白字符可以被忽略。这样做可以增加正则表达式的可读性。</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line">/-?[<span class="number">0</span>-<span class="number">9</span>]+\.?[<span class="number">0</span>-<span class="number">9</span>]*<span class="regexp">/ # what is this doing?</span></span><br><span class="line"><span class="regexp">/</span> -? [<span class="number">0</span>-<span class="number">9</span>]+ \.? [<span class="number">0</span>-<span class="number">9</span>]* /<span class="keyword">x</span> <span class="comment"># a little better</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="修饰符号的组合"><a href="#修饰符号的组合" class="headerlink" title="修饰符号的组合"></a>修饰符号的组合</h3><p>可以将多个修饰符号组合使用，只需要将他们一起放在正则表达式的末尾：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="regexp">/barney.*fred/is</span>) &#123; <span class="comment"># both /i and /s</span></span><br><span class="line"> <span class="keyword">print</span> <span class="string">&quot;That string mentions Fred after Barney!\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="regexp">m&#123;</span></span><br><span class="line"><span class="regexp"> barney # the little guy</span></span><br><span class="line"><span class="regexp"> .* # anything in between</span></span><br><span class="line"><span class="regexp"> fred # the loud guy</span></span><br><span class="line"><span class="regexp">&#125;six</span>) &#123; <span class="comment"># all three of /s and /i and /x</span></span><br><span class="line"> <span class="keyword">print</span> <span class="string">&quot;That string mentions Fred after Barney!\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="选择一种字符的解释方式"><a href="#选择一种字符的解释方式" class="headerlink" title="选择一种字符的解释方式"></a>选择一种字符的解释方式</h3><p><code>/a</code>用于表示ascii,<code>/u</code>用于表示unicode，<code>/l</code>表示Local，会选择本地的字符集进行匹配。</p>
+<h3 id="m进行行匹配"><a href="#m进行行匹配" class="headerlink" title="\m进行行匹配"></a><code>\m</code>进行行匹配</h3><p>使用<code>m</code>配合词首锚位<code>^</code>和词尾锚位<code>$</code>,可以实现对各行的匹配而非单整个字符串的匹配。</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">22</span>;</span><br><span class="line"></span><br><span class="line">$_ = <span class="string">&#x27;This is a wilma line</span></span><br><span class="line"><span class="string">barney is on another line</span></span><br><span class="line"><span class="string">but this ends in fred</span></span><br><span class="line"><span class="string">and a final dino line&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span>(<span class="regexp">/fred$/m</span>)&#123;</span><br><span class="line">    <span class="keyword">say</span> <span class="string">&quot;match success!&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>同样的，如果不想开启多行匹配，最好还是使用<code>\A</code>和<code>\Z</code>。</p>
+<h3 id="其他操作"><a href="#其他操作" class="headerlink" title="其他操作"></a>其他操作</h3><h4 id="绑定操作符"><a href="#绑定操作符" class="headerlink" title="绑定操作符 =~"></a>绑定操作符 <code>=~</code></h4><p>绑定操作符 <code>=~</code>会高速perl用右边的正则表达式来匹配左边的字符串。例如：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">my</span> $some_other = <span class="string">&quot;I dream of betty rubble.&quot;</span>;</span><br><span class="line"><span class="keyword">if</span> ($some_other =~ <span class="regexp">/\brub/</span>) &#123;</span><br><span class="line">    <span class="keyword">print</span> <span class="string">&quot;Aye, there&#x27;s the rub.\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="捕获变量"><a href="#捕获变量" class="headerlink" title="捕获变量"></a>捕获变量</h4><p>perl 用<code>$1</code>,<code>$2</code>这样的变量来描述正则表达式捕获的变量。每个括号捕获到的事物会被像这样编号。注意捕获变量和反向引用的区别：</p>
+<p><img src="/2024/05/08/LearnPerl/image-75.png"></p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">22</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">$_ = <span class="string">&quot;Hello there, neighbor&quot;</span>;</span><br><span class="line"><span class="keyword">if</span> (<span class="regexp">/\s([a-zA-Z]+),/</span>) &#123; <span class="comment"># capture the word between space and comma</span></span><br><span class="line"> <span class="keyword">print</span> <span class="string">&quot;the word was $1\n&quot;</span>; <span class="comment"># the word was there</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">$_ = <span class="string">&quot;Hello there, neighbor&quot;</span>;</span><br><span class="line"><span class="keyword">if</span> (<span class="regexp">/(\S+) (\S+), (\S+)/</span>) &#123;</span><br><span class="line"> <span class="keyword">print</span> <span class="string">&quot;words were $1 $2 $3\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/2024/05/08/LearnPerl/image-76.png"></p>
+<p>被捕获的字符串也可以为空字符串，注意空字符串和undef是不同的。</p>
+<h4 id="捕获变量的存续期"><a href="#捕获变量的存续期" class="headerlink" title="捕获变量的存续期"></a>捕获变量的存续期</h4><p>当一个新的匹配发生时，捕获变量会覆盖之前捕获的值，而未发生捕获时，上一个值将一直存在。</p>
+<h4 id="不捕获圆括号"><a href="#不捕获圆括号" class="headerlink" title="不捕获圆括号 (?:)"></a>不捕获圆括号 <code>(?:)</code></h4><p>在左括号前面加上问号和冒号，可以让圆括号只用来分组而不用来捕获。</p>
+<p>例如：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="regexp">/(bronto)?saurus (steak|burger)/</span>) &#123;</span><br><span class="line"> <span class="keyword">print</span> <span class="string">&quot;Fred wants a $2\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>前面的bronto不管有没有，都会占用捕获变量$1的位置，而加上相应的不捕获符号后，可以忽略第一个括号的内容：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">if</span> (<span class="regexp">/(?:bronto)?saurus (steak|burger)/</span>) &#123;</span><br><span class="line"> <span class="keyword">print</span> <span class="string">&quot;Fred wants a $1\n&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h4 id="命名捕获"><a href="#命名捕获" class="headerlink" title="命名捕获"></a>命名捕获</h4><p>如果有需要修改正则表达式的情况，添加一个括号有可能使整个正则表达式乱套，出来提供不捕获标记<code>?:</code>的写法之外，perl还支持对捕获变量之间命名，方便记忆。</p>
+<p>使用<code> (?&lt;LABEL&gt;PATTERN)</code>的写法来为捕获变量命名</p>
+<p>之后就可以使用<code>$+&#123;name1&#125;</code>和<code>$+&#123;name2&#125;</code>的形式来引用这些捕获的变量。</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> v5.<span class="number">10</span>;</span><br><span class="line"> <span class="keyword">my</span> $names = <span class="string">&#x27;Fred or Barney&#x27;</span>;</span><br><span class="line"> <span class="keyword">if</span> ( $names =~ <span class="regexp">m/((?&lt;name2&gt;\w+) (and|or) (?&lt;name1&gt;\w+))/</span> ) &#123;</span><br><span class="line">  <span class="keyword">say</span> <span class="string">&quot;I saw $+&#123;name1&#125; and $+&#123;name2&#125;&quot;</span>;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p>捕获之后，可是使用<code>\g&#123;label&#125;</code>和<code>\k&lt;label&gt;</code>这样的写法来对其进行反向引用。</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">use</span> v5.<span class="number">10</span>;</span><br><span class="line"><span class="keyword">my</span> $names = <span class="string">&#x27;Fred Flintstone and Wilma Flintstone&#x27;</span>;</span><br><span class="line"><span class="keyword">if</span> ( $names =~ <span class="regexp">m/(?&lt;last_name&gt;\w+) and \w+ \k&lt;last_name&gt;/</span> ) &#123;</span><br><span class="line"> <span class="keyword">say</span> <span class="string">&quot;I saw $+&#123;last_name&#125;&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h4 id="自动捕获变量"><a href="#自动捕获变量" class="headerlink" title="自动捕获变量"></a>自动捕获变量</h4><p>5.10版本以后，perl用<code>$&#123;^PREMATCH&#125;,  $&#123;^MATCH&#125;, $&#123;^POSTMATCH&#125;</code>这三个变量来表示正则表达式中的自动捕获变量。</p>
+ <figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"></span><br><span class="line"> <span class="keyword">use</span> v5.<span class="number">10</span>;</span><br><span class="line"> <span class="keyword">if</span> (<span class="string">&quot;Hello there, neighbor&quot;</span> =~ <span class="regexp">/\s(\w+),/p</span>) &#123;</span><br><span class="line">  <span class="keyword">print</span> <span class="string">&quot;That actually matched &#x27;<span class="subst">$&#123;^MATCH&#125;</span>&#x27;.\n&quot;</span>;</span><br><span class="line"> &#125;</span><br><span class="line"></span><br><span class="line"> <span class="keyword">if</span> (<span class="string">&quot;Hello there, neighbor&quot;</span> =~ <span class="regexp">/\s(\w+),/p</span>) &#123;</span><br><span class="line">  <span class="keyword">print</span> <span class="string">&quot;That was (<span class="subst">$&#123;^PREMATCH&#125;</span>)(<span class="subst">$&#123;^MATCH&#125;</span>)(<span class="subst">$&#123;^POSTMATCH&#125;</span>).\n&quot;</span>;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p> <img src="/2024/05/08/LearnPerl/image-77.png"></p>
+<h4 id="优先级"><a href="#优先级" class="headerlink" title="优先级"></a>优先级</h4><p>各类匹配变量的优先级如下表：</p>
+<p><img src="/2024/05/08/LearnPerl/image-78.png"></p>
+<h4 id="测试程序"><a href="#测试程序" class="headerlink" title="测试程序"></a>测试程序</h4><p>一个简单的测试正则表达式匹配结果的程序：</p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="keyword">while</span> (&lt;&gt;) &#123;           <span class="comment"># take one input line at a time</span></span><br><span class="line"> <span class="keyword">chomp</span>;</span><br><span class="line"> <span class="keyword">if</span> (<span class="regexp">/YOUR_PATTERN_GOES_HERE/</span>) &#123;</span><br><span class="line">   <span class="keyword">print</span> <span class="string">&quot;Matched: |$`&lt;$&amp;&gt;$&#x27;|\n&quot;</span>;  <span class="comment"># the special match vars</span></span><br><span class="line"> &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">   <span class="keyword">print</span> <span class="string">&quot;No match: |$_|\n&quot;</span>;</span><br><span class="line"> &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h3 id="习题-5"><a href="#习题-5" class="headerlink" title="习题"></a>习题</h3><p><img src="/2024/05/08/LearnPerl/image-79.png"></p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">22</span>;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (&lt;&gt;) &#123;           <span class="comment"># take one input line at a time</span></span><br><span class="line">  <span class="keyword">chomp</span>;</span><br><span class="line">  <span class="keyword">if</span> (<span class="regexp">/match/</span>) &#123;</span><br><span class="line">    <span class="keyword">print</span> <span class="string">&quot;Matched: |$`&lt;$&amp;&gt;$&#x27;|\n&quot;</span>;  <span class="comment"># the special match vars</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">print</span> <span class="string">&quot;No match: |$_|\n&quot;</span>;</span><br><span class="line">  &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2024/05/08/LearnPerl/image-80.png"></p>
+<p><img src="/2024/05/08/LearnPerl/image-81.png"></p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">22</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (&lt;&gt;) &#123;           <span class="comment"># take one input line at a time</span></span><br><span class="line">  <span class="keyword">chomp</span>;</span><br><span class="line">  <span class="keyword">if</span> (<span class="regexp">/\w*a\s/</span>) &#123;</span><br><span class="line">    <span class="keyword">print</span> <span class="string">&quot;Matched: |$`&lt;$&amp;&gt;$&#x27;|\n&quot;</span>;  <span class="comment"># the special match vars</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">print</span> <span class="string">&quot;No match: |$_|\n&quot;</span>;</span><br><span class="line">  &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p><img src="/2024/05/08/LearnPerl/image-82.png"></p>
+<p><img src="/2024/05/08/LearnPerl/image-83.png"></p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">22</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (&lt;&gt;) &#123;           <span class="comment"># take one input line at a time</span></span><br><span class="line">  <span class="keyword">chomp</span>;</span><br><span class="line">  <span class="keyword">if</span> (<span class="regexp">/(\w*a)\s/</span>) &#123;</span><br><span class="line">    <span class="keyword">print</span> <span class="string">&quot;\$1 contains  $1\n&quot;</span>;  <span class="comment"># the special match vars</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">print</span> <span class="string">&quot;No match: |$_|\n&quot;</span>;</span><br><span class="line">  &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2024/05/08/LearnPerl/image-84.png"></p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">22</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (&lt;&gt;) &#123;           <span class="comment"># take one input line at a time</span></span><br><span class="line">  <span class="keyword">chomp</span>;</span><br><span class="line">  <span class="keyword">if</span> (<span class="regexp">/(?&lt;words&gt;\w*a)\s/</span>) &#123;</span><br><span class="line">    <span class="keyword">print</span> <span class="string">&quot;&#x27;words&#x27; contains  $+&#123;words&#125;\n&quot;</span>;  <span class="comment"># the special match vars</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">print</span> <span class="string">&quot;No match: |$_|\n&quot;</span>;</span><br><span class="line">  &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2024/05/08/LearnPerl/image-85.png"></p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">22</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (&lt;&gt;) &#123;           <span class="comment"># take one input line at a time</span></span><br><span class="line">  <span class="keyword">chomp</span>;</span><br><span class="line">  <span class="keyword">if</span> (<span class="regexp">/(?&lt;words&gt;\w*a)(?&lt;appends&gt;(\W|\s)\w&#123;0,4&#125;)/</span>) &#123;</span><br><span class="line">    <span class="keyword">print</span> <span class="string">&quot;&#x27;words&#x27; contains  $+&#123;words&#125;, followed by $+&#123;appends&#125;\n&quot;</span>;  <span class="comment"># the special match vars</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">print</span> <span class="string">&quot;No match: |$_|\n&quot;</span>;</span><br><span class="line">  &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2024/05/08/LearnPerl/image-86.png"></p>
+<p><img src="/2024/05/08/LearnPerl/image-87.png"></p>
+<figure class="highlight perl"><table><tr><td class="code"><pre><span class="line"><span class="comment">#!/usr/bin/perl</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">use</span> v5.<span class="number">22</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> (&lt;&gt;) &#123;           <span class="comment"># take one input line at a time</span></span><br><span class="line">  <span class="keyword">if</span> (<span class="regexp">/([ \t]$)/</span>) &#123;</span><br><span class="line">    <span class="keyword">print</span> <span class="string">&quot;$_ match...\n&quot;</span>;  <span class="comment"># the special match vars</span></span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">print</span> <span class="string">&quot;No match: $_\n&quot;</span>;</span><br><span class="line">  &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>]]></content>
       <categories>
         <category>notes</category>
       </categories>
@@ -2007,8 +2236,8 @@ assert 将 property 应用于实际的硬件设计，以确保在运行时满足
         <category>notes</category>
       </categories>
       <tags>
-        <tag>Programming Language</tag>
         <tag>ICer</tag>
+        <tag>Programming Language</tag>
       </tags>
   </entry>
   <entry>
@@ -2766,119 +2995,6 @@ assert 将 property 应用于实际的硬件设计，以确保在运行时满足
       </categories>
       <tags>
         <tag>ICer</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>CORDIC Algorithm</title>
-    <url>/2024/02/28/CORDIC-Algorithm/</url>
-    <content><![CDATA[<h1 id="Coordinate-Rotation-Dlgital-Computer-CORDIC-算法"><a href="#Coordinate-Rotation-Dlgital-Computer-CORDIC-算法" class="headerlink" title="Coordinate Rotation Dlgital Computer(CORDIC)算法"></a>Coordinate Rotation Dlgital Computer(CORDIC)算法</h1><p>参考：Computer Arithmetic: Algorithm and Hardware Design</p>
-<h2 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h2><h3 id="角度模式"><a href="#角度模式" class="headerlink" title="角度模式"></a>角度模式</h3><p>考虑平面直角坐标系下的旋转，如图：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image.png" alt="basic"></p>
-<p>点$E^{(i)}$旋转$\alpha^{(i)}$后得到了点$E^{(i+1)}$</p>
-<p>那么假设$E^{(i)}$的坐标为：$E^{(i)}$:   $(x^{(i)},y^{(i)})&#x3D;(R^{(i)}cos\theta,R^{(i)}cos\theta)$</p>
-<p>$E^{(i+1)}$的坐标可以表示为：<br>$x^{(i)+1} &#x3D; R^{(i)}cos(\theta+\alpha) &#x3D; x^{(i)}cos\alpha - y^{(i)}sin\alpha \ &#x3D;\frac{ x^{(i)}-y^{(i)}tan\alpha}{\frac{1}{cos\alpha}}\ &#x3D; \frac{ x^{(i)}-y^{(i)}tan\alpha}{(1+tan^2\alpha)^{1&#x2F;2}}$</p>
-<p>同理有：<br>$y^{(i+1)} &#x3D; R^{(i)}sin(\theta+\alpha) &#x3D; x^{(i)}sin\alpha + y^{(i)}cos\alpha \ &#x3D;\frac{ x^{(i)}tan\alpha + y^{(i)} }{\frac{1}{cos\alpha}}\ &#x3D; \frac{  x^{(i)}tan\alpha + y^{(i)}}{(1+tan^2\alpha)^{1&#x2F;2}}$</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-1.png"></p>
-<p>上述公式是一个迭代式，<br>$ z^{(i)}$表示当前旋转之前向量与x轴的夹角，$ z^{(i+1)}$表示在旋转后与x轴的夹角（顺时针为正）。</p>
-<p>现在考虑一种图中的一种伪旋转，对公式2边同时除以$\cos\alpha^{(i)}$,得到$E’^{(i)}$的坐标：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-3.png"><br><img src="/2024/02/28/CORDIC-Algorithm/image-2.png"></p>
-<p>令$x^{(0)}&#x3D;x,  y^{(0)}&#x3D;y,  z^{(0)}&#x3D;z$，则对于一个m次迭代的真旋转，有：<br><img src="/2024/02/28/CORDIC-Algorithm/image-4.png"></p>
-<p>对伪旋转：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-5.png"></p>
-<p>考虑每次迭代的角度选取，如果使$tan\alpha$恰好等于 $2^{-i},i&#x3D;0,1,2,3…$则上式变为：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-6.png"></p>
-<p>其中$d_i \in {−1,1}$ </p>
-<p>则每次真旋转迭代的计算可以通过：1次查表，2次移位，3次加(减)法实现。</p>
-<p>对于伪旋转，由于每次的角度选取是固定值，因此K为常数，K &#x3D; 1.646 760 258 121….</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-7.png"></p>
-<p>考虑计算 $cosz$,可以令$x^{(0)}&#x3D;1,  y^{(0)}&#x3D;0,  \sum\alpha^{(i)}&#x3D;z$此时有：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-10.png"></p>
-<p>如果计算$cos30^\circ$,可以：<br><img src="/2024/02/28/CORDIC-Algorithm/image-8.png"></p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-9.png"></p>
-<p>由于表中的角度表示范围达到了$−99.7^\circ ≤ z ≤ 99.7^\circ$,因此可以通过上述方法加上基本三角变化求出任何角的正余弦值。</p>
-<h3 id="向量模式"><a href="#向量模式" class="headerlink" title="向量模式"></a>向量模式</h3><p>通过令$y\rightarrow 0$,可以计算反三角函数值$tan^{-1}y$,此时，</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-12.png"><br>带入</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-5.png"></p>
-<p>可得<br><img src="/2024/02/28/CORDIC-Algorithm/image-13.png"></p>
-<p>故可以取(1,y),将其旋转到x轴上，此时旋转过的角度即为$tan^{-1}y$</p>
-<h3 id="一个简单的python验证程序"><a href="#一个简单的python验证程序" class="headerlink" title="一个简单的python验证程序"></a>一个简单的python验证程序</h3><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"></span><br><span class="line">lookuptable = &#123;&#125;</span><br><span class="line"></span><br><span class="line">lookuptable[<span class="number">0</span>]=<span class="number">45.0</span></span><br><span class="line">lookuptable[<span class="number">1</span>]=<span class="number">26.5650</span></span><br><span class="line">lookuptable[<span class="number">2</span>]=<span class="number">14.0362</span></span><br><span class="line">lookuptable[<span class="number">3</span>]=<span class="number">7.1250</span></span><br><span class="line">lookuptable[<span class="number">4</span>]=<span class="number">3.5763</span></span><br><span class="line">lookuptable[<span class="number">5</span>]=<span class="number">1.7899</span></span><br><span class="line">lookuptable[<span class="number">6</span>]=<span class="number">0.8951</span></span><br><span class="line">lookuptable[<span class="number">7</span>]=<span class="number">0.4476</span></span><br><span class="line">lookuptable[<span class="number">8</span>]=<span class="number">0.2238</span></span><br><span class="line">lookuptable[<span class="number">9</span>]=<span class="number">0.1119</span></span><br><span class="line">lookuptable[<span class="number">10</span>]=<span class="number">0.0230</span></span><br><span class="line">lookuptable[<span class="number">11</span>]=<span class="number">0.0140</span></span><br><span class="line">lookuptable[<span class="number">12</span>]=<span class="number">0.0070</span></span><br><span class="line">lookuptable[<span class="number">13</span>]=<span class="number">0.0035</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">cordic</span>(<span class="params">value,  mode</span>):</span><br><span class="line">    z = <span class="number">0</span></span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">        x =  <span class="number">0.607252935</span></span><br><span class="line">        y = <span class="number">0.0</span> </span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">1</span>):</span><br><span class="line">        x = <span class="number">1</span></span><br><span class="line">        y = value</span><br><span class="line">        </span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">13</span>):</span><br><span class="line">        <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">            d = np.sign(value)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            d = -np.sign(y)</span><br><span class="line"></span><br><span class="line">        <span class="keyword">if</span>(d==<span class="number">0</span>):d = <span class="number">1</span></span><br><span class="line">        value -= d*lookuptable[i]</span><br><span class="line"></span><br><span class="line">        z -= d*lookuptable[i]</span><br><span class="line"></span><br><span class="line">        temp = x</span><br><span class="line">        x -= d * y * <span class="number">2.0</span>**(-i)</span><br><span class="line">        y +=  d* temp * <span class="number">2.0</span>**(-i)</span><br><span class="line">        <span class="comment"># print(&quot;y:&quot;,y)</span></span><br><span class="line">        <span class="comment"># print(&quot;x:&quot;,x)</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(mode==<span class="number">0</span>):</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;sin:&quot;</span>,y)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;cos:&quot;</span>,x)</span><br><span class="line">    <span class="keyword">else</span>:</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">&quot;theta:&quot;</span>,z)</span><br><span class="line"></span><br><span class="line">cordic(<span class="number">4</span>,<span class="number">1</span>)</span><br></pre></td></tr></table></figure>
-
-<h3 id="复杂度分析"><a href="#复杂度分析" class="headerlink" title="复杂度分析"></a>复杂度分析</h3><p>对一个n位的cordic运算，若采用纯硬件实现，每一位需要1次查表，2次移位，3次加法，其计算复杂度是$O(n)$这个量级的。</p>
-<p>考虑硬件实现，一个最简单的版本是这样的：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-14.png"></p>
-<p>在不考虑优化版本时，图中的加法器可以用串行进位的方式实现，此时，对于k位的操作数，计算需要的时钟周期为$O(k^2)$。</p>
-<h3 id="通用版本"><a href="#通用版本" class="headerlink" title="通用版本"></a>通用版本</h3><p><img src="/2024/02/28/CORDIC-Algorithm/image-15.png"></p>
-<p>CORDIC算法可以被拓展，用于线性和双曲函数的计算。其通用公式为：<br><img src="/2024/02/28/CORDIC-Algorithm/image-17.png"><br><img src="/2024/02/28/CORDIC-Algorithm/image-16.png"></p>
-<p>推理过程如下：<br>参考：（A unified algorithm for elementary functions）</p>
-<p>考虑一个从二维直角坐标系到极坐标的非线性映射：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-18.png"></p>
-<p>其中R是映射后的向量长度，A是其与坐标轴的夹角。</p>
-<p>显然当m取1时，该映射为从直角坐标系到极坐标系的坐标变换。<br>当m取0时， 该变换总是落在一条相同的直线上<br>当m&#x3D;-1时，该变换为落在一条双曲线$x^2-y^2&#x3D;1$上。</p>
-<p>事实上，如果将R看作特定曲线与x轴交点到原点的距离，根据上述定义，总是有：<br>$A &#x3D; \frac{2S}{R^2}$<br><img src="/2024/02/28/CORDIC-Algorithm/image-19.png"></p>
-<p>其中S为变换前的点P与点O,R围成的阴影部分面积。</p>
-<p>如果给出一个迭代式：<br><img src="/2024/02/28/CORDIC-Algorithm/image-20.png"></p>
-<p>其中$\delta_i$时任意值，而m是映射中的参数。那么每次迭代后的点经过非线性映射后，在极坐标下可以表示为：<br><img src="/2024/02/28/CORDIC-Algorithm/image-21.png"></p>
-<p>其中<br><img src="/2024/02/28/CORDIC-Algorithm/image-22.png"></p>
-<p>即每次迭代可以看作是一次旋转和放缩。对n次迭代，最后得到的长度和角度为：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-23.png"></p>
-<p>其中<img src="/2024/02/28/CORDIC-Algorithm/image-24.png"></p>
-<p>如果再定义一个新的变量<br><img src="/2024/02/28/CORDIC-Algorithm/image-25.png"></p>
-<p>则经过n次迭代后的点经过逆映射后，可以得到其在直角坐标系下的坐标：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-26.png"></p>
-<p>同样的，注意到当m&#x3D;1时，该迭代式与之前推出的角度模式下的伪旋转迭代式一模一样。</p>
-<p>而当m&#x3D;0时，分别让$y\rightarrow0$和$z\rightarrow 0$,可以得到如下不同的迭代结果：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-27.png"><br>且在m&#x3D;0时，多轮迭代后的缩放因子为1.</p>
-<p>上述公式说明，直线迭代可以用于计算乘法，除法或直接计算一个乘加、除加操作。</p>
-<p>而对双曲映射，迭代结果分别为：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-28.png"></p>
-<p>其中缩放因子<code>K&#39;=0.8281593609602</code>。</p>
-<p>上述公式说明，双曲映射可以被用来计算双曲正弦，双曲余弦和双曲正切函数。</p>
-<p>另外需要注意的是，对于双曲映射，并不总是收敛的，这是因为对于tan函数，总是有：<br> $tan^{−1}(2^{−(i+1)}) ≥ 0.5tan^{−1}(2^{−i})$</p>
-<p>而同样的关系:放在双曲正切中却并不总是成立。</p>
-<p>$tanh^{−1}(2^{−(i+1)}) ≥ 0.5tanh^{−1}(2^{−i})$</p>
-<p>一个简单的收敛方法为，当迭代次数为:$ i &#x3D; 4, 13, 40, 121, …,3j + 1$时，该次迭代必须再重复一遍。即：<br>1,2,3,4,4,5,6,7,8,9,10,11,12,13,13,14….<br>(收敛性分析在原论文中有比较严格的推导，我懒得手推一遍，这里就不重复了，直接使用其结果)</p>
-<p>计算范围为： <code>With these provisions, convergence in computing  hyperbolic sine and cosine functions is guaranteed for |z| &lt; 1.13 and in the case of the  tanh−1 function, for |y| &lt; 0.81.</code></p>
-<p>此外，以下函数也可以被间接计算出来：<br><img src="/2024/02/28/CORDIC-Algorithm/image-29.png"></p>
-<h3 id="收敛性仿真"><a href="#收敛性仿真" class="headerlink" title="收敛性仿真"></a>收敛性仿真</h3><p>写一个简单的双曲迭代来验证上述方法的收敛性：</p>
-<p>以cosh为例，以下是一段简单的python代码：</p>
-<figure class="highlight python"><table><tr><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> math</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"></span><br><span class="line"><span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">20</span>): </span><br><span class="line">    lookuptable_tanh[i] = math.atanh(<span class="number">2</span>**(-i))</span><br><span class="line">    <span class="built_in">print</span>(math.atanh(<span class="number">2</span>**(-i)))</span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">my_tanh</span>(<span class="params">value</span>):</span><br><span class="line">    k=<span class="number">0.8281593609602</span></span><br><span class="line">    x=<span class="number">1</span>/k</span><br><span class="line">    y=<span class="number">0</span></span><br><span class="line">    <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="number">1</span>,<span class="number">20</span>):</span><br><span class="line">        <span class="keyword">if</span>(value)&gt;<span class="number">0</span>:</span><br><span class="line">            d=<span class="number">1</span></span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            d=-<span class="number">1</span></span><br><span class="line">        </span><br><span class="line">        value = value - d*lookuptable_tanh[i]</span><br><span class="line">        temp=x</span><br><span class="line">        x = x + d*y*<span class="number">2</span>**-i</span><br><span class="line">        y = y + d*temp*<span class="number">2</span>**-i</span><br><span class="line"></span><br><span class="line">        <span class="comment"># if(i==4 or i==13):</span></span><br><span class="line">        <span class="comment">#     if(value)&gt;0:</span></span><br><span class="line">        <span class="comment">#         d=1</span></span><br><span class="line">        <span class="comment">#     else:</span></span><br><span class="line">        <span class="comment">#         d=-1</span></span><br><span class="line">        <span class="comment">#     value = value - d*lookuptable_tanh[i]</span></span><br><span class="line">        <span class="comment">#     temp=x</span></span><br><span class="line">        <span class="comment">#     x = x + d*y*2**-i</span></span><br><span class="line">        <span class="comment">#     y = y + d*temp*2**-i</span></span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_cosh:&quot;</span>,x)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_sinh:&quot;</span>,y)</span><br><span class="line">    <span class="built_in">print</span>(<span class="string">&quot;my_tanh:&quot;</span>,y/x)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span>(x,y,y/x)</span><br><span class="line"></span><br><span class="line">x = np.arange(-<span class="number">1</span>, <span class="number">1</span>, <span class="number">0.01</span>)</span><br><span class="line"><span class="comment"># 计算对应的 cosh 函数值</span></span><br><span class="line">y_numpy = np.cosh(x)</span><br><span class="line"></span><br><span class="line">y_custom=[]</span><br><span class="line"><span class="keyword">for</span> value <span class="keyword">in</span> x:</span><br><span class="line">    y,_,_ = my_tanh(value)</span><br><span class="line">    y_custom.append(y)</span><br><span class="line"></span><br><span class="line"><span class="comment"># 绘制图形</span></span><br><span class="line">plt.plot(x, y_numpy, label=<span class="string">&#x27;numpy.cosh(x)&#x27;</span>)</span><br><span class="line">plt.plot(x, y_custom, label=<span class="string">&#x27;my_cosh(x)&#x27;</span>)</span><br><span class="line">plt.xlabel(<span class="string">&#x27;x&#x27;</span>)</span><br><span class="line">plt.ylabel(<span class="string">&#x27;cosh(x)&#x27;</span>)</span><br><span class="line">plt.title(<span class="string">&#x27;Comparison of cosh(x) functions&#x27;</span>)</span><br><span class="line">plt.legend()</span><br><span class="line">plt.grid(<span class="literal">True</span>)</span><br><span class="line">plt.show()</span><br></pre></td></tr></table></figure>
-
-
-<p>在不用重复第4次和第13次迭代时，结果如下：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-30.png"></p>
-<p>可以看到蓝色线和橙色线不完全重合，局部放大后结果如下：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-31.png"></p>
-<p>取消对应注释，重复第4和第13次迭代，结果如下：</p>
-<p><img src="/2024/02/28/CORDIC-Algorithm/image-32.png"></p>
-<p>可以看到蓝色线和橙色线基本完全重合，局部放大后结果如下：<br><img src="/2024/02/28/CORDIC-Algorithm/image-33.png"></p>
-<h3 id="硬件实现"><a href="#硬件实现" class="headerlink" title="硬件实现"></a>硬件实现</h3>]]></content>
-      <tags>
-        <tag>数字集成电路</tag>
-        <tag>ICer</tag>
-        <tag>Hardware Algorithm</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>笨办法学C</title>
-    <url>/2024/04/19/%E7%AC%A8%E5%8A%9E%E6%B3%95%E5%AD%A6C/</url>
-    <content><![CDATA[<h1 id="Learn-C-the-hard-way"><a href="#Learn-C-the-hard-way" class="headerlink" title="Learn C the hard way"></a>Learn C the hard way</h1><h2 id="C语法"><a href="#C语法" class="headerlink" title="C语法"></a>C语法</h2><p>略</p>
-<h2 id="一些技巧"><a href="#一些技巧" class="headerlink" title="一些技巧"></a>一些技巧</h2><h3 id="语法糖"><a href="#语法糖" class="headerlink" title="语法糖"></a>语法糖</h3><p>使用宏定义构建语法糖。<br><code>&quot;语法糖&quot;是一种编程术语，用来描述那些没有给编程语言添加新功能，但是可以使代码更易读或易写的语法。这些语法通过提供更加方便、简洁的编写方式，使得程序员能够更加快速、更加直观地表达程序设计的意图。 在C语言中，也存在一些语法糖。例如，数组的下标运算就是一种语法糖。例如，array[i]实际上就是*(array + i)的简化写法。另一个例子是for循环，它实际上可以使用while循环和一些额外的语句来实现，但for循环提供了一种更加简洁、易读的方式来编写循环。 虽然语法糖可以使代码更简洁、易读，但并不会影响程序的功能或效率。使用或不使用语法糖，都不会影响程序的运行结果。</code></p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 语法糖, 写入obj-&gt;_(N), 等价于 obj-&gt;proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> _(N) proto.N</span></span><br><span class="line"><span class="meta">#<span class="keyword">define</span> NEW(T, N) Object_new(sizeof(T), T##Proto, N)</span></span><br></pre></td></tr></table></figure>
-
-
-<h3 id="assert宏"><a href="#assert宏" class="headerlink" title="assert宏"></a>assert宏</h3><p>&lt;assert.h&gt; 是 C 语言的一个标准库，主要提供了一个名为 assert 的宏，用于在程序开发和调试过程中进行条件测试。<br>assert 宏允许程序员在代码中插入诊断信息。如果在运行时，assert 的条件测试失败（即，测试的表达式结果为假），那么程序会立即终止，并显示一条错误消息。这条消息通常包括文件名、源代码行号以及测试失败的表达式。</p>
-<p>例如：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="keyword">struct</span> Person *<span class="title function_">Person_create</span><span class="params">(<span class="type">char</span> *name, <span class="type">int</span> age, <span class="type">int</span> height, <span class="type">int</span> weight)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="class"><span class="keyword">struct</span> <span class="title">Person</span> *<span class="title">who</span> =</span> <span class="built_in">malloc</span>(<span class="keyword">sizeof</span>(<span class="keyword">struct</span> Person));</span><br><span class="line">    assert(who != <span class="literal">NULL</span>);</span><br><span class="line"></span><br><span class="line">    who-&gt;name = strdup(name);</span><br><span class="line">    who-&gt;age = age;</span><br><span class="line">    who-&gt;height = height;</span><br><span class="line">    who-&gt;weight = weight;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">return</span> who;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这里使用assert宏来检查内存是否被成功分配。</p>
-<h3 id="继承"><a href="#继承" class="headerlink" title="继承"></a>继承</h3><p>众所周知C不支持面向对象，但是可以通过一些技巧实现类似继承的功能：</p>
-<figure class="highlight c"><table><tr><td class="code"><pre><span class="line"><span class="comment">//定义一个基类 Object</span></span><br><span class="line"><span class="comment">//注意这里使用了函数指针，从而可以实现函数重载</span></span><br><span class="line"><span class="keyword">typedef</span> <span class="class"><span class="keyword">struct</span> &#123;</span></span><br><span class="line">    <span class="type">char</span> *description;</span><br><span class="line">    <span class="type">int</span> (*init)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*describe)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> (*destroy)(<span class="type">void</span> *self);</span><br><span class="line">    <span class="type">void</span> *(*move)(<span class="type">void</span> *self, Direction direction);</span><br><span class="line">    <span class="type">int</span> (*attack)(<span class="type">void</span> *self, <span class="type">int</span> damage);</span><br><span class="line">&#125; Object;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//基类的构造函数</span></span><br><span class="line"><span class="type">void</span> *<span class="title function_">Object_new</span><span class="params">(<span class="type">size_t</span> size, Object proto, <span class="type">char</span> *description)</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="comment">// setup the default functions in case they aren&#x27;t set</span></span><br><span class="line">    <span class="keyword">if</span>(!proto.init) proto.init = Object_init;</span><br><span class="line">    <span class="keyword">if</span>(!proto.describe) proto.describe = Object_describe;</span><br><span class="line">    <span class="keyword">if</span>(!proto.destroy) proto.destroy = Object_destroy;</span><br><span class="line">    <span class="keyword">if</span>(!proto.attack) proto.attack = Object_attack;</span><br><span class="line">    <span class="keyword">if</span>(!proto.move) proto.move = Object_move;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// this seems weird, but we can make a struct of one size,</span></span><br><span class="line">    <span class="comment">// then point a different pointer at it to &quot;cast&quot; it</span></span><br><span class="line">    Object *el = <span class="built_in">calloc</span>(<span class="number">1</span>, size);</span><br><span class="line">    *el = proto;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// copy the description over</span></span><br><span class="line">    el-&gt;description = strdup(description);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// initialize it with whatever init we were given</span></span><br><span class="line">    <span class="keyword">if</span>(!el-&gt;init(el)) &#123;</span><br><span class="line">        <span class="comment">// looks like it didn&#x27;t initialize properly</span></span><br><span class="line">        el-&gt;destroy(el);</span><br><span class="line">        <span class="keyword">return</span> <span class="literal">NULL</span>;</span><br><span class="line">    &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="comment">// all done, we made an object of any type</span></span><br><span class="line">        <span class="keyword">return</span> el;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment">//对每个需要继承基类的子类，用以下方法定义：</span></span><br><span class="line"><span class="class"><span class="keyword">struct</span> <span class="title">Map</span> &#123;</span></span><br><span class="line">    Object proto;</span><br><span class="line">    Room *start;</span><br><span class="line">    Room *location;</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//指定需要重载的方法：</span></span><br><span class="line">Object MapProto = &#123;</span><br><span class="line">    .init = Map_init,</span><br><span class="line">    .move = Map_move,</span><br><span class="line">    .attack = Map_attack</span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="comment">//使用之前的语法糖进行初始化：</span></span><br><span class="line">Map *game = NEW(Map, <span class="string">&quot;The Hall of the Minotaur.&quot;</span>);</span><br></pre></td></tr></table></figure>
-
-]]></content>
-      <categories>
-        <category>notes</category>
-      </categories>
-      <tags>
-        <tag>Programming Language</tag>
       </tags>
   </entry>
 </search>
