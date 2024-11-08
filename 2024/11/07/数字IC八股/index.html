@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"wangxianke123.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="梳理一些数字IC面试的高频常见问题，以及一些手撕代码的题目。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="数字IC八股">
+<meta property="og:url" content="https://wangxianke123.github.io/2024/11/07/%E6%95%B0%E5%AD%97IC%E5%85%AB%E8%82%A1/index.html">
+<meta property="og:site_name" content="花间一壶酒">
+<meta property="og:description" content="梳理一些数字IC面试的高频常见问题，以及一些手撕代码的题目。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/11/07/%E6%95%B0%E5%AD%97IC%E5%85%AB%E8%82%A1/image.png">
+<meta property="article:published_time" content="2024-11-07T07:15:02.000Z">
+<meta property="article:modified_time" content="2024-11-07T09:24:30.828Z">
+<meta property="article:author" content="Wang xianke">
+<meta property="article:tag" content="数字集成电路">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://wangxianke123.github.io/2024/11/07/%E6%95%B0%E5%AD%97IC%E5%85%AB%E8%82%A1/image.png">
+
+<link rel="canonical" href="https://wangxianke123.github.io/2024/11/07/%E6%95%B0%E5%AD%97IC%E5%85%AB%E8%82%A1/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>数字IC八股 | 花间一壶酒</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">花间一壶酒</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">举杯邀明月，对影成三人</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://wangxianke123.github.io/2024/11/07/%E6%95%B0%E5%AD%97IC%E5%85%AB%E8%82%A1/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wang xianke">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="花间一壶酒">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          数字IC八股
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+              
+
+              <time title="创建时间：2024-11-07 15:15:02 / 修改时间：17:24:30" itemprop="dateCreated datePublished" datetime="2024-11-07T15:15:02+08:00">2024-11-07</time>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>2.5k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>5 分钟</span>
+            </span>
+            <div class="post-description">梳理一些数字IC面试的高频常见问题，以及一些手撕代码的题目。</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h1><h2 id="电路"><a href="#电路" class="headerlink" title="电路"></a>电路</h2><h3 id="数字IC设计流程"><a href="#数字IC设计流程" class="headerlink" title="数字IC设计流程"></a>数字IC设计流程</h3><h3 id="跨时钟域传输"><a href="#跨时钟域传输" class="headerlink" title="跨时钟域传输"></a>跨时钟域传输</h3><h3 id="静态时序分析STA"><a href="#静态时序分析STA" class="headerlink" title="静态时序分析STA"></a>静态时序分析STA</h3><h3 id="功耗"><a href="#功耗" class="headerlink" title="功耗"></a>功耗</h3><h3 id="频率"><a href="#频率" class="headerlink" title="频率"></a>频率</h3><h3 id="面积"><a href="#面积" class="headerlink" title="面积"></a>面积</h3><h2 id="体系结构"><a href="#体系结构" class="headerlink" title="体系结构"></a>体系结构</h2><h3 id="经典5级流水线"><a href="#经典5级流水线" class="headerlink" title="经典5级流水线"></a>经典5级流水线</h3><h3 id="cache"><a href="#cache" class="headerlink" title="cache"></a>cache</h3><h3 id="GPGPU架构"><a href="#GPGPU架构" class="headerlink" title="GPGPU架构"></a>GPGPU架构</h3><h3 id="NPU架构"><a href="#NPU架构" class="headerlink" title="NPU架构"></a>NPU架构</h3><h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><h3 id="SV"><a href="#SV" class="headerlink" title="SV"></a>SV</h3><h3 id="UVM"><a href="#UVM" class="headerlink" title="UVM"></a>UVM</h3><h1 id="经典题型"><a href="#经典题型" class="headerlink" title="经典题型"></a>经典题型</h1><h2 id="时钟分频"><a href="#时钟分频" class="headerlink" title="时钟分频"></a>时钟分频</h2><h2 id="波形检测"><a href="#波形检测" class="headerlink" title="波形检测"></a>波形检测</h2><h2 id="异步FIFO"><a href="#异步FIFO" class="headerlink" title="异步FIFO"></a>异步FIFO</h2><h1 id="面试真题"><a href="#面试真题" class="headerlink" title="面试真题"></a>面试真题</h1><h2 id="百度昆仑芯"><a href="#百度昆仑芯" class="headerlink" title="百度昆仑芯"></a>百度昆仑芯</h2><h3 id="词频检测"><a href="#词频检测" class="headerlink" title="词频检测"></a>词频检测</h3><p>题目描述： 使用verilog设计实现一个模块，对长度为byte(8 bits)的单词进行词频检测。假设每周期输入一个单词，共4096个单词,统计每个单词的出现次数，可以不考虑电路的输出。面试时不要求写出代码，只要求给出思路，口头描述电路的构成。</p>
+<p>当时初步回答是，不同单词的编码本身可以看作单词的地址，用这个地址可以将单词分开，不考虑面积的情况下，可以在一个256to1的mux后接256个counter,每收到一个单词，将对应位置的counter+1。面试官进一步追问，如果考虑面积开销，应该怎样优化。回答：counter换成memory或register file），然后增加一级流水线，每收到一个单词将对应位置的数据读出，然后将该数据+1，下个周期将该数据写回，同时读入一个新的数据。如果连续2个周期出现同一个单词的地址冲突，考虑数据的forwarding,将来不及写回的数据作为读数直接+1。</p>
+<p>参考设计代码如下：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> wordcounts (</span><br><span class="line">    <span class="keyword">input</span> [<span class="number">7</span>:<span class="number">0</span>] data_in,</span><br><span class="line">    <span class="keyword">input</span>   clk,</span><br><span class="line">    <span class="keyword">input</span>   rst_n</span><br><span class="line">);</span><br><span class="line">    <span class="keyword">reg</span> [<span class="number">12</span>:<span class="number">0</span>]    word_counts;</span><br><span class="line">    <span class="keyword">wire</span> [<span class="number">12</span>:<span class="number">0</span>]  read_data[<span class="number">255</span>:<span class="number">0</span>];</span><br><span class="line">    <span class="keyword">wire</span> [<span class="number">255</span>:<span class="number">0</span>]   write_en;</span><br><span class="line">    <span class="keyword">genvar</span>  i;</span><br><span class="line">   </span><br><span class="line">    <span class="keyword">generate</span></span><br><span class="line">        <span class="keyword">for</span> (i=<span class="number">0</span> ;i&lt;<span class="number">256</span>;i=i+<span class="number">1</span> ) <span class="keyword">begin</span></span><br><span class="line">            <span class="keyword">assign</span> write_en[i] = (data_in == i[<span class="number">7</span>:<span class="number">0</span>]);</span><br><span class="line">            sim_dfflr <span class="variable">#(13) counter(word_counts+ 1&#x27;b1,  read_data[i] ,write_en[i],clk,rst_n)</span>;</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">    <span class="keyword">endgenerate</span></span><br><span class="line">    <span class="keyword">assign</span> word_counts = read_data[data_in];</span><br><span class="line">    </span><br><span class="line"><span class="keyword">endmodule</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">module</span> sim_dfflr #(</span><br><span class="line">    N=<span class="number">8</span></span><br><span class="line">) (</span><br><span class="line">    <span class="keyword">input</span>[N-<span class="number">1</span>:<span class="number">0</span>] din,</span><br><span class="line">    <span class="keyword">output</span> <span class="keyword">reg</span>[N-<span class="number">1</span>:<span class="number">0</span>] qout,</span><br><span class="line">    <span class="keyword">input</span> load_en,</span><br><span class="line">    <span class="keyword">input</span> clk,</span><br><span class="line">    <span class="keyword">input</span> rst_n</span><br><span class="line">);</span><br><span class="line">    <span class="keyword">always</span> @(<span class="keyword">posedge</span> clk <span class="keyword">or</span> <span class="keyword">negedge</span> rst_n) <span class="keyword">begin</span></span><br><span class="line">        <span class="keyword">if</span>(!rst_n)</span><br><span class="line">            qout &lt;= &#123;N&#123;<span class="number">1&#x27;b0</span>&#125;&#125;;</span><br><span class="line">        <span class="keyword">else</span> <span class="keyword">if</span> (load_en)</span><br><span class="line">            qout &lt;= din;</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"><span class="keyword">endmodule</span></span><br></pre></td></tr></table></figure>
+
+<p>思路是先定义寄存器，然后使用generate语句生成一个寄存器堆。对应的data_in作为load_en信号使能对应位置寄存器进行写操作。这样可以不用考虑流水线问题。</p>
+<p>对应的testbench如下：</p>
+<figure class="highlight verilog"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">module</span> tb_top;</span><br><span class="line"></span><br><span class="line">    <span class="meta">`<span class="keyword">define</span> CLK_PERIOD  10</span></span><br><span class="line">    <span class="keyword">logic</span> clk;</span><br><span class="line">    <span class="keyword">logic</span> rst_n;</span><br><span class="line">    <span class="keyword">logic</span>[<span class="number">7</span>:<span class="number">0</span>] data_in;</span><br><span class="line">    <span class="keyword">class</span> word;</span><br><span class="line">        <span class="keyword">rand</span> <span class="keyword">byte</span> data;</span><br><span class="line">        <span class="keyword">logic</span> [<span class="number">12</span>:<span class="number">0</span>]  counts[<span class="number">256</span>];</span><br><span class="line"></span><br><span class="line">        <span class="keyword">function</span> counts_init;</span><br><span class="line">            <span class="keyword">foreach</span> (<span class="keyword">this</span><span class="variable">.counts</span>[i])<span class="keyword">begin</span></span><br><span class="line">                counts[i] = <span class="number">13&#x27;b0</span>;</span><br><span class="line">            <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">endfunction</span></span><br><span class="line"></span><br><span class="line">        <span class="keyword">task</span>  data_gen(<span class="keyword">input</span> clk, <span class="keyword">output</span>[<span class="number">7</span>:<span class="number">0</span>] data_out);</span><br><span class="line">            <span class="keyword">this</span><span class="variable">.randomize</span>();</span><br><span class="line">            data_out = <span class="keyword">this</span><span class="variable">.data</span>;</span><br><span class="line">            <span class="built_in">$display</span>(<span class="string">&quot;generate ramdom words：%c &quot;</span>,<span class="keyword">this</span><span class="variable">.data</span>);</span><br><span class="line">            counts[data_out] += <span class="number">13&#x27;b1</span>;</span><br><span class="line">        <span class="keyword">endtask</span> <span class="comment">//</span></span><br><span class="line">    <span class="keyword">endclass</span> </span><br><span class="line"></span><br><span class="line">    word test_word = <span class="keyword">new</span>();</span><br><span class="line"></span><br><span class="line">    <span class="keyword">initial</span> <span class="keyword">begin</span></span><br><span class="line">        clk=<span class="number">1&#x27;b0</span>;</span><br><span class="line">        rst_n = <span class="number">1&#x27;b0</span>;</span><br><span class="line">        #<span class="number">1</span> rst_n = <span class="number">1&#x27;b1</span>;</span><br><span class="line">        # (<span class="number">4097</span>*`CLK_PERIOD)</span><br><span class="line">        <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>;i&lt;<span class="number">256</span> ;i++ ) <span class="keyword">begin</span></span><br><span class="line">            <span class="keyword">if</span> (test_word<span class="variable">.counts</span>[i]==u_wordcounts<span class="variable">.read_data</span>[i])</span><br><span class="line">                <span class="built_in">$display</span>(<span class="string">&quot;word %2h count right,number:%d&quot;</span>,i,test_word<span class="variable">.counts</span>[i]);</span><br><span class="line">            <span class="keyword">else</span> <span class="built_in">$display</span>(<span class="string">&quot;word %2h count wrong! generate %d, counts %d&quot;</span>,i,test_word<span class="variable">.counts</span>[i],u_wordcounts<span class="variable">.read_data</span>[i]);</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="built_in">$finish</span>();</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">initial</span> <span class="keyword">begin</span></span><br><span class="line">            <span class="keyword">forever</span> <span class="variable">#(`CLK_PERIOD/2)</span> clk = ~clk;  </span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">initial</span> <span class="keyword">begin</span></span><br><span class="line">        test_word<span class="variable">.counts_init</span>();  </span><br><span class="line">        <span class="built_in">$display</span>(<span class="string">&quot;wait for reset&quot;</span>);</span><br><span class="line">        @(<span class="keyword">posedge</span> rst_n);  </span><br><span class="line">        <span class="built_in">$display</span>(<span class="string">&quot;reset success&quot;</span>);</span><br><span class="line">        <span class="keyword">fork</span></span><br><span class="line">        <span class="keyword">forever</span> <span class="keyword">begin</span></span><br><span class="line">            @(<span class="keyword">posedge</span> clk);</span><br><span class="line">            test_word<span class="variable">.data_gen</span>(clk, data_in);</span><br><span class="line">        <span class="keyword">end</span></span><br><span class="line">        <span class="keyword">join_none</span></span><br><span class="line">        </span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">initial</span> <span class="keyword">begin</span></span><br><span class="line">        $fsdbDumpfile(<span class="string">&quot;tb_top.fsdb&quot;</span>);</span><br><span class="line">        $fsdbDumpvars(<span class="number">0</span>, tb_top, <span class="string">&quot;+mda&quot;</span>);</span><br><span class="line">    <span class="keyword">end</span></span><br><span class="line"></span><br><span class="line">    wordcounts u_wordcounts(</span><br><span class="line">        <span class="variable">.data_in</span> (data_in ),</span><br><span class="line">        <span class="variable">.clk</span>     (clk     ),</span><br><span class="line">        <span class="variable">.rst_n</span>   (rst_n   )</span><br><span class="line">    );</span><br><span class="line"></span><br><span class="line"><span class="keyword">endmodule</span> </span><br></pre></td></tr></table></figure>
+
+<p>测试结果如下：<br><img src="/2024/11/07/%E6%95%B0%E5%AD%97IC%E5%85%AB%E8%82%A1/image.png"></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF/" rel="tag"># 数字集成电路</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/06/10/%E9%AB%98%E7%AD%89%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF%E8%AE%BE%E8%AE%A1/" rel="prev" title="高等数字集成电路设计">
+      <i class="fa fa-chevron-left"></i> 高等数字集成电路设计
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86"><span class="nav-number">1.</span> <span class="nav-text">基础知识</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%B5%E8%B7%AF"><span class="nav-number">1.1.</span> <span class="nav-text">电路</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%B0%E5%AD%97IC%E8%AE%BE%E8%AE%A1%E6%B5%81%E7%A8%8B"><span class="nav-number">1.1.1.</span> <span class="nav-text">数字IC设计流程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B7%A8%E6%97%B6%E9%92%9F%E5%9F%9F%E4%BC%A0%E8%BE%93"><span class="nav-number">1.1.2.</span> <span class="nav-text">跨时钟域传输</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%99%E6%80%81%E6%97%B6%E5%BA%8F%E5%88%86%E6%9E%90STA"><span class="nav-number">1.1.3.</span> <span class="nav-text">静态时序分析STA</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8A%9F%E8%80%97"><span class="nav-number">1.1.4.</span> <span class="nav-text">功耗</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A2%91%E7%8E%87"><span class="nav-number">1.1.5.</span> <span class="nav-text">频率</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%9D%A2%E7%A7%AF"><span class="nav-number">1.1.6.</span> <span class="nav-text">面积</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BD%93%E7%B3%BB%E7%BB%93%E6%9E%84"><span class="nav-number">1.2.</span> <span class="nav-text">体系结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%8F%E5%85%B85%E7%BA%A7%E6%B5%81%E6%B0%B4%E7%BA%BF"><span class="nav-number">1.2.1.</span> <span class="nav-text">经典5级流水线</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#cache"><span class="nav-number">1.2.2.</span> <span class="nav-text">cache</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#GPGPU%E6%9E%B6%E6%9E%84"><span class="nav-number">1.2.3.</span> <span class="nav-text">GPGPU架构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#NPU%E6%9E%B6%E6%9E%84"><span class="nav-number">1.2.4.</span> <span class="nav-text">NPU架构</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81"><span class="nav-number">1.3.</span> <span class="nav-text">代码</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#SV"><span class="nav-number">1.3.1.</span> <span class="nav-text">SV</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#UVM"><span class="nav-number">1.3.2.</span> <span class="nav-text">UVM</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BB%8F%E5%85%B8%E9%A2%98%E5%9E%8B"><span class="nav-number">2.</span> <span class="nav-text">经典题型</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%97%B6%E9%92%9F%E5%88%86%E9%A2%91"><span class="nav-number">2.1.</span> <span class="nav-text">时钟分频</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A2%E5%BD%A2%E6%A3%80%E6%B5%8B"><span class="nav-number">2.2.</span> <span class="nav-text">波形检测</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%BC%82%E6%AD%A5FIFO"><span class="nav-number">2.3.</span> <span class="nav-text">异步FIFO</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%9D%A2%E8%AF%95%E7%9C%9F%E9%A2%98"><span class="nav-number">3.</span> <span class="nav-text">面试真题</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%99%BE%E5%BA%A6%E6%98%86%E4%BB%91%E8%8A%AF"><span class="nav-number">3.1.</span> <span class="nav-text">百度昆仑芯</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AF%8D%E9%A2%91%E6%A3%80%E6%B5%8B"><span class="nav-number">3.1.1.</span> <span class="nav-text">词频检测</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Wang xianke</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">9</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Wangxianke123" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Wangxianke123" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yourname@gmail.com" title="E-Mail → mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Wang xianke</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">167k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">5:04</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+      <script src="https://Wangxianke123.github.io/live2d/autoload.js"></script>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+
+</html>
