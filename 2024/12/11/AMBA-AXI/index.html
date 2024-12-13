@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 7.1.1">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"wangxianke123.github.io","root":"/","scheme":"Pisces","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="AMBA AXI 协议的学习笔记">
+<meta property="og:type" content="article">
+<meta property="og:title" content="AMBA AXI">
+<meta property="og:url" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/index.html">
+<meta property="og:site_name" content="花间一壶酒">
+<meta property="og:description" content="AMBA AXI 协议的学习笔记">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-1.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-2.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-3.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-4.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-5.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-6.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-7.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-8.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-9.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-10.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-11.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-12.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-13.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-14.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-15.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-16.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-17.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-18.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-19.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-20.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-21.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-22.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-23.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-24.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-25.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-26.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-27.png">
+<meta property="article:published_time" content="2024-12-11T13:49:22.000Z">
+<meta property="article:modified_time" content="2024-12-13T03:36:52.607Z">
+<meta property="article:author" content="Wang xianke">
+<meta property="article:tag" content="ICer">
+<meta property="article:tag" content="数字集成电路">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image.png">
+
+<link rel="canonical" href="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>AMBA AXI | 花间一壶酒</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/jquery/dist/jquery.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css">
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+    
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">花间一壶酒</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">举杯邀明月，对影成三人</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="Wang xianke">
+      <meta itemprop="description" content="">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="花间一壶酒">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          AMBA AXI
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2024-12-11 21:49:22" itemprop="dateCreated datePublished" datetime="2024-12-11T21:49:22+08:00">2024-12-11</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2024-12-13 11:36:52" itemprop="dateModified" datetime="2024-12-13T11:36:52+08:00">2024-12-13</time>
+              </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>5.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>10 分钟</span>
+            </span>
+            <div class="post-description">AMBA AXI 协议的学习笔记</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="CH1-Introduction"><a href="#CH1-Introduction" class="headerlink" title="CH1 Introduction"></a>CH1 Introduction</h1><h2 id="About-AXI"><a href="#About-AXI" class="headerlink" title="About AXI"></a>About AXI</h2><p>AXI 是一种支持高性能的传输协议。</p>
+<p>协议的功能包括：</p>
+<ol>
+<li>适用于高带宽低延迟设计</li>
+<li>不需要复杂的桥接即可实现高频操作</li>
+<li>可以满足多种组件的接口需求</li>
+<li>适用于具有高初始访存延迟的memory controller</li>
+<li>灵活的互联架构实现方式</li>
+<li>向后兼容AHB和APB接口</li>
+</ol>
+<p>协议的主要特性有：</p>
+<ol>
+<li>独立的地址&#x2F;控制及数据相位</li>
+<li>支持使用strobes进行非对其数据传输</li>
+<li>仅使用base address进行burst传输</li>
+<li>独立的数据读写通道，可以实现低成本的DMA</li>
+<li>支持发送多个outstanding 地址。(outstanding指已发出但未完成的传输，见后文)</li>
+<li>支持乱序传输</li>
+<li>允许添加寄存器保证时序收敛</li>
+</ol>
+<h2 id="AXI-Architecture"><a href="#AXI-Architecture" class="headerlink" title="AXI Architecture"></a>AXI Architecture</h2><p>AXI协议基于事务级传输，具有以下5个独立的通道：</p>
+<ul>
+<li>Write request, 信号名以 aw开头</li>
+<li>Write data, 信号名以w开头</li>
+<li>Write response,信号名以b开头</li>
+<li>Read request，信号名以ar开头</li>
+<li>Read data,信号名以r开头</li>
+</ul>
+<p>request 通道携带需要传输数据的一些控制信息(如地址，传输长度等)。一次传输被看作一次请求。</p>
+<p>数据可以通过以下方式在Master和Slave直接进行传输：</p>
+<ul>
+<li>通过 write data channel将data 从Master传输到slave.在一次传输事务中，Slave通过Write Respense通道通知Master传输结束。</li>
+<li>通过read data channel将数据从Slave传到Master</li>
+</ul>
+<p>AXI协议拥有以下功能：</p>
+<ul>
+<li>允许地址信息先于数据信息传输</li>
+<li>允许多个outstanding传输事务</li>
+<li>运行传输事务无序完成</li>
+</ul>
+<p>下图是一个使用write request channel,write data channel和write response channel的写传输示例。<br><img src="/2024/12/11/AMBA-AXI/image.png" alt="alt text"></p>
+<p>使用读通道和读请求通道的示例：<br><img src="/2024/12/11/AMBA-AXI/image-1.png" alt="alt text"></p>
+<h3 id="Channel-defination"><a href="#Channel-defination" class="headerlink" title="Channel defination"></a>Channel defination</h3><p>每一路通道都含有一系列信号以及valid,ready的2路握手信号。<br>信号源使用valid信号来指示对应通道的address,data或控制信息有效，接收方使用ready信号来指示其可以接受信息。</p>
+<p>此外write data channel和read data channel还分别含有一个last信号来指示传输的最后一个数据。</p>
+<h4 id="Write-and-read-request-channels"><a href="#Write-and-read-request-channels" class="headerlink" title="Write and read request channels"></a>Write and read request channels</h4><p>独立的读&#x2F;写请求通道，对应的通道包含传输事务需要的地址和控制信息。</p>
+<h4 id="Write-data-channel"><a href="#Write-data-channel" class="headerlink" title="Write data channel"></a>Write data channel</h4><p>Write data channel 携带从Master写入Slave的数据，包括：</p>
+<ul>
+<li>data 信号，wdata的宽度由DATA_WIDTH指定，可以是6，16，32，64，128，256，512，1024bits.</li>
+<li>字节选通信号(strobe)，每位对应8bits,指示对应的byte是否有效。</li>
+</ul>
+<p>写数据通道被认为是buffered的，因此Master可以在无序Slave确定数据的情况下执行写传输操作。</p>
+<h4 id="Write-response-channel"><a href="#Write-response-channel" class="headerlink" title="Write response channel"></a>Write response channel</h4><p>Slave 通过 写响应通道来响应写传输事务。所有的写传输都需要在写响应通道上发送完成信号。<br>但如图a1.1所示，仅针对传输完成的事务发出响应信号，而不是响应事务中的每个数据。</p>
+<h4 id="Read-data-channel"><a href="#Read-data-channel" class="headerlink" title="Read data channel"></a>Read data channel</h4><p>read data channel既包含读数据，也包含读响应信息，包括：</p>
+<ul>
+<li>读数据rdata,宽度由DATA_WIDTH指定，可以是6，16，32，64，128，256，512，1024bits.</li>
+<li>读响应信号，指示读传输操作的完成。</li>
+</ul>
+<h3 id="Interface-and-interconnect"><a href="#Interface-and-interconnect" class="headerlink" title="Interface and interconnect"></a>Interface and interconnect</h3><p>一个典型的多主多从系统的架构如下：<br><img src="/2024/12/11/AMBA-AXI/image-2.png"></p>
+<p>AXI协议为以下接口之间的连接提供单一接口定义：</p>
+<ul>
+<li>Manager和Interconnect之间</li>
+<li>Subordinate和Interconnect之间</li>
+<li>Manager和Interconnect之间</li>
+</ul>
+<h4 id="Typical-system-topologies"><a href="#Typical-system-topologies" class="headerlink" title="Typical system topologies"></a>Typical system topologies</h4><p>大多数系统使用如下的拓扑结构：</p>
+<ul>
+<li>共享的request和data channel</li>
+<li>共享的request channel和多个data channel</li>
+<li>多层，具有多个request和data channel</li>
+</ul>
+<p>大多数系统中，请求通道带宽要求明显低于数据通道带宽要求。此类系统可以通过使用具有多个数据通道的共享请求通道来实现并行数据传输，从而在系统性能和互连复杂性之间实现良好的平衡。</p>
+<h3 id="Rigister-slices"><a href="#Rigister-slices" class="headerlink" title="Rigister slices"></a>Rigister slices</h3><p>每个AXI通道传输的信息是单向的，并且架构并不要求每个通道之间具有固定的关系，这种性质意味着，可以以一个额外时钟周期为延时的代价，在channel的任何节点插入寄存器。并使以下操作成为可能：</p>
+<ul>
+<li>在时钟周期延迟和频率之间进行trade-off</li>
+<li>处理器和高性能memory(一般是cache或sram)之间的直连。同时使用简单的寄存器切分，隔离掉与性能不太重要的外设接口之间的较长路径。</li>
+</ul>
+<h2 id="Terminology"><a href="#Terminology" class="headerlink" title="Terminology"></a>Terminology</h2><p><img src="/2024/12/11/AMBA-AXI/image-3.png"></p>
+<p><img src="/2024/12/11/AMBA-AXI/image-4.png"></p>
+<p>注意区分transfer和transaction,前者是一次单周期的传输，后者是一次完整的传输事务，一个transaction包含一个或多个transfer。</p>
+<h1 id="CH2-Signal-list"><a href="#CH2-Signal-list" class="headerlink" title="CH2 Signal list"></a>CH2 Signal list</h1><p>本章介绍AXI协议的信号列表，其中一些信号是可选的，并不是所有接口中都包含它们。</p>
+<h2 id="Write-Channel"><a href="#Write-Channel" class="headerlink" title="Write Channel"></a>Write Channel</h2><h3 id="Write-request-channel"><a href="#Write-request-channel" class="headerlink" title="Write request channel"></a>Write request channel</h3><p>Write reques channel包含以下信号：</p>
+<p>这个channel中的信号均以aw开头。<br><img src="/2024/12/11/AMBA-AXI/image-5.png"><br><img src="/2024/12/11/AMBA-AXI/image-6.png"></p>
+<h3 id="Write-channel"><a href="#Write-channel" class="headerlink" title="Write channel"></a>Write channel</h3><p>write channel的信号以w开头<br><img src="/2024/12/11/AMBA-AXI/image-7.png"></p>
+<h3 id="Write-respense-channel"><a href="#Write-respense-channel" class="headerlink" title="Write respense channel"></a>Write respense channel</h3><p>write resopnse channel的信号以B开头。<br><img src="/2024/12/11/AMBA-AXI/image-8.png"></p>
+<h2 id="Read-channel"><a href="#Read-channel" class="headerlink" title="Read channel"></a>Read channel</h2><p>Read channel用来传输读请求，读数据，读响应，以及对应的内存一致性操作和DVM（Distributed Virtual Memory）信息。</p>
+<h3 id="Read-request-Channel"><a href="#Read-request-Channel" class="headerlink" title="Read request Channel"></a>Read request Channel</h3><p>read request channel的信号以ar开头</p>
+<p><img src="/2024/12/11/AMBA-AXI/image-9.png"><br><img src="/2024/12/11/AMBA-AXI/image-10.png"></p>
+<h3 id="Read-channel-1"><a href="#Read-channel-1" class="headerlink" title="Read channel"></a>Read channel</h3><p>read channel 的信号以r开头。<br><img src="/2024/12/11/AMBA-AXI/image-11.png"></p>
+<h2 id="Snoop-channel"><a href="#Snoop-channel" class="headerlink" title="Snoop channel"></a>Snoop channel</h2><p>本协议中，Snoop channel只用来传递DVM信息。</p>
+<h3 id="Snoop-request-channel"><a href="#Snoop-request-channel" class="headerlink" title="Snoop request channel"></a>Snoop request channel</h3><p>snoop request channel包含以下信号，信号名以ac开头：</p>
+<p><img src="/2024/12/11/AMBA-AXI/image-12.png"></p>
+<h3 id="Snoop-resopnse-channel"><a href="#Snoop-resopnse-channel" class="headerlink" title="Snoop resopnse channel"></a>Snoop resopnse channel</h3><p><img src="/2024/12/11/AMBA-AXI/image-13.png"></p>
+<p>Snoop response channel 信号以cr开头。</p>
+<h2 id="Interface-Level-Signals"><a href="#Interface-Level-Signals" class="headerlink" title="Interface Level Signals"></a>Interface Level Signals</h2><h3 id="clock-and-reset-signals"><a href="#clock-and-reset-signals" class="headerlink" title="clock and reset signals"></a>clock and reset signals</h3><p>所有的信号采用一个全局的同步时钟和一个异步的复位信号：<br><img src="/2024/12/11/AMBA-AXI/image-14.png"></p>
+<h3 id="Weakup-signals"><a href="#Weakup-signals" class="headerlink" title="Weakup signals"></a>Weakup signals</h3><p><img src="/2024/12/11/AMBA-AXI/image-15.png"></p>
+<p>Weakup 信号用来指示端口有活动的信号。</p>
+<h3 id="QoS-Quality-of-Service-Accept-signals"><a href="#QoS-Quality-of-Service-Accept-signals" class="headerlink" title="QoS(Quality of Service) Accept signals"></a>QoS(Quality of Service) Accept signals</h3><p> QoS Accept signals can be used by a Subordinate interface to indicate the minimum QoS value of requests that it<br> accepts<br><img src="/2024/12/11/AMBA-AXI/image-16.png"></p>
+<h3 id="Coherency-Connection-signals"><a href="#Coherency-Connection-signals" class="headerlink" title="Coherency Connection signals"></a>Coherency Connection signals</h3><p>The coherency connection signals are used by a Manager to control whether it receives DVM messages on the AC<br> channel.</p>
+<p> <img src="/2024/12/11/AMBA-AXI/image-17.png"></p>
+<h3 id="Interface-control-signals"><a href="#Interface-control-signals" class="headerlink" title="Interface control signals"></a>Interface control signals</h3><p> The interface control signals are static inputs to a Manager interface that can be used to configure interface<br> behavior.<br><img src="/2024/12/11/AMBA-AXI/image-18.png"></p>
+<h1 id="CH3-AXI-Transport"><a href="#CH3-AXI-Transport" class="headerlink" title="CH3 AXI Transport"></a>CH3 AXI Transport</h1><h2 id="Clock-and-reset"><a href="#Clock-and-reset" class="headerlink" title="Clock and reset"></a>Clock and reset</h2><h3 id="Clock"><a href="#Clock" class="headerlink" title="Clock"></a>Clock</h3><p>AXI 接口采用一个时钟信号，ACLK,所有的输入信号在ACLK的上升沿采样，所有的输出信号在的变化也发生在ACLK的上升沿之后。</p>
+<p>在Master和Slave 接口中，输入和输出之间不能存在直接的组合逻辑路径。</p>
+<h3 id="Reset"><a href="#Reset" class="headerlink" title="Reset"></a>Reset</h3><p>AXI协议采用一个下降沿有效的复位信号，ARESETn，复位信号可以被异步复位，但是只能在clk的上升沿同步释放。</p>
+<p>复位期间需执行以下操作：</p>
+<ul>
+<li>Master 拉低awvalid,wvalid和arvalid信号</li>
+<li>Slave拉低 bvalid,rvalid信号</li>
+<li>其他信号的值可以是任意值</li>
+</ul>
+<p>Master可以拉高valid信号的最早时间节点是ARESETn拉高后的第一个ACLK上升沿，如下图：<br><img src="/2024/12/11/AMBA-AXI/image-19.png"></p>
+<h2 id="Channel-handshake"><a href="#Channel-handshake" class="headerlink" title="Channel handshake"></a>Channel handshake</h2><p>所有的axi通道都采用相同的valid&#x2F;ready握手机制来完成数据，地址及控制信息的传输。</p>
+<p>这种2路的流控制机制意味着Master和Slave双方都可以控制它们之间的数据流通速度。</p>
+<p>信号源通过拉高valid信号来指示有可用的data,address和control information。信号的目的方通过拉高ready来指示数据可以被接受。<br>只有在valid和ready均为高是，传输才会发生。Master 和Slave的输入和输出端口之间一定不能含有纯组合逻辑的通路。<br>下图展现了一个握手过程：<br><img src="/2024/12/11/AMBA-AXI/image-20.png"></p>
+<p>在ready信号拉高之前，源不可以等待ready信号拉高再拉高valid。<br>当valid拉高，必须持续到握手发生之后，下一个valid&amp;ready均为高的时钟上升沿。</p>
+<p>接受方可以等待valid拉高后再拉高相应的ready。</p>
+<p>如果ready被拉高，它可以再valid拉高之前被重新拉低.</p>
+<p><img src="/2024/12/11/AMBA-AXI/image-21.png"></p>
+<p>上图中，第一个时钟上升沿后，valid&amp;ready均拉高，在这种情况下，传输在第一个valid&amp;ready均为高的时钟沿完成。</p>
+<h2 id="Write-and-read-channel"><a href="#Write-and-read-channel" class="headerlink" title="Write and read channel"></a>Write and read channel</h2><h3 id="Write-Request-channel-AW"><a href="#Write-Request-channel-AW" class="headerlink" title="Write Request channel (AW)"></a>Write Request channel (AW)</h3><p>aw 通道的控制信号如下：</p>
+<p><img src="/2024/12/11/AMBA-AXI/image-22.png"></p>
+<p>当且仅当发出一个有效的写请求时，Master拉高awvalid,拉高后，必须等待握手完成，及下一个awready拉高后的时钟上升沿后才可以释放。</p>
+<p>awready的默认值可以是high或Low，推荐用high。当为high时，代表slave可以接受一个有效请求。</p>
+<h3 id="Write-data-channel-W"><a href="#Write-data-channel-W" class="headerlink" title="Write data channel (W)"></a>Write data channel (W)</h3><p><img src="/2024/12/11/AMBA-AXI/image-23.png"></p>
+<p>在一次写事务(transaction)中，master仅当传输的data有效时拉高valid,valid拉高后，必须等待握手完成。</p>
+<p>Master必须在一个transaction的最后一个transfer时拉高wlast信号。推荐将inactive的byte lanes上的WDATA设为0.<br>一个不含有wlast信号的slave接口可以忽略wlast信号。</p>
+<h3 id="Write-response-channel-B"><a href="#Write-response-channel-B" class="headerlink" title="Write response channel (B)"></a>Write response channel (B)</h3><p>write resopnse channel的控制信号如下：<br><img src="/2024/12/11/AMBA-AXI/image-24.png"></p>
+<p>bvalid由slave发出，当且仅当发出一个有效的写相应时，将其拉高。bready的默认值可以为高，但必须是master能够接受写响应时。</p>
+<h3 id="Read-request-channel-AR"><a href="#Read-request-channel-AR" class="headerlink" title="Read request channel(AR)"></a>Read request channel(AR)</h3><p><img src="/2024/12/11/AMBA-AXI/image-25.png"></p>
+<p>和前面类似。<br>The Manager can assert the ARVALID signal only when it drives a valid request. When asserted, ARVALID<br> must remain asserted until the rising clock edge after the Subordinate asserts the ARREADY signal.<br> The default state of ARREADY can be either HIGH or LOW. It is recommended to use HIGH as the default state<br> for ARREADY. If ARREADYis HIGH, then the Subordinate must be able to accept any valid request that is<br> presented to it</p>
+<p>  It is not recommended to default ARREADY LOW because it forces the transfer to take at least two cycles, one to<br> assert ARVALID and another to assert ARREADY.</p>
+<h3 id="Read-data-channel-R"><a href="#Read-data-channel-R" class="headerlink" title="Read data channel (R)"></a>Read data channel (R)</h3><p><img src="/2024/12/11/AMBA-AXI/image-26.png"></p>
+<p>read data channel 的控制信号有3个，相当于结合了write request 和write。</p>
+<p><img src="/2024/12/11/AMBA-AXI/image-27.png"></p>
+<h2 id="Relationships-between-the-channels"><a href="#Relationships-between-the-channels" class="headerlink" title="Relationships between the channels"></a>Relationships between the channels</h2><p>AXI 协议要求维护以下关系：</p>
+<ul>
+<li>在一个写事务的最后一个写传输之后，必须跟随一个写响应</li>
+<li>写数据和写响应必须跟随在写请求之后</li>
+<li>通道握手必须保证A3.5节定义的独立性(后面回介绍)</li>
+<li>当Master发出写请求时，其必须已经准备好了该次事务所需所有的写数据，并且与其他的事务无关(不相干)</li>
+<li>当Master发送了写请求和所有的写数据，它必须能够接收该次事务的写响应，并且与其他的传输事务无关。</li>
+<li>当Master发送了一次读请求，它必须已经准备好了接收该事务的所有数据，且与其他传输事务无关。<ul>
+<li>注意，对使用同一ID的事务来说，Master可能依赖于返回数据的顺序，而对于ID不同的事务来说，Master只需要为读数据准备好足够的存储空间。</li>
+</ul>
+</li>
+<li>Master可以等待一次传输事务完成之后，再发起下一次传输。</li>
+<li>Slave被允许等待一次传输事务结束之后再接受或发起下一次传输。</li>
+<li>对于slave,不能因为存在leading write data的事务而阻塞那些无数据的写请求。</li>
+</ul>
+<p>(协议的上述要求十分重要，不遵守时可能带来死锁或活锁)</p>
+<p>除此之外，协议并不定义通道之间的其他关系。</p>
+<p>这种关系的缺失意味着，例如，写数据可以在传输事务的写请求之前到达。这种情况在写请求通道拥有比写数据通道更长的寄存器(流水线)级数时就可能发生。<br>类似的，写数据也有可以与写请求同时到达。</p>
+<p>当互联结构或slave模块需要确定写入地址或对应的salve接口时，它必须重新对齐请求与数据。这种重新对齐需要保证写入数据只对目标的写入slave有效。</p>
+<h2 id="Dependencies-between-channel-handshake-signals"><a href="#Dependencies-between-channel-handshake-signals" class="headerlink" title="Dependencies between channel handshake signals"></a>Dependencies between channel handshake signals</h2><p>在读，写和监听事务之间存在依赖关系，这些依赖关系被以下图表所描述：</p>
+<ul>
+<li>单箭头指向可以在箭头前的信号之前或之后断言(拉高)的信号</li>
+<li>双箭头指向必须在箭头前的信号断言(拉高)之后才可以断言的信号。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/ICer/" rel="tag"># ICer</a>
+              <a href="/tags/%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF/" rel="tag"># 数字集成电路</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2024/11/07/%E6%95%B0%E5%AD%97IC%E5%85%AB%E8%82%A1/" rel="prev" title="数字IC八股">
+      <i class="fa fa-chevron-left"></i> 数字IC八股
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CH1-Introduction"><span class="nav-number">1.</span> <span class="nav-text">CH1 Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#About-AXI"><span class="nav-number">1.1.</span> <span class="nav-text">About AXI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AXI-Architecture"><span class="nav-number">1.2.</span> <span class="nav-text">AXI Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Channel-defination"><span class="nav-number">1.2.1.</span> <span class="nav-text">Channel defination</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Write-and-read-request-channels"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">Write and read request channels</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Write-data-channel"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">Write data channel</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Write-response-channel"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">Write response channel</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Read-data-channel"><span class="nav-number">1.2.1.4.</span> <span class="nav-text">Read data channel</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Interface-and-interconnect"><span class="nav-number">1.2.2.</span> <span class="nav-text">Interface and interconnect</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Typical-system-topologies"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">Typical system topologies</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rigister-slices"><span class="nav-number">1.2.3.</span> <span class="nav-text">Rigister slices</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Terminology"><span class="nav-number">1.3.</span> <span class="nav-text">Terminology</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CH2-Signal-list"><span class="nav-number">2.</span> <span class="nav-text">CH2 Signal list</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Write-Channel"><span class="nav-number">2.1.</span> <span class="nav-text">Write Channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-request-channel"><span class="nav-number">2.1.1.</span> <span class="nav-text">Write request channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-channel"><span class="nav-number">2.1.2.</span> <span class="nav-text">Write channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-respense-channel"><span class="nav-number">2.1.3.</span> <span class="nav-text">Write respense channel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Read-channel"><span class="nav-number">2.2.</span> <span class="nav-text">Read channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-request-Channel"><span class="nav-number">2.2.1.</span> <span class="nav-text">Read request Channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-channel-1"><span class="nav-number">2.2.2.</span> <span class="nav-text">Read channel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Snoop-channel"><span class="nav-number">2.3.</span> <span class="nav-text">Snoop channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Snoop-request-channel"><span class="nav-number">2.3.1.</span> <span class="nav-text">Snoop request channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Snoop-resopnse-channel"><span class="nav-number">2.3.2.</span> <span class="nav-text">Snoop resopnse channel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Interface-Level-Signals"><span class="nav-number">2.4.</span> <span class="nav-text">Interface Level Signals</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#clock-and-reset-signals"><span class="nav-number">2.4.1.</span> <span class="nav-text">clock and reset signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Weakup-signals"><span class="nav-number">2.4.2.</span> <span class="nav-text">Weakup signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#QoS-Quality-of-Service-Accept-signals"><span class="nav-number">2.4.3.</span> <span class="nav-text">QoS(Quality of Service) Accept signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Coherency-Connection-signals"><span class="nav-number">2.4.4.</span> <span class="nav-text">Coherency Connection signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Interface-control-signals"><span class="nav-number">2.4.5.</span> <span class="nav-text">Interface control signals</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CH3-AXI-Transport"><span class="nav-number">3.</span> <span class="nav-text">CH3 AXI Transport</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Clock-and-reset"><span class="nav-number">3.1.</span> <span class="nav-text">Clock and reset</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Clock"><span class="nav-number">3.1.1.</span> <span class="nav-text">Clock</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reset"><span class="nav-number">3.1.2.</span> <span class="nav-text">Reset</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Channel-handshake"><span class="nav-number">3.2.</span> <span class="nav-text">Channel handshake</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Write-and-read-channel"><span class="nav-number">3.3.</span> <span class="nav-text">Write and read channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-Request-channel-AW"><span class="nav-number">3.3.1.</span> <span class="nav-text">Write Request channel (AW)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-data-channel-W"><span class="nav-number">3.3.2.</span> <span class="nav-text">Write data channel (W)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-response-channel-B"><span class="nav-number">3.3.3.</span> <span class="nav-text">Write response channel (B)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-request-channel-AR"><span class="nav-number">3.3.4.</span> <span class="nav-text">Read request channel(AR)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-data-channel-R"><span class="nav-number">3.3.5.</span> <span class="nav-text">Read data channel (R)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Relationships-between-the-channels"><span class="nav-number">3.4.</span> <span class="nav-text">Relationships between the channels</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dependencies-between-channel-handshake-signals"><span class="nav-number">3.5.</span> <span class="nav-text">Dependencies between channel handshake signals</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+  <p class="site-author-name" itemprop="name">Wang xianke</p>
+  <div class="site-description" itemprop="description"></div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">10</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/Wangxianke123" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;Wangxianke123" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:yourname@gmail.com" title="E-Mail → mailto:yourname@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2024</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Wang xianke</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">183k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">5:33</span>
+</div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+      <script src="https://Wangxianke123.github.io/live2d/autoload.js"></script>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+
+  
+
+</body>
+
+</html>
