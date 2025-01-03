@@ -55,11 +55,21 @@
 <meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-25.png">
 <meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-26.png">
 <meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-27.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-28.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-29.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-30.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-31.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-32.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-33.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-34.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-35.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-36.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-37.png">
 <meta property="article:published_time" content="2024-12-11T13:49:22.000Z">
-<meta property="article:modified_time" content="2024-12-13T03:36:52.607Z">
+<meta property="article:modified_time" content="2025-01-03T02:23:47.954Z">
 <meta property="article:author" content="Wang xianke">
-<meta property="article:tag" content="ICer">
 <meta property="article:tag" content="数字集成电路">
+<meta property="article:tag" content="ICer">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image.png">
 
@@ -258,7 +268,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2024-12-13 11:36:52" itemprop="dateModified" datetime="2024-12-13T11:36:52+08:00">2024-12-13</time>
+                <time title="修改时间：2025-01-03 10:23:47" itemprop="dateModified" datetime="2025-01-03T10:23:47+08:00">2025-01-03</time>
               </span>
 
           <br>
@@ -267,14 +277,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>5.7k</span>
+              <span>9.3k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>10 分钟</span>
+              <span>17 分钟</span>
             </span>
             <div class="post-description">AMBA AXI 协议的学习笔记</div>
 
@@ -300,7 +310,7 @@
 <p>协议的主要特性有：</p>
 <ol>
 <li>独立的地址&#x2F;控制及数据相位</li>
-<li>支持使用strobes进行非对其数据传输</li>
+<li>支持使用strobes进行非对齐数据传输</li>
 <li>仅使用base address进行burst传输</li>
 <li>独立的数据读写通道，可以实现低成本的DMA</li>
 <li>支持发送多个outstanding 地址。(outstanding指已发出但未完成的传输，见后文)</li>
@@ -337,7 +347,7 @@
 <li>data 信号，wdata的宽度由DATA_WIDTH指定，可以是6，16，32，64，128，256，512，1024bits.</li>
 <li>字节选通信号(strobe)，每位对应8bits,指示对应的byte是否有效。</li>
 </ul>
-<p>写数据通道被认为是buffered的，因此Master可以在无序Slave确定数据的情况下执行写传输操作。</p>
+<p>写数据通道被认为是buffered的，因此Master可以在无需Slave确定数据的情况下执行写传输操作。</p>
 <h4 id="Write-response-channel"><a href="#Write-response-channel" class="headerlink" title="Write response channel"></a>Write response channel</h4><p>Slave 通过 写响应通道来响应写传输事务。所有的写传输都需要在写响应通道上发送完成信号。<br>但如图a1.1所示，仅针对传输完成的事务发出响应信号，而不是响应事务中的每个数据。</p>
 <h4 id="Read-data-channel"><a href="#Read-data-channel" class="headerlink" title="Read data channel"></a>Read data channel</h4><p>read data channel既包含读数据，也包含读响应信息，包括：</p>
 <ul>
@@ -444,7 +454,99 @@
 <li>单箭头指向可以在箭头前的信号之前或之后断言(拉高)的信号</li>
 <li>双箭头指向必须在箭头前的信号断言(拉高)之后才可以断言的信号。</li>
 </ul>
-
+<h3 id="Write-transaction-dependencies"><a href="#Write-transaction-dependencies" class="headerlink" title="Write transaction dependencies"></a>Write transaction dependencies</h3><p><img src="/2024/12/11/AMBA-AXI/image-28.png"></p>
+<p>写事务的依赖关系如图，具体的依赖规则如下：</p>
+<ul>
+<li>Master一定不能等slave的ready的AWREADY和WREADY，拉高后再拉高AWVALID和WVALID。对每一笔写数据事务来说都是如此。</li>
+<li>在拉高AWREADY前，slave可以等待AWVALID和WVALID，或者两者都等。</li>
+<li>Slave可以在AWVALID和&#x2F;或WVALID拉高之前拉高AWREADY</li>
+<li>在拉高WREADY之前，slave可以等待AWVALID和&#x2F;或WVALID</li>
+<li>Slave可以在AWVALID和&#x2F;或WVALID拉高之前拉高WREADY</li>
+<li>Slave必须在 AWVALID, AWREADY, WVALID, and WREADY都拉高后，再拉高BVALID</li>
+<li>Slave必须等待WLAST拉高再拉高BVALID，这是因为写响应BRESP必须等写事务的最后一笔数据完成之后再开始。</li>
+<li>Slave必须不能等BREADY拉高后再拉高BVALID</li>
+<li>Master可以等BVALID拉高后再拉高BREADY</li>
+<li>Master可以在BVALID拉高之前拉高BREADY</li>
+</ul>
+<h3 id="Read-transaction-dependencies"><a href="#Read-transaction-dependencies" class="headerlink" title="Read transaction dependencies"></a>Read transaction dependencies</h3><p>对于读事务，其依赖关系如下图：</p>
+<p><img src="/2024/12/11/AMBA-AXI/image-29.png"></p>
+<ul>
+<li>Master一定不能等Slave拉高ARREADY后再拉高ARVALID</li>
+<li>Slave可以等Slave拉高ARVALID后再拉高ARREADY</li>
+<li>Slave可以等ARVALID拉高前再拉高VRREADY</li>
+<li>Slave必须等待ARVALID和ARREADY都拉高之后再拉高RVALID来指示信号有效</li>
+<li>Slave不能等Master拉高RREADY之后再拉高RVALID</li>
+<li>Master可以等RVALID拉高后再拉高RREADY</li>
+<li>Master可以在RVALID拉高前再拉高RREADY</li>
+</ul>
+<h2 id="Snoop-channels"><a href="#Snoop-channels" class="headerlink" title="Snoop channels"></a>Snoop channels</h2><p>后面补</p>
+<h1 id="CH4-AXI-Transaction"><a href="#CH4-AXI-Transaction" class="headerlink" title="CH4 AXI Transaction"></a>CH4 AXI Transaction</h1><p>AXI协议使用事务级传输在Master和Slave之间进行通信，所有的传输都包括一个request和一个response.读和写事务可以包含一笔或多笔传输。</p>
+<h2 id="Transaction-request"><a href="#Transaction-request" class="headerlink" title="Transaction request"></a>Transaction request</h2><p>AXI Master通过对Slave发送一个请求来初始化一笔传输。一笔请求包括属性和第一个数据的地址。如果一笔事务包含超过一个数据传输，Slave必须负责计算之后的传输地址。</p>
+<p>一笔传输事务不能超出4KB的地址边界。这防止了一笔传输事务跨过2个Slave的边界，同时也限制了Slave支持的地址递增数量。</p>
+<h3 id="Size-attribute"><a href="#Size-attribute" class="headerlink" title="Size attribute"></a>Size attribute</h3><p>size指示了每个transfer的中数据的最大比特数。</p>
+<p>对于读事务，size指示了每个 data transfer中必须有效的byte数</p>
+<p>对于写事务，size指示了有多少data byte lane是active的，write strobes指示了这些byte中具体哪些是valid的。</p>
+<p>size大小不得超过接口的数据宽度，由 DATA_WIDTH 属性确定。</p>
+<p>如果 Size 小于 DATA_WIDTH，则每个传输使用字节通道的一部分。</p>
+<p>在读请求通道和写请求通道中，size被AWSIZE和ARSIZE确定，本spec中，AxSIZE表示AWSIZE和ARSIZE.</p>
+<p><img src="/2024/12/11/AMBA-AXI/image-30.png"></p>
+<p><img src="/2024/12/11/AMBA-AXI/image-31.png"></p>
+<p>只请求全数据宽度的master可以省略其AxSIZE输出，对应的slave必须在其输入的AxSIZE通道输入对应数据宽度的值。</p>
+<h3 id="Length-attribute"><a href="#Length-attribute" class="headerlink" title="Length attribute"></a>Length attribute</h3><p>Length属性定义了每笔事务(transaction)中的transfer数量。</p>
+<p>$Size \times Length$ 是每笔事务可以传输的最大字节数。<br>如果地址未对齐或存在置低的写入选通(write strobe)，则传输的实际字节数可以低于 Size x Length。</p>
+<p>一个Master必须根据Length的大小来发送写传输数据。</p>
+<p>一个Slave必须根据Length的大小来发送读传输数据。</p>
+<p>在读请求通道和写请求通道中，Length 被AWLEN和ARLEN确定，本spec中，AxLEN表示AWLEN和ARLEN.</p>
+<p><img src="/2024/12/11/AMBA-AXI/image-32.png"></p>
+<p>只请求length为1的master可以省略其AxLEN输出，对应的slave必须在其输入的AxLEN通道的输入值设置为0x00。</p>
+<p>以下规则被施加给length:</p>
+<ul>
+<li>对wraping bursts,Length可以是2，4，8，16</li>
+<li>对fixed bursts,Length最大可以达到16</li>
+<li>一笔事务不可以超过4KB的地址上限</li>
+<li>不支持提前终止传输事务</li>
+</ul>
+<p>任何组件都不能提前终止事务。但是，为了减少 write transaction 中的数据传输数量，Manager 可以通过置低所有 write strobes 来禁用进一步的写入。在这种情况下，Master必须完成事务中的剩余传输。在读取事务中，Manager 可以丢弃读取数据，但它必须完成事务中的所有传输。</p>
+<h3 id="Maximum-nubmer-of-bytes-in-a-transaction"><a href="#Maximum-nubmer-of-bytes-in-a-transaction" class="headerlink" title="Maximum nubmer of bytes in a transaction"></a>Maximum nubmer of bytes in a transaction</h3><p>一笔事务的最大字节数为4KB。然而，很多Master发起的事务都低于这个值。</p>
+<p>一个Slave或者interconnect可以会从这个信息中受益。例如，一个Slave可以增加一些decode逻辑。一个interconnect可以避免burst splitting,如果它知道一笔事务不会超过4KB的边界</p>
+<p>Max_Transaction_Bytes属性定义了一笔传输的最大字节数，如下所示：<br><img src="/2024/12/11/AMBA-AXI/image-33.png"></p>
+<h3 id="Burst-attribute"><a href="#Burst-attribute" class="headerlink" title="Burst attribute"></a>Burst attribute</h3><p>Burst属性描述了每笔传输事务中的transfer 地址是如何增加的。一共有3种不同的burst模式：</p>
+<h4 id="FIXED"><a href="#FIXED" class="headerlink" title="FIXED"></a>FIXED</h4><p>这种Burst被用来重复的访问同一地址，例如读空或写满一个FIFO。</p>
+<ul>
+<li>每个buret transfer的地址相同</li>
+<li>所有transfer的有效byte lanes 固定不变。然而，在这些byte lane之内，每次传输由WSTRB选通的实际字节可以不同。</li>
+<li>burst的最大length可以达到16</li>
+<li>FIXED 突发类型只能与 WriteNoSnoop 或 ReadNoSnoop 操作码一起使用。</li>
+</ul>
+<h4 id="INCR"><a href="#INCR" class="headerlink" title="INCR"></a>INCR</h4><p>在这种BURST模式下，每个transfer的地址是前一次transfer地址的递增。例如，对一个对齐的起始地址，Size为4bytes时每次的地址都是前一次+4.这种burst模式被用来进行常规的memory顺序访问。</p>
+<h4 id="WRAP-wrapping"><a href="#WRAP-wrapping" class="headerlink" title="WRAP(wrapping)"></a>WRAP(wrapping)</h4><p>此 Burst 类型类似于 INCR，不同之处在于，如果达到地址上限，地址将回绕到较低的地址。此外还需要施加以下约束：</p>
+<ul>
+<li>起始地址必须与每次transfer的size对齐</li>
+<li>burst的Length必须是2，4，8或16</li>
+</ul>
+<p>wrapping transaction的行为如下：</p>
+<ul>
+<li>事务访问的最低地址是与要传输的数据的总大小（Size * Length）对齐的起始地址。 此地址定义为wrap boundary</li>
+<li>每次传输后，地址的递增方式与 INCR 突发相同。但是，如果此递增的地址为 （（wrap boundary）+ （Size * Length）），则地址将回绕到wrap boundary</li>
+<li>事务中的第一次传输可以使用高于 wrap boundary的地址，但要遵守适用于wrap transactions的限制。当第一个地址高于 wrap boundary时，地址将回绕。此种Burst 类型用于cache line的访问。</li>
+</ul>
+<p>Burst 分别使用写入请求和读取请求通道上的 AWBURST 和 ARBURST 信号进行通信。在本规范中，AxBURST 表示 AWBURST 和 ARBURST。</p>
+<p><img src="/2024/12/11/AMBA-AXI/image-34.png"></p>
+<p>FIXED burst由于并不常用，可以增加一个 Fixed_Burst_Disable属性来指示是否支持FIXED burst.</p>
+<h3 id="Transaction-address"><a href="#Transaction-address" class="headerlink" title="Transaction address"></a>Transaction address</h3><p>本节提供用于确定各个transaction中transfer地址和byte lane的方法。</p>
+<p>一个transaction的起始地址用AxADDR信号标识：<br><img src="/2024/12/11/AMBA-AXI/image-35.png"></p>
+<h4 id="Address-Width"><a href="#Address-Width" class="headerlink" title="Address Width"></a>Address Width</h4><p>ADDR_WIDTH用于定义地址的位宽<br><img src="/2024/12/11/AMBA-AXI/image-36.png"></p>
+<p>协议支持拥有物理地址空间大小的组件之间的通信。这些具有不同物理地址空间大小的组件必须遵循以下传输规则：</p>
+<ul>
+<li>具有较小物理地址空间的组件必须位于较大物理地址空间的对齐窗口中。通常，窗口位于较大的物理地址空间的底部。但是，对于具有较小物理地址空间的组件，将其放置在较大物理地址空间内的偏移窗口中是可以接受的。</li>
+<li>向外的传输事务必须将高位地址补齐。</li>
+<li>向内的传输必须经过检查：<br>地址窗口内的transaction删除了高阶地址位<br>没有所需的高阶地址位的transaction将被抑制。</li>
+</ul>
+<h3 id="Transaction-equation"><a href="#Transaction-equation" class="headerlink" title="Transaction equation"></a>Transaction equation</h3><p>以下公式用于帮助确定transaction中每个transfer的地址和有效的data byte lane。</p>
+<p><img src="/2024/12/11/AMBA-AXI/image-37.png"></p>
+<p>略</p>
+<h3 id="Pseudocode-description-of-the-transfers"><a href="#Pseudocode-description-of-the-transfers" class="headerlink" title="Pseudocode description of the transfers"></a>Pseudocode description of the transfers</h3><p>略</p>
+<h3 id="Regular-transaction"><a href="#Regular-transaction" class="headerlink" title="Regular transaction"></a>Regular transaction</h3>
     </div>
 
     
@@ -453,8 +555,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/ICer/" rel="tag"># ICer</a>
               <a href="/tags/%E6%95%B0%E5%AD%97%E9%9B%86%E6%88%90%E7%94%B5%E8%B7%AF/" rel="tag"># 数字集成电路</a>
+              <a href="/tags/ICer/" rel="tag"># ICer</a>
           </div>
 
         
@@ -525,7 +627,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CH1-Introduction"><span class="nav-number">1.</span> <span class="nav-text">CH1 Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#About-AXI"><span class="nav-number">1.1.</span> <span class="nav-text">About AXI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AXI-Architecture"><span class="nav-number">1.2.</span> <span class="nav-text">AXI Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Channel-defination"><span class="nav-number">1.2.1.</span> <span class="nav-text">Channel defination</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Write-and-read-request-channels"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">Write and read request channels</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Write-data-channel"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">Write data channel</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Write-response-channel"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">Write response channel</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Read-data-channel"><span class="nav-number">1.2.1.4.</span> <span class="nav-text">Read data channel</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Interface-and-interconnect"><span class="nav-number">1.2.2.</span> <span class="nav-text">Interface and interconnect</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Typical-system-topologies"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">Typical system topologies</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rigister-slices"><span class="nav-number">1.2.3.</span> <span class="nav-text">Rigister slices</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Terminology"><span class="nav-number">1.3.</span> <span class="nav-text">Terminology</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CH2-Signal-list"><span class="nav-number">2.</span> <span class="nav-text">CH2 Signal list</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Write-Channel"><span class="nav-number">2.1.</span> <span class="nav-text">Write Channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-request-channel"><span class="nav-number">2.1.1.</span> <span class="nav-text">Write request channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-channel"><span class="nav-number">2.1.2.</span> <span class="nav-text">Write channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-respense-channel"><span class="nav-number">2.1.3.</span> <span class="nav-text">Write respense channel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Read-channel"><span class="nav-number">2.2.</span> <span class="nav-text">Read channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-request-Channel"><span class="nav-number">2.2.1.</span> <span class="nav-text">Read request Channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-channel-1"><span class="nav-number">2.2.2.</span> <span class="nav-text">Read channel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Snoop-channel"><span class="nav-number">2.3.</span> <span class="nav-text">Snoop channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Snoop-request-channel"><span class="nav-number">2.3.1.</span> <span class="nav-text">Snoop request channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Snoop-resopnse-channel"><span class="nav-number">2.3.2.</span> <span class="nav-text">Snoop resopnse channel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Interface-Level-Signals"><span class="nav-number">2.4.</span> <span class="nav-text">Interface Level Signals</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#clock-and-reset-signals"><span class="nav-number">2.4.1.</span> <span class="nav-text">clock and reset signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Weakup-signals"><span class="nav-number">2.4.2.</span> <span class="nav-text">Weakup signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#QoS-Quality-of-Service-Accept-signals"><span class="nav-number">2.4.3.</span> <span class="nav-text">QoS(Quality of Service) Accept signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Coherency-Connection-signals"><span class="nav-number">2.4.4.</span> <span class="nav-text">Coherency Connection signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Interface-control-signals"><span class="nav-number">2.4.5.</span> <span class="nav-text">Interface control signals</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CH3-AXI-Transport"><span class="nav-number">3.</span> <span class="nav-text">CH3 AXI Transport</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Clock-and-reset"><span class="nav-number">3.1.</span> <span class="nav-text">Clock and reset</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Clock"><span class="nav-number">3.1.1.</span> <span class="nav-text">Clock</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reset"><span class="nav-number">3.1.2.</span> <span class="nav-text">Reset</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Channel-handshake"><span class="nav-number">3.2.</span> <span class="nav-text">Channel handshake</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Write-and-read-channel"><span class="nav-number">3.3.</span> <span class="nav-text">Write and read channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-Request-channel-AW"><span class="nav-number">3.3.1.</span> <span class="nav-text">Write Request channel (AW)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-data-channel-W"><span class="nav-number">3.3.2.</span> <span class="nav-text">Write data channel (W)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-response-channel-B"><span class="nav-number">3.3.3.</span> <span class="nav-text">Write response channel (B)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-request-channel-AR"><span class="nav-number">3.3.4.</span> <span class="nav-text">Read request channel(AR)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-data-channel-R"><span class="nav-number">3.3.5.</span> <span class="nav-text">Read data channel (R)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Relationships-between-the-channels"><span class="nav-number">3.4.</span> <span class="nav-text">Relationships between the channels</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dependencies-between-channel-handshake-signals"><span class="nav-number">3.5.</span> <span class="nav-text">Dependencies between channel handshake signals</span></a></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CH1-Introduction"><span class="nav-number">1.</span> <span class="nav-text">CH1 Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#About-AXI"><span class="nav-number">1.1.</span> <span class="nav-text">About AXI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AXI-Architecture"><span class="nav-number">1.2.</span> <span class="nav-text">AXI Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Channel-defination"><span class="nav-number">1.2.1.</span> <span class="nav-text">Channel defination</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Write-and-read-request-channels"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">Write and read request channels</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Write-data-channel"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">Write data channel</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Write-response-channel"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">Write response channel</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Read-data-channel"><span class="nav-number">1.2.1.4.</span> <span class="nav-text">Read data channel</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Interface-and-interconnect"><span class="nav-number">1.2.2.</span> <span class="nav-text">Interface and interconnect</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Typical-system-topologies"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">Typical system topologies</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rigister-slices"><span class="nav-number">1.2.3.</span> <span class="nav-text">Rigister slices</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Terminology"><span class="nav-number">1.3.</span> <span class="nav-text">Terminology</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CH2-Signal-list"><span class="nav-number">2.</span> <span class="nav-text">CH2 Signal list</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Write-Channel"><span class="nav-number">2.1.</span> <span class="nav-text">Write Channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-request-channel"><span class="nav-number">2.1.1.</span> <span class="nav-text">Write request channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-channel"><span class="nav-number">2.1.2.</span> <span class="nav-text">Write channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-respense-channel"><span class="nav-number">2.1.3.</span> <span class="nav-text">Write respense channel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Read-channel"><span class="nav-number">2.2.</span> <span class="nav-text">Read channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-request-Channel"><span class="nav-number">2.2.1.</span> <span class="nav-text">Read request Channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-channel-1"><span class="nav-number">2.2.2.</span> <span class="nav-text">Read channel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Snoop-channel"><span class="nav-number">2.3.</span> <span class="nav-text">Snoop channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Snoop-request-channel"><span class="nav-number">2.3.1.</span> <span class="nav-text">Snoop request channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Snoop-resopnse-channel"><span class="nav-number">2.3.2.</span> <span class="nav-text">Snoop resopnse channel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Interface-Level-Signals"><span class="nav-number">2.4.</span> <span class="nav-text">Interface Level Signals</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#clock-and-reset-signals"><span class="nav-number">2.4.1.</span> <span class="nav-text">clock and reset signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Weakup-signals"><span class="nav-number">2.4.2.</span> <span class="nav-text">Weakup signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#QoS-Quality-of-Service-Accept-signals"><span class="nav-number">2.4.3.</span> <span class="nav-text">QoS(Quality of Service) Accept signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Coherency-Connection-signals"><span class="nav-number">2.4.4.</span> <span class="nav-text">Coherency Connection signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Interface-control-signals"><span class="nav-number">2.4.5.</span> <span class="nav-text">Interface control signals</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CH3-AXI-Transport"><span class="nav-number">3.</span> <span class="nav-text">CH3 AXI Transport</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Clock-and-reset"><span class="nav-number">3.1.</span> <span class="nav-text">Clock and reset</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Clock"><span class="nav-number">3.1.1.</span> <span class="nav-text">Clock</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reset"><span class="nav-number">3.1.2.</span> <span class="nav-text">Reset</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Channel-handshake"><span class="nav-number">3.2.</span> <span class="nav-text">Channel handshake</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Write-and-read-channel"><span class="nav-number">3.3.</span> <span class="nav-text">Write and read channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-Request-channel-AW"><span class="nav-number">3.3.1.</span> <span class="nav-text">Write Request channel (AW)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-data-channel-W"><span class="nav-number">3.3.2.</span> <span class="nav-text">Write data channel (W)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-response-channel-B"><span class="nav-number">3.3.3.</span> <span class="nav-text">Write response channel (B)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-request-channel-AR"><span class="nav-number">3.3.4.</span> <span class="nav-text">Read request channel(AR)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-data-channel-R"><span class="nav-number">3.3.5.</span> <span class="nav-text">Read data channel (R)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Relationships-between-the-channels"><span class="nav-number">3.4.</span> <span class="nav-text">Relationships between the channels</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dependencies-between-channel-handshake-signals"><span class="nav-number">3.5.</span> <span class="nav-text">Dependencies between channel handshake signals</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-transaction-dependencies"><span class="nav-number">3.5.1.</span> <span class="nav-text">Write transaction dependencies</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-transaction-dependencies"><span class="nav-number">3.5.2.</span> <span class="nav-text">Read transaction dependencies</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Snoop-channels"><span class="nav-number">3.6.</span> <span class="nav-text">Snoop channels</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CH4-AXI-Transaction"><span class="nav-number">4.</span> <span class="nav-text">CH4 AXI Transaction</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Transaction-request"><span class="nav-number">4.1.</span> <span class="nav-text">Transaction request</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Size-attribute"><span class="nav-number">4.1.1.</span> <span class="nav-text">Size attribute</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Length-attribute"><span class="nav-number">4.1.2.</span> <span class="nav-text">Length attribute</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Maximum-nubmer-of-bytes-in-a-transaction"><span class="nav-number">4.1.3.</span> <span class="nav-text">Maximum nubmer of bytes in a transaction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Burst-attribute"><span class="nav-number">4.1.4.</span> <span class="nav-text">Burst attribute</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#FIXED"><span class="nav-number">4.1.4.1.</span> <span class="nav-text">FIXED</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#INCR"><span class="nav-number">4.1.4.2.</span> <span class="nav-text">INCR</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#WRAP-wrapping"><span class="nav-number">4.1.4.3.</span> <span class="nav-text">WRAP(wrapping)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Transaction-address"><span class="nav-number">4.1.5.</span> <span class="nav-text">Transaction address</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Address-Width"><span class="nav-number">4.1.5.1.</span> <span class="nav-text">Address Width</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Transaction-equation"><span class="nav-number">4.1.6.</span> <span class="nav-text">Transaction equation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Pseudocode-description-of-the-transfers"><span class="nav-number">4.1.7.</span> <span class="nav-text">Pseudocode description of the transfers</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Regular-transaction"><span class="nav-number">4.1.8.</span> <span class="nav-text">Regular transaction</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -587,7 +689,7 @@
 <div class="copyright">
   
   &copy; 
-  <span itemprop="copyrightYear">2024</span>
+  <span itemprop="copyrightYear">2025</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
@@ -596,12 +698,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">183k</span>
+    <span title="站点总字数">187k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">5:33</span>
+    <span title="站点阅读时长">5:39</span>
 </div>
 
         
