@@ -65,8 +65,11 @@
 <meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-35.png">
 <meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-36.png">
 <meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-37.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-38.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-39.png">
+<meta property="og:image" content="https://wangxianke123.github.io/2024/12/11/AMBA-AXI/image-40.png">
 <meta property="article:published_time" content="2024-12-11T13:49:22.000Z">
-<meta property="article:modified_time" content="2025-01-03T02:23:47.954Z">
+<meta property="article:modified_time" content="2025-04-03T09:03:44.580Z">
 <meta property="article:author" content="Wang xianke">
 <meta property="article:tag" content="数字集成电路">
 <meta property="article:tag" content="ICer">
@@ -268,7 +271,7 @@
                   <i class="far fa-calendar-check"></i>
                 </span>
                 <span class="post-meta-item-text">更新于</span>
-                <time title="修改时间：2025-01-03 10:23:47" itemprop="dateModified" datetime="2025-01-03T10:23:47+08:00">2025-01-03</time>
+                <time title="修改时间：2025-04-03 17:03:44" itemprop="dateModified" datetime="2025-04-03T17:03:44+08:00">2025-04-03</time>
               </span>
 
           <br>
@@ -277,14 +280,14 @@
                 <i class="far fa-file-word"></i>
               </span>
                 <span class="post-meta-item-text">本文字数：</span>
-              <span>9.3k</span>
+              <span>10k</span>
             </span>
             <span class="post-meta-item" title="阅读时长">
               <span class="post-meta-item-icon">
                 <i class="far fa-clock"></i>
               </span>
                 <span class="post-meta-item-text">阅读时长 &asymp;</span>
-              <span>17 分钟</span>
+              <span>18 分钟</span>
             </span>
             <div class="post-description">AMBA AXI 协议的学习笔记</div>
 
@@ -297,7 +300,7 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="CH1-Introduction"><a href="#CH1-Introduction" class="headerlink" title="CH1 Introduction"></a>CH1 Introduction</h1><h2 id="About-AXI"><a href="#About-AXI" class="headerlink" title="About AXI"></a>About AXI</h2><p>AXI 是一种支持高性能的传输协议。</p>
+        <h1 id="CH1-Introduction"><a href="#CH1-Introduction" class="headerlink" title="CH1 Introduction"></a>CH1 Introduction</h1><h2 id="1-1-About-AXI"><a href="#1-1-About-AXI" class="headerlink" title="1.1 About AXI"></a>1.1 About AXI</h2><p>AXI 是一种支持高性能的传输协议。</p>
 <p>协议的功能包括：</p>
 <ol>
 <li>适用于高带宽低延迟设计</li>
@@ -317,7 +320,7 @@
 <li>支持乱序传输</li>
 <li>允许添加寄存器保证时序收敛</li>
 </ol>
-<h2 id="AXI-Architecture"><a href="#AXI-Architecture" class="headerlink" title="AXI Architecture"></a>AXI Architecture</h2><p>AXI协议基于事务级传输，具有以下5个独立的通道：</p>
+<h2 id="1-2-AXI-Architecture"><a href="#1-2-AXI-Architecture" class="headerlink" title="1.2 AXI Architecture"></a>1.2 AXI Architecture</h2><p>AXI协议基于事务级传输，具有以下5个独立的通道：</p>
 <ul>
 <li>Write request, 信号名以 aw开头</li>
 <li>Write data, 信号名以w开头</li>
@@ -339,67 +342,67 @@
 </ul>
 <p>下图是一个使用write request channel,write data channel和write response channel的写传输示例。<br><img src="/2024/12/11/AMBA-AXI/image.png" alt="alt text"></p>
 <p>使用读通道和读请求通道的示例：<br><img src="/2024/12/11/AMBA-AXI/image-1.png" alt="alt text"></p>
-<h3 id="Channel-defination"><a href="#Channel-defination" class="headerlink" title="Channel defination"></a>Channel defination</h3><p>每一路通道都含有一系列信号以及valid,ready的2路握手信号。<br>信号源使用valid信号来指示对应通道的address,data或控制信息有效，接收方使用ready信号来指示其可以接受信息。</p>
+<h3 id="1-2-1-Channel-defination"><a href="#1-2-1-Channel-defination" class="headerlink" title="1.2.1 Channel defination"></a>1.2.1 Channel defination</h3><p>每一路通道都含有一系列信号以及valid,ready的2路握手信号。<br>信号源使用valid信号来指示对应通道的address,data或控制信息有效，接收方使用ready信号来指示其可以接受信息。</p>
 <p>此外write data channel和read data channel还分别含有一个last信号来指示传输的最后一个数据。</p>
-<h4 id="Write-and-read-request-channels"><a href="#Write-and-read-request-channels" class="headerlink" title="Write and read request channels"></a>Write and read request channels</h4><p>独立的读&#x2F;写请求通道，对应的通道包含传输事务需要的地址和控制信息。</p>
-<h4 id="Write-data-channel"><a href="#Write-data-channel" class="headerlink" title="Write data channel"></a>Write data channel</h4><p>Write data channel 携带从Master写入Slave的数据，包括：</p>
+<h4 id="1-2-1-1-Write-and-read-request-channels"><a href="#1-2-1-1-Write-and-read-request-channels" class="headerlink" title="1.2.1.1 Write and read request channels"></a>1.2.1.1 Write and read request channels</h4><p>独立的读&#x2F;写请求通道，对应的通道包含传输事务需要的地址和控制信息。</p>
+<h4 id="1-2-1-2-Write-data-channel"><a href="#1-2-1-2-Write-data-channel" class="headerlink" title="1.2.1.2 Write data channel"></a>1.2.1.2 Write data channel</h4><p>Write data channel 携带从Master写入Slave的数据，包括：</p>
 <ul>
 <li>data 信号，wdata的宽度由DATA_WIDTH指定，可以是6，16，32，64，128，256，512，1024bits.</li>
 <li>字节选通信号(strobe)，每位对应8bits,指示对应的byte是否有效。</li>
 </ul>
 <p>写数据通道被认为是buffered的，因此Master可以在无需Slave确定数据的情况下执行写传输操作。</p>
-<h4 id="Write-response-channel"><a href="#Write-response-channel" class="headerlink" title="Write response channel"></a>Write response channel</h4><p>Slave 通过 写响应通道来响应写传输事务。所有的写传输都需要在写响应通道上发送完成信号。<br>但如图a1.1所示，仅针对传输完成的事务发出响应信号，而不是响应事务中的每个数据。</p>
-<h4 id="Read-data-channel"><a href="#Read-data-channel" class="headerlink" title="Read data channel"></a>Read data channel</h4><p>read data channel既包含读数据，也包含读响应信息，包括：</p>
+<h4 id="1-2-1-3Write-response-channel"><a href="#1-2-1-3Write-response-channel" class="headerlink" title="1.2.1.3Write response channel"></a>1.2.1.3Write response channel</h4><p>Slave 通过 写响应通道来响应写传输事务。所有的写传输都需要在写响应通道上发送完成信号。<br>但如图a1.1所示，仅针对传输完成的事务发出响应信号，而不是响应事务中的每个数据。</p>
+<h4 id="1-2-1-4-Read-data-channel"><a href="#1-2-1-4-Read-data-channel" class="headerlink" title="1.2.1.4 Read data channel"></a>1.2.1.4 Read data channel</h4><p>read data channel既包含读数据，也包含读响应信息，包括：</p>
 <ul>
 <li>读数据rdata,宽度由DATA_WIDTH指定，可以是6，16，32，64，128，256，512，1024bits.</li>
 <li>读响应信号，指示读传输操作的完成。</li>
 </ul>
-<h3 id="Interface-and-interconnect"><a href="#Interface-and-interconnect" class="headerlink" title="Interface and interconnect"></a>Interface and interconnect</h3><p>一个典型的多主多从系统的架构如下：<br><img src="/2024/12/11/AMBA-AXI/image-2.png"></p>
+<h3 id="1-2-2-Interface-and-interconnect"><a href="#1-2-2-Interface-and-interconnect" class="headerlink" title="1.2.2 Interface and interconnect"></a>1.2.2 Interface and interconnect</h3><p>一个典型的多主多从系统的架构如下：<br><img src="/2024/12/11/AMBA-AXI/image-2.png"></p>
 <p>AXI协议为以下接口之间的连接提供单一接口定义：</p>
 <ul>
 <li>Manager和Interconnect之间</li>
 <li>Subordinate和Interconnect之间</li>
 <li>Manager和Interconnect之间</li>
 </ul>
-<h4 id="Typical-system-topologies"><a href="#Typical-system-topologies" class="headerlink" title="Typical system topologies"></a>Typical system topologies</h4><p>大多数系统使用如下的拓扑结构：</p>
+<h4 id="1-2-2-1-Typical-system-topologies"><a href="#1-2-2-1-Typical-system-topologies" class="headerlink" title="1.2.2.1 Typical system topologies"></a>1.2.2.1 Typical system topologies</h4><p>大多数系统使用如下的拓扑结构：</p>
 <ul>
 <li>共享的request和data channel</li>
 <li>共享的request channel和多个data channel</li>
 <li>多层，具有多个request和data channel</li>
 </ul>
 <p>大多数系统中，请求通道带宽要求明显低于数据通道带宽要求。此类系统可以通过使用具有多个数据通道的共享请求通道来实现并行数据传输，从而在系统性能和互连复杂性之间实现良好的平衡。</p>
-<h3 id="Rigister-slices"><a href="#Rigister-slices" class="headerlink" title="Rigister slices"></a>Rigister slices</h3><p>每个AXI通道传输的信息是单向的，并且架构并不要求每个通道之间具有固定的关系，这种性质意味着，可以以一个额外时钟周期为延时的代价，在channel的任何节点插入寄存器。并使以下操作成为可能：</p>
+<h3 id="1-2-3-Rigister-slices"><a href="#1-2-3-Rigister-slices" class="headerlink" title="1.2.3 Rigister slices"></a>1.2.3 Rigister slices</h3><p>每个AXI通道传输的信息是单向的，并且架构并不要求每个通道之间具有固定的关系，这种性质意味着，可以以一个额外时钟周期为延时的代价，在channel的任何节点插入寄存器。并使以下操作成为可能：</p>
 <ul>
 <li>在时钟周期延迟和频率之间进行trade-off</li>
 <li>处理器和高性能memory(一般是cache或sram)之间的直连。同时使用简单的寄存器切分，隔离掉与性能不太重要的外设接口之间的较长路径。</li>
 </ul>
-<h2 id="Terminology"><a href="#Terminology" class="headerlink" title="Terminology"></a>Terminology</h2><p><img src="/2024/12/11/AMBA-AXI/image-3.png"></p>
+<h2 id="1-3-Terminology"><a href="#1-3-Terminology" class="headerlink" title="1.3 Terminology"></a>1.3 Terminology</h2><p><img src="/2024/12/11/AMBA-AXI/image-3.png"></p>
 <p><img src="/2024/12/11/AMBA-AXI/image-4.png"></p>
 <p>注意区分transfer和transaction,前者是一次单周期的传输，后者是一次完整的传输事务，一个transaction包含一个或多个transfer。</p>
 <h1 id="CH2-Signal-list"><a href="#CH2-Signal-list" class="headerlink" title="CH2 Signal list"></a>CH2 Signal list</h1><p>本章介绍AXI协议的信号列表，其中一些信号是可选的，并不是所有接口中都包含它们。</p>
-<h2 id="Write-Channel"><a href="#Write-Channel" class="headerlink" title="Write Channel"></a>Write Channel</h2><h3 id="Write-request-channel"><a href="#Write-request-channel" class="headerlink" title="Write request channel"></a>Write request channel</h3><p>Write reques channel包含以下信号：</p>
+<h2 id="2-1-Write-Channel"><a href="#2-1-Write-Channel" class="headerlink" title="2.1 Write Channel"></a>2.1 Write Channel</h2><h3 id="2-1-1-Write-request-channel"><a href="#2-1-1-Write-request-channel" class="headerlink" title="2.1.1 Write request channel"></a>2.1.1 Write request channel</h3><p>Write reques channel包含以下信号：</p>
 <p>这个channel中的信号均以aw开头。<br><img src="/2024/12/11/AMBA-AXI/image-5.png"><br><img src="/2024/12/11/AMBA-AXI/image-6.png"></p>
-<h3 id="Write-channel"><a href="#Write-channel" class="headerlink" title="Write channel"></a>Write channel</h3><p>write channel的信号以w开头<br><img src="/2024/12/11/AMBA-AXI/image-7.png"></p>
-<h3 id="Write-respense-channel"><a href="#Write-respense-channel" class="headerlink" title="Write respense channel"></a>Write respense channel</h3><p>write resopnse channel的信号以B开头。<br><img src="/2024/12/11/AMBA-AXI/image-8.png"></p>
-<h2 id="Read-channel"><a href="#Read-channel" class="headerlink" title="Read channel"></a>Read channel</h2><p>Read channel用来传输读请求，读数据，读响应，以及对应的内存一致性操作和DVM（Distributed Virtual Memory）信息。</p>
-<h3 id="Read-request-Channel"><a href="#Read-request-Channel" class="headerlink" title="Read request Channel"></a>Read request Channel</h3><p>read request channel的信号以ar开头</p>
+<h3 id="2-1-2-Write-channel"><a href="#2-1-2-Write-channel" class="headerlink" title="2.1.2 Write channel"></a>2.1.2 Write channel</h3><p>write channel的信号以w开头<br><img src="/2024/12/11/AMBA-AXI/image-7.png"></p>
+<h3 id="2-1-3-Write-respense-channel"><a href="#2-1-3-Write-respense-channel" class="headerlink" title="2.1.3 Write respense channel"></a>2.1.3 Write respense channel</h3><p>write resopnse channel的信号以B开头。<br><img src="/2024/12/11/AMBA-AXI/image-8.png"></p>
+<h2 id="2-2-Read-channel"><a href="#2-2-Read-channel" class="headerlink" title="2.2 Read channel"></a>2.2 Read channel</h2><p>Read channel用来传输读请求，读数据，读响应，以及对应的内存一致性操作和DVM（Distributed Virtual Memory）信息。</p>
+<h3 id="2-2-1-Read-request-Channel"><a href="#2-2-1-Read-request-Channel" class="headerlink" title="2.2.1 Read request Channel"></a>2.2.1 Read request Channel</h3><p>read request channel的信号以ar开头</p>
 <p><img src="/2024/12/11/AMBA-AXI/image-9.png"><br><img src="/2024/12/11/AMBA-AXI/image-10.png"></p>
-<h3 id="Read-channel-1"><a href="#Read-channel-1" class="headerlink" title="Read channel"></a>Read channel</h3><p>read channel 的信号以r开头。<br><img src="/2024/12/11/AMBA-AXI/image-11.png"></p>
-<h2 id="Snoop-channel"><a href="#Snoop-channel" class="headerlink" title="Snoop channel"></a>Snoop channel</h2><p>本协议中，Snoop channel只用来传递DVM信息。</p>
-<h3 id="Snoop-request-channel"><a href="#Snoop-request-channel" class="headerlink" title="Snoop request channel"></a>Snoop request channel</h3><p>snoop request channel包含以下信号，信号名以ac开头：</p>
+<h3 id="2-2-2-Read-channel"><a href="#2-2-2-Read-channel" class="headerlink" title="2.2.2 Read channel"></a>2.2.2 Read channel</h3><p>read channel 的信号以r开头。<br><img src="/2024/12/11/AMBA-AXI/image-11.png"></p>
+<h2 id="2-3-Snoop-channel"><a href="#2-3-Snoop-channel" class="headerlink" title="2.3 Snoop channel"></a>2.3 Snoop channel</h2><p>本协议中，Snoop channel只用来传递DVM信息。</p>
+<h3 id="2-3-1-Snoop-request-channel"><a href="#2-3-1-Snoop-request-channel" class="headerlink" title="2.3.1 Snoop request channel"></a>2.3.1 Snoop request channel</h3><p>snoop request channel包含以下信号，信号名以ac开头：</p>
 <p><img src="/2024/12/11/AMBA-AXI/image-12.png"></p>
-<h3 id="Snoop-resopnse-channel"><a href="#Snoop-resopnse-channel" class="headerlink" title="Snoop resopnse channel"></a>Snoop resopnse channel</h3><p><img src="/2024/12/11/AMBA-AXI/image-13.png"></p>
+<h3 id="2-3-2-Snoop-resopnse-channel"><a href="#2-3-2-Snoop-resopnse-channel" class="headerlink" title="2.3.2 Snoop resopnse channel"></a>2.3.2 Snoop resopnse channel</h3><p><img src="/2024/12/11/AMBA-AXI/image-13.png"></p>
 <p>Snoop response channel 信号以cr开头。</p>
-<h2 id="Interface-Level-Signals"><a href="#Interface-Level-Signals" class="headerlink" title="Interface Level Signals"></a>Interface Level Signals</h2><h3 id="clock-and-reset-signals"><a href="#clock-and-reset-signals" class="headerlink" title="clock and reset signals"></a>clock and reset signals</h3><p>所有的信号采用一个全局的同步时钟和一个异步的复位信号：<br><img src="/2024/12/11/AMBA-AXI/image-14.png"></p>
-<h3 id="Weakup-signals"><a href="#Weakup-signals" class="headerlink" title="Weakup signals"></a>Weakup signals</h3><p><img src="/2024/12/11/AMBA-AXI/image-15.png"></p>
+<h2 id="2-4-Interface-Level-Signals"><a href="#2-4-Interface-Level-Signals" class="headerlink" title="2.4 Interface Level Signals"></a>2.4 Interface Level Signals</h2><h3 id="2-4-1-clock-and-reset-signals"><a href="#2-4-1-clock-and-reset-signals" class="headerlink" title="2.4.1 clock and reset signals"></a>2.4.1 clock and reset signals</h3><p>所有的信号采用一个全局的同步时钟和一个异步的复位信号：<br><img src="/2024/12/11/AMBA-AXI/image-14.png"></p>
+<h3 id="2-4-2-Weakup-signals"><a href="#2-4-2-Weakup-signals" class="headerlink" title="2.4.2 Weakup signals"></a>2.4.2 Weakup signals</h3><p><img src="/2024/12/11/AMBA-AXI/image-15.png"></p>
 <p>Weakup 信号用来指示端口有活动的信号。</p>
-<h3 id="QoS-Quality-of-Service-Accept-signals"><a href="#QoS-Quality-of-Service-Accept-signals" class="headerlink" title="QoS(Quality of Service) Accept signals"></a>QoS(Quality of Service) Accept signals</h3><p> QoS Accept signals can be used by a Subordinate interface to indicate the minimum QoS value of requests that it<br> accepts<br><img src="/2024/12/11/AMBA-AXI/image-16.png"></p>
-<h3 id="Coherency-Connection-signals"><a href="#Coherency-Connection-signals" class="headerlink" title="Coherency Connection signals"></a>Coherency Connection signals</h3><p>The coherency connection signals are used by a Manager to control whether it receives DVM messages on the AC<br> channel.</p>
+<h3 id="2-4-3-QoS-Quality-of-Service-Accept-signals"><a href="#2-4-3-QoS-Quality-of-Service-Accept-signals" class="headerlink" title="2.4.3 QoS(Quality of Service) Accept signals"></a>2.4.3 QoS(Quality of Service) Accept signals</h3><p> QoS Accept signals can be used by a Subordinate interface to indicate the minimum QoS value of requests that it<br> accepts<br><img src="/2024/12/11/AMBA-AXI/image-16.png"></p>
+<h3 id="2-4-4-Coherency-Connection-signals"><a href="#2-4-4-Coherency-Connection-signals" class="headerlink" title="2.4.4 Coherency Connection signals"></a>2.4.4 Coherency Connection signals</h3><p>The coherency connection signals are used by a Manager to control whether it receives DVM messages on the AC<br> channel.</p>
 <p> <img src="/2024/12/11/AMBA-AXI/image-17.png"></p>
-<h3 id="Interface-control-signals"><a href="#Interface-control-signals" class="headerlink" title="Interface control signals"></a>Interface control signals</h3><p> The interface control signals are static inputs to a Manager interface that can be used to configure interface<br> behavior.<br><img src="/2024/12/11/AMBA-AXI/image-18.png"></p>
-<h1 id="CH3-AXI-Transport"><a href="#CH3-AXI-Transport" class="headerlink" title="CH3 AXI Transport"></a>CH3 AXI Transport</h1><h2 id="Clock-and-reset"><a href="#Clock-and-reset" class="headerlink" title="Clock and reset"></a>Clock and reset</h2><h3 id="Clock"><a href="#Clock" class="headerlink" title="Clock"></a>Clock</h3><p>AXI 接口采用一个时钟信号，ACLK,所有的输入信号在ACLK的上升沿采样，所有的输出信号在的变化也发生在ACLK的上升沿之后。</p>
+<h3 id="2-4-5-Interface-control-signals"><a href="#2-4-5-Interface-control-signals" class="headerlink" title="2.4.5 Interface control signals"></a>2.4.5 Interface control signals</h3><p> The interface control signals are static inputs to a Manager interface that can be used to configure interface<br> behavior.<br><img src="/2024/12/11/AMBA-AXI/image-18.png"></p>
+<h1 id="CH3-AXI-Transport"><a href="#CH3-AXI-Transport" class="headerlink" title="CH3 AXI Transport"></a>CH3 AXI Transport</h1><h2 id="3-1-Clock-and-reset"><a href="#3-1-Clock-and-reset" class="headerlink" title="3.1 Clock and reset"></a>3.1 Clock and reset</h2><h3 id="3-1-1-Clock"><a href="#3-1-1-Clock" class="headerlink" title="3.1.1 Clock"></a>3.1.1 Clock</h3><p>AXI 接口采用一个时钟信号，ACLK,所有的输入信号在ACLK的上升沿采样，所有的输出信号在的变化也发生在ACLK的上升沿之后。</p>
 <p>在Master和Slave 接口中，输入和输出之间不能存在直接的组合逻辑路径。</p>
-<h3 id="Reset"><a href="#Reset" class="headerlink" title="Reset"></a>Reset</h3><p>AXI协议采用一个下降沿有效的复位信号，ARESETn，复位信号可以被异步复位，但是只能在clk的上升沿同步释放。</p>
+<h3 id="3-1-2-Reset"><a href="#3-1-2-Reset" class="headerlink" title="3.1.2 Reset"></a>3.1.2 Reset</h3><p>AXI协议采用一个下降沿有效的复位信号，ARESETn，复位信号可以被异步复位，但是只能在clk的上升沿同步释放。</p>
 <p>复位期间需执行以下操作：</p>
 <ul>
 <li>Master 拉低awvalid,wvalid和arvalid信号</li>
@@ -407,7 +410,7 @@
 <li>其他信号的值可以是任意值</li>
 </ul>
 <p>Master可以拉高valid信号的最早时间节点是ARESETn拉高后的第一个ACLK上升沿，如下图：<br><img src="/2024/12/11/AMBA-AXI/image-19.png"></p>
-<h2 id="Channel-handshake"><a href="#Channel-handshake" class="headerlink" title="Channel handshake"></a>Channel handshake</h2><p>所有的axi通道都采用相同的valid&#x2F;ready握手机制来完成数据，地址及控制信息的传输。</p>
+<h2 id="3-2-Channel-handshake"><a href="#3-2-Channel-handshake" class="headerlink" title="3.2 Channel handshake"></a>3.2 Channel handshake</h2><p>所有的axi通道都采用相同的valid&#x2F;ready握手机制来完成数据，地址及控制信息的传输。</p>
 <p>这种2路的流控制机制意味着Master和Slave双方都可以控制它们之间的数据流通速度。</p>
 <p>信号源通过拉高valid信号来指示有可用的data,address和control information。信号的目的方通过拉高ready来指示数据可以被接受。<br>只有在valid和ready均为高是，传输才会发生。Master 和Slave的输入和输出端口之间一定不能含有纯组合逻辑的通路。<br>下图展现了一个握手过程：<br><img src="/2024/12/11/AMBA-AXI/image-20.png"></p>
 <p>在ready信号拉高之前，源不可以等待ready信号拉高再拉高valid。<br>当valid拉高，必须持续到握手发生之后，下一个valid&amp;ready均为高的时钟上升沿。</p>
@@ -415,22 +418,22 @@
 <p>如果ready被拉高，它可以再valid拉高之前被重新拉低.</p>
 <p><img src="/2024/12/11/AMBA-AXI/image-21.png"></p>
 <p>上图中，第一个时钟上升沿后，valid&amp;ready均拉高，在这种情况下，传输在第一个valid&amp;ready均为高的时钟沿完成。</p>
-<h2 id="Write-and-read-channel"><a href="#Write-and-read-channel" class="headerlink" title="Write and read channel"></a>Write and read channel</h2><h3 id="Write-Request-channel-AW"><a href="#Write-Request-channel-AW" class="headerlink" title="Write Request channel (AW)"></a>Write Request channel (AW)</h3><p>aw 通道的控制信号如下：</p>
+<h2 id="3-3-Write-and-read-channel"><a href="#3-3-Write-and-read-channel" class="headerlink" title="3.3 Write and read channel"></a>3.3 Write and read channel</h2><h3 id="3-3-1-Write-Request-channel-AW"><a href="#3-3-1-Write-Request-channel-AW" class="headerlink" title="3.3.1 Write Request channel (AW)"></a>3.3.1 Write Request channel (AW)</h3><p>aw 通道的控制信号如下：</p>
 <p><img src="/2024/12/11/AMBA-AXI/image-22.png"></p>
 <p>当且仅当发出一个有效的写请求时，Master拉高awvalid,拉高后，必须等待握手完成，及下一个awready拉高后的时钟上升沿后才可以释放。</p>
 <p>awready的默认值可以是high或Low，推荐用high。当为high时，代表slave可以接受一个有效请求。</p>
-<h3 id="Write-data-channel-W"><a href="#Write-data-channel-W" class="headerlink" title="Write data channel (W)"></a>Write data channel (W)</h3><p><img src="/2024/12/11/AMBA-AXI/image-23.png"></p>
+<h3 id="3-3-2-Write-data-channel-W"><a href="#3-3-2-Write-data-channel-W" class="headerlink" title="3.3.2 Write data channel (W)"></a>3.3.2 Write data channel (W)</h3><p><img src="/2024/12/11/AMBA-AXI/image-23.png"></p>
 <p>在一次写事务(transaction)中，master仅当传输的data有效时拉高valid,valid拉高后，必须等待握手完成。</p>
 <p>Master必须在一个transaction的最后一个transfer时拉高wlast信号。推荐将inactive的byte lanes上的WDATA设为0.<br>一个不含有wlast信号的slave接口可以忽略wlast信号。</p>
-<h3 id="Write-response-channel-B"><a href="#Write-response-channel-B" class="headerlink" title="Write response channel (B)"></a>Write response channel (B)</h3><p>write resopnse channel的控制信号如下：<br><img src="/2024/12/11/AMBA-AXI/image-24.png"></p>
+<h3 id="3-3-3-Write-response-channel-B"><a href="#3-3-3-Write-response-channel-B" class="headerlink" title="3.3.3 Write response channel (B)"></a>3.3.3 Write response channel (B)</h3><p>write resopnse channel的控制信号如下：<br><img src="/2024/12/11/AMBA-AXI/image-24.png"></p>
 <p>bvalid由slave发出，当且仅当发出一个有效的写相应时，将其拉高。bready的默认值可以为高，但必须是master能够接受写响应时。</p>
-<h3 id="Read-request-channel-AR"><a href="#Read-request-channel-AR" class="headerlink" title="Read request channel(AR)"></a>Read request channel(AR)</h3><p><img src="/2024/12/11/AMBA-AXI/image-25.png"></p>
+<h3 id="3-3-4-Read-request-channel-AR"><a href="#3-3-4-Read-request-channel-AR" class="headerlink" title="3.3.4 Read request channel(AR)"></a>3.3.4 Read request channel(AR)</h3><p><img src="/2024/12/11/AMBA-AXI/image-25.png"></p>
 <p>和前面类似。<br>The Manager can assert the ARVALID signal only when it drives a valid request. When asserted, ARVALID<br> must remain asserted until the rising clock edge after the Subordinate asserts the ARREADY signal.<br> The default state of ARREADY can be either HIGH or LOW. It is recommended to use HIGH as the default state<br> for ARREADY. If ARREADYis HIGH, then the Subordinate must be able to accept any valid request that is<br> presented to it</p>
 <p>  It is not recommended to default ARREADY LOW because it forces the transfer to take at least two cycles, one to<br> assert ARVALID and another to assert ARREADY.</p>
-<h3 id="Read-data-channel-R"><a href="#Read-data-channel-R" class="headerlink" title="Read data channel (R)"></a>Read data channel (R)</h3><p><img src="/2024/12/11/AMBA-AXI/image-26.png"></p>
+<h3 id="3-3-5-Read-data-channel-R"><a href="#3-3-5-Read-data-channel-R" class="headerlink" title="3.3.5 Read data channel (R)"></a>3.3.5 Read data channel (R)</h3><p><img src="/2024/12/11/AMBA-AXI/image-26.png"></p>
 <p>read data channel 的控制信号有3个，相当于结合了write request 和write。</p>
 <p><img src="/2024/12/11/AMBA-AXI/image-27.png"></p>
-<h2 id="Relationships-between-the-channels"><a href="#Relationships-between-the-channels" class="headerlink" title="Relationships between the channels"></a>Relationships between the channels</h2><p>AXI 协议要求维护以下关系：</p>
+<h2 id="3-4-Relationships-between-the-channels"><a href="#3-4-Relationships-between-the-channels" class="headerlink" title="3.4 Relationships between the channels"></a>3.4 Relationships between the channels</h2><p>AXI 协议要求维护以下关系：</p>
 <ul>
 <li>在一个写事务的最后一个写传输之后，必须跟随一个写响应</li>
 <li>写数据和写响应必须跟随在写请求之后</li>
@@ -449,12 +452,12 @@
 <p>除此之外，协议并不定义通道之间的其他关系。</p>
 <p>这种关系的缺失意味着，例如，写数据可以在传输事务的写请求之前到达。这种情况在写请求通道拥有比写数据通道更长的寄存器(流水线)级数时就可能发生。<br>类似的，写数据也有可以与写请求同时到达。</p>
 <p>当互联结构或slave模块需要确定写入地址或对应的salve接口时，它必须重新对齐请求与数据。这种重新对齐需要保证写入数据只对目标的写入slave有效。</p>
-<h2 id="Dependencies-between-channel-handshake-signals"><a href="#Dependencies-between-channel-handshake-signals" class="headerlink" title="Dependencies between channel handshake signals"></a>Dependencies between channel handshake signals</h2><p>在读，写和监听事务之间存在依赖关系，这些依赖关系被以下图表所描述：</p>
+<h2 id="3-5-Dependencies-between-channel-handshake-signals"><a href="#3-5-Dependencies-between-channel-handshake-signals" class="headerlink" title="3.5 Dependencies between channel handshake signals"></a>3.5 Dependencies between channel handshake signals</h2><p>在读，写和监听事务之间存在依赖关系，这些依赖关系被以下图表所描述：</p>
 <ul>
 <li>单箭头指向可以在箭头前的信号之前或之后断言(拉高)的信号</li>
 <li>双箭头指向必须在箭头前的信号断言(拉高)之后才可以断言的信号。</li>
 </ul>
-<h3 id="Write-transaction-dependencies"><a href="#Write-transaction-dependencies" class="headerlink" title="Write transaction dependencies"></a>Write transaction dependencies</h3><p><img src="/2024/12/11/AMBA-AXI/image-28.png"></p>
+<h3 id="3-5-1-Write-transaction-dependencies"><a href="#3-5-1-Write-transaction-dependencies" class="headerlink" title="3.5.1 Write transaction dependencies"></a>3.5.1 Write transaction dependencies</h3><p><img src="/2024/12/11/AMBA-AXI/image-28.png"></p>
 <p>写事务的依赖关系如图，具体的依赖规则如下：</p>
 <ul>
 <li>Master一定不能等slave的ready的AWREADY和WREADY，拉高后再拉高AWVALID和WVALID。对每一笔写数据事务来说都是如此。</li>
@@ -468,7 +471,7 @@
 <li>Master可以等BVALID拉高后再拉高BREADY</li>
 <li>Master可以在BVALID拉高之前拉高BREADY</li>
 </ul>
-<h3 id="Read-transaction-dependencies"><a href="#Read-transaction-dependencies" class="headerlink" title="Read transaction dependencies"></a>Read transaction dependencies</h3><p>对于读事务，其依赖关系如下图：</p>
+<h3 id="3-5-2-Read-transaction-dependencies"><a href="#3-5-2-Read-transaction-dependencies" class="headerlink" title="3.5.2 Read transaction dependencies"></a>3.5.2 Read transaction dependencies</h3><p>对于读事务，其依赖关系如下图：</p>
 <p><img src="/2024/12/11/AMBA-AXI/image-29.png"></p>
 <ul>
 <li>Master一定不能等Slave拉高ARREADY后再拉高ARVALID</li>
@@ -481,18 +484,18 @@
 </ul>
 <h2 id="Snoop-channels"><a href="#Snoop-channels" class="headerlink" title="Snoop channels"></a>Snoop channels</h2><p>后面补</p>
 <h1 id="CH4-AXI-Transaction"><a href="#CH4-AXI-Transaction" class="headerlink" title="CH4 AXI Transaction"></a>CH4 AXI Transaction</h1><p>AXI协议使用事务级传输在Master和Slave之间进行通信，所有的传输都包括一个request和一个response.读和写事务可以包含一笔或多笔传输。</p>
-<h2 id="Transaction-request"><a href="#Transaction-request" class="headerlink" title="Transaction request"></a>Transaction request</h2><p>AXI Master通过对Slave发送一个请求来初始化一笔传输。一笔请求包括属性和第一个数据的地址。如果一笔事务包含超过一个数据传输，Slave必须负责计算之后的传输地址。</p>
+<h2 id="4-1-Transaction-request"><a href="#4-1-Transaction-request" class="headerlink" title="4.1 Transaction request"></a>4.1 Transaction request</h2><p>AXI Master通过对Slave发送一个请求来初始化一笔传输。一笔请求包括属性和第一个数据的地址。如果一笔事务包含超过一个数据传输，Slave必须负责计算之后的传输地址。</p>
 <p>一笔传输事务不能超出4KB的地址边界。这防止了一笔传输事务跨过2个Slave的边界，同时也限制了Slave支持的地址递增数量。</p>
-<h3 id="Size-attribute"><a href="#Size-attribute" class="headerlink" title="Size attribute"></a>Size attribute</h3><p>size指示了每个transfer的中数据的最大比特数。</p>
+<h3 id="4-1-1-Size-attribute"><a href="#4-1-1-Size-attribute" class="headerlink" title="4.1.1 Size attribute"></a>4.1.1 Size attribute</h3><p>size指示了每个transfer的中数据的最大字节数。</p>
 <p>对于读事务，size指示了每个 data transfer中必须有效的byte数</p>
 <p>对于写事务，size指示了有多少data byte lane是active的，write strobes指示了这些byte中具体哪些是valid的。</p>
 <p>size大小不得超过接口的数据宽度，由 DATA_WIDTH 属性确定。</p>
 <p>如果 Size 小于 DATA_WIDTH，则每个传输使用字节通道的一部分。</p>
 <p>在读请求通道和写请求通道中，size被AWSIZE和ARSIZE确定，本spec中，AxSIZE表示AWSIZE和ARSIZE.</p>
 <p><img src="/2024/12/11/AMBA-AXI/image-30.png"></p>
-<p><img src="/2024/12/11/AMBA-AXI/image-31.png"></p>
+<p><img src="/2024/12/11/AMBA-AXI/image-31.png"><br>可以看到size和byte的关系为$byte &#x3D; 2^{size}$</p>
 <p>只请求全数据宽度的master可以省略其AxSIZE输出，对应的slave必须在其输入的AxSIZE通道输入对应数据宽度的值。</p>
-<h3 id="Length-attribute"><a href="#Length-attribute" class="headerlink" title="Length attribute"></a>Length attribute</h3><p>Length属性定义了每笔事务(transaction)中的transfer数量。</p>
+<h3 id="4-1-2-Length-attribute"><a href="#4-1-2-Length-attribute" class="headerlink" title="4.1.2 Length attribute"></a>4.1.2 Length attribute</h3><p>Length属性定义了每笔事务(transaction)中的transfer数量。</p>
 <p>$Size \times Length$ 是每笔事务可以传输的最大字节数。<br>如果地址未对齐或存在置低的写入选通(write strobe)，则传输的实际字节数可以低于 Size x Length。</p>
 <p>一个Master必须根据Length的大小来发送写传输数据。</p>
 <p>一个Slave必须根据Length的大小来发送读传输数据。</p>
@@ -507,10 +510,10 @@
 <li>不支持提前终止传输事务</li>
 </ul>
 <p>任何组件都不能提前终止事务。但是，为了减少 write transaction 中的数据传输数量，Manager 可以通过置低所有 write strobes 来禁用进一步的写入。在这种情况下，Master必须完成事务中的剩余传输。在读取事务中，Manager 可以丢弃读取数据，但它必须完成事务中的所有传输。</p>
-<h3 id="Maximum-nubmer-of-bytes-in-a-transaction"><a href="#Maximum-nubmer-of-bytes-in-a-transaction" class="headerlink" title="Maximum nubmer of bytes in a transaction"></a>Maximum nubmer of bytes in a transaction</h3><p>一笔事务的最大字节数为4KB。然而，很多Master发起的事务都低于这个值。</p>
+<h3 id="4-1-3-Maximum-nubmer-of-bytes-in-a-transaction"><a href="#4-1-3-Maximum-nubmer-of-bytes-in-a-transaction" class="headerlink" title="4.1.3 Maximum nubmer of bytes in a transaction"></a>4.1.3 Maximum nubmer of bytes in a transaction</h3><p>一笔事务的最大字节数为4KB。然而，很多Master发起的事务都低于这个值。</p>
 <p>一个Slave或者interconnect可以会从这个信息中受益。例如，一个Slave可以增加一些decode逻辑。一个interconnect可以避免burst splitting,如果它知道一笔事务不会超过4KB的边界</p>
 <p>Max_Transaction_Bytes属性定义了一笔传输的最大字节数，如下所示：<br><img src="/2024/12/11/AMBA-AXI/image-33.png"></p>
-<h3 id="Burst-attribute"><a href="#Burst-attribute" class="headerlink" title="Burst attribute"></a>Burst attribute</h3><p>Burst属性描述了每笔传输事务中的transfer 地址是如何增加的。一共有3种不同的burst模式：</p>
+<h3 id="4-1-4-Burst-attribute"><a href="#4-1-4-Burst-attribute" class="headerlink" title="4.1.4 Burst attribute"></a>4.1.4 Burst attribute</h3><p>Burst属性描述了每笔传输事务中的transfer 地址是如何增加的。一共有3种不同的burst模式：</p>
 <h4 id="FIXED"><a href="#FIXED" class="headerlink" title="FIXED"></a>FIXED</h4><p>这种Burst被用来重复的访问同一地址，例如读空或写满一个FIFO。</p>
 <ul>
 <li>每个buret transfer的地址相同</li>
@@ -533,7 +536,7 @@
 <p>Burst 分别使用写入请求和读取请求通道上的 AWBURST 和 ARBURST 信号进行通信。在本规范中，AxBURST 表示 AWBURST 和 ARBURST。</p>
 <p><img src="/2024/12/11/AMBA-AXI/image-34.png"></p>
 <p>FIXED burst由于并不常用，可以增加一个 Fixed_Burst_Disable属性来指示是否支持FIXED burst.</p>
-<h3 id="Transaction-address"><a href="#Transaction-address" class="headerlink" title="Transaction address"></a>Transaction address</h3><p>本节提供用于确定各个transaction中transfer地址和byte lane的方法。</p>
+<h3 id="4-1-5-Transaction-address"><a href="#4-1-5-Transaction-address" class="headerlink" title="4.1.5 Transaction address"></a>4.1.5 Transaction address</h3><p>本节提供用于确定各个transaction中transfer地址和byte lane的方法。</p>
 <p>一个transaction的起始地址用AxADDR信号标识：<br><img src="/2024/12/11/AMBA-AXI/image-35.png"></p>
 <h4 id="Address-Width"><a href="#Address-Width" class="headerlink" title="Address Width"></a>Address Width</h4><p>ADDR_WIDTH用于定义地址的位宽<br><img src="/2024/12/11/AMBA-AXI/image-36.png"></p>
 <p>协议支持拥有物理地址空间大小的组件之间的通信。这些具有不同物理地址空间大小的组件必须遵循以下传输规则：</p>
@@ -542,11 +545,24 @@
 <li>向外的传输事务必须将高位地址补齐。</li>
 <li>向内的传输必须经过检查：<br>地址窗口内的transaction删除了高阶地址位<br>没有所需的高阶地址位的transaction将被抑制。</li>
 </ul>
-<h3 id="Transaction-equation"><a href="#Transaction-equation" class="headerlink" title="Transaction equation"></a>Transaction equation</h3><p>以下公式用于帮助确定transaction中每个transfer的地址和有效的data byte lane。</p>
+<h3 id="4-1-6-Transaction-equation"><a href="#4-1-6-Transaction-equation" class="headerlink" title="4.1.6 Transaction equation"></a>4.1.6 Transaction equation</h3><p>以下公式用于帮助确定transaction中每个transfer的地址和有效的data byte lane。</p>
 <p><img src="/2024/12/11/AMBA-AXI/image-37.png"></p>
 <p>略</p>
-<h3 id="Pseudocode-description-of-the-transfers"><a href="#Pseudocode-description-of-the-transfers" class="headerlink" title="Pseudocode description of the transfers"></a>Pseudocode description of the transfers</h3><p>略</p>
-<h3 id="Regular-transaction"><a href="#Regular-transaction" class="headerlink" title="Regular transaction"></a>Regular transaction</h3>
+<h3 id="4-1-7-Pseudocode-description-of-the-transfers"><a href="#4-1-7-Pseudocode-description-of-the-transfers" class="headerlink" title="4.1.7 Pseudocode description of the transfers"></a>4.1.7 Pseudocode description of the transfers</h3><p>略</p>
+<h3 id="4-1-8-Regular-transaction"><a href="#4-1-8-Regular-transaction" class="headerlink" title="4.1.8 Regular transaction"></a>4.1.8 Regular transaction</h3><p>每笔transaction中可以有不同的burst,size和length组合。但是对于一些简化的设计可以只支持上述组合的一些子集。这样可以减小设计的负责程度。</p>
+<p>如果一个transaction被定义为Regular,它应当具有以下熟悉：</p>
+<ul>
+<li>Length即transfer的数量为1，2，4，8，16</li>
+<li>如果Length大于1，Size的值与data channel相同</li>
+<li>Burst为INCR 或 WRAP，而非FIXED</li>
+<li>对INCR类型的transaction,地址与transaction container对齐</li>
+<li>对WRAP类型的transaction,地址与size对齐。</li>
+</ul>
+<p>Regular_Transactions_Only 属性用于标识Master或Slave仅支持Regular transaction<br><img src="/2024/12/11/AMBA-AXI/image-38.png"><br><img src="/2024/12/11/AMBA-AXI/image-39.png"></p>
+<h2 id="4-2-Write-and-read-data"><a href="#4-2-Write-and-read-data" class="headerlink" title="4.2 Write and read data"></a>4.2 Write and read data</h2><p>本节描述不同大小的AXI读写通道以及interface如何实现mixed-endian和非对齐传输</p>
+<h3 id="4-2-1-Write-Strobe"><a href="#4-2-1-Write-Strobe" class="headerlink" title="4.2.1 Write Strobe"></a>4.2.1 Write Strobe</h3><p>WSTRB信号携带哪些write data channel被选通的信息。<br><img src="/2024/12/11/AMBA-AXI/image-40.png"></p>
+<p>每8Bits的data对应1bit的strobe信号，WSTRB[n]对应WDATA[8n+7:8n]</p>
+
     </div>
 
     
@@ -627,7 +643,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CH1-Introduction"><span class="nav-number">1.</span> <span class="nav-text">CH1 Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#About-AXI"><span class="nav-number">1.1.</span> <span class="nav-text">About AXI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#AXI-Architecture"><span class="nav-number">1.2.</span> <span class="nav-text">AXI Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Channel-defination"><span class="nav-number">1.2.1.</span> <span class="nav-text">Channel defination</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Write-and-read-request-channels"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">Write and read request channels</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Write-data-channel"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">Write data channel</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Write-response-channel"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">Write response channel</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#Read-data-channel"><span class="nav-number">1.2.1.4.</span> <span class="nav-text">Read data channel</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Interface-and-interconnect"><span class="nav-number">1.2.2.</span> <span class="nav-text">Interface and interconnect</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Typical-system-topologies"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">Typical system topologies</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Rigister-slices"><span class="nav-number">1.2.3.</span> <span class="nav-text">Rigister slices</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Terminology"><span class="nav-number">1.3.</span> <span class="nav-text">Terminology</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CH2-Signal-list"><span class="nav-number">2.</span> <span class="nav-text">CH2 Signal list</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Write-Channel"><span class="nav-number">2.1.</span> <span class="nav-text">Write Channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-request-channel"><span class="nav-number">2.1.1.</span> <span class="nav-text">Write request channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-channel"><span class="nav-number">2.1.2.</span> <span class="nav-text">Write channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-respense-channel"><span class="nav-number">2.1.3.</span> <span class="nav-text">Write respense channel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Read-channel"><span class="nav-number">2.2.</span> <span class="nav-text">Read channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-request-Channel"><span class="nav-number">2.2.1.</span> <span class="nav-text">Read request Channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-channel-1"><span class="nav-number">2.2.2.</span> <span class="nav-text">Read channel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Snoop-channel"><span class="nav-number">2.3.</span> <span class="nav-text">Snoop channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Snoop-request-channel"><span class="nav-number">2.3.1.</span> <span class="nav-text">Snoop request channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Snoop-resopnse-channel"><span class="nav-number">2.3.2.</span> <span class="nav-text">Snoop resopnse channel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Interface-Level-Signals"><span class="nav-number">2.4.</span> <span class="nav-text">Interface Level Signals</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#clock-and-reset-signals"><span class="nav-number">2.4.1.</span> <span class="nav-text">clock and reset signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Weakup-signals"><span class="nav-number">2.4.2.</span> <span class="nav-text">Weakup signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#QoS-Quality-of-Service-Accept-signals"><span class="nav-number">2.4.3.</span> <span class="nav-text">QoS(Quality of Service) Accept signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Coherency-Connection-signals"><span class="nav-number">2.4.4.</span> <span class="nav-text">Coherency Connection signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Interface-control-signals"><span class="nav-number">2.4.5.</span> <span class="nav-text">Interface control signals</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CH3-AXI-Transport"><span class="nav-number">3.</span> <span class="nav-text">CH3 AXI Transport</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Clock-and-reset"><span class="nav-number">3.1.</span> <span class="nav-text">Clock and reset</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Clock"><span class="nav-number">3.1.1.</span> <span class="nav-text">Clock</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Reset"><span class="nav-number">3.1.2.</span> <span class="nav-text">Reset</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Channel-handshake"><span class="nav-number">3.2.</span> <span class="nav-text">Channel handshake</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Write-and-read-channel"><span class="nav-number">3.3.</span> <span class="nav-text">Write and read channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-Request-channel-AW"><span class="nav-number">3.3.1.</span> <span class="nav-text">Write Request channel (AW)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-data-channel-W"><span class="nav-number">3.3.2.</span> <span class="nav-text">Write data channel (W)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-response-channel-B"><span class="nav-number">3.3.3.</span> <span class="nav-text">Write response channel (B)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-request-channel-AR"><span class="nav-number">3.3.4.</span> <span class="nav-text">Read request channel(AR)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-data-channel-R"><span class="nav-number">3.3.5.</span> <span class="nav-text">Read data channel (R)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Relationships-between-the-channels"><span class="nav-number">3.4.</span> <span class="nav-text">Relationships between the channels</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Dependencies-between-channel-handshake-signals"><span class="nav-number">3.5.</span> <span class="nav-text">Dependencies between channel handshake signals</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Write-transaction-dependencies"><span class="nav-number">3.5.1.</span> <span class="nav-text">Write transaction dependencies</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Read-transaction-dependencies"><span class="nav-number">3.5.2.</span> <span class="nav-text">Read transaction dependencies</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Snoop-channels"><span class="nav-number">3.6.</span> <span class="nav-text">Snoop channels</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CH4-AXI-Transaction"><span class="nav-number">4.</span> <span class="nav-text">CH4 AXI Transaction</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#Transaction-request"><span class="nav-number">4.1.</span> <span class="nav-text">Transaction request</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#Size-attribute"><span class="nav-number">4.1.1.</span> <span class="nav-text">Size attribute</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Length-attribute"><span class="nav-number">4.1.2.</span> <span class="nav-text">Length attribute</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Maximum-nubmer-of-bytes-in-a-transaction"><span class="nav-number">4.1.3.</span> <span class="nav-text">Maximum nubmer of bytes in a transaction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Burst-attribute"><span class="nav-number">4.1.4.</span> <span class="nav-text">Burst attribute</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#FIXED"><span class="nav-number">4.1.4.1.</span> <span class="nav-text">FIXED</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#INCR"><span class="nav-number">4.1.4.2.</span> <span class="nav-text">INCR</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#WRAP-wrapping"><span class="nav-number">4.1.4.3.</span> <span class="nav-text">WRAP(wrapping)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Transaction-address"><span class="nav-number">4.1.5.</span> <span class="nav-text">Transaction address</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Address-Width"><span class="nav-number">4.1.5.1.</span> <span class="nav-text">Address Width</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Transaction-equation"><span class="nav-number">4.1.6.</span> <span class="nav-text">Transaction equation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Pseudocode-description-of-the-transfers"><span class="nav-number">4.1.7.</span> <span class="nav-text">Pseudocode description of the transfers</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Regular-transaction"><span class="nav-number">4.1.8.</span> <span class="nav-text">Regular transaction</span></a></li></ol></li></ol></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#CH1-Introduction"><span class="nav-number">1.</span> <span class="nav-text">CH1 Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-1-About-AXI"><span class="nav-number">1.1.</span> <span class="nav-text">1.1 About AXI</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-2-AXI-Architecture"><span class="nav-number">1.2.</span> <span class="nav-text">1.2 AXI Architecture</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-1-Channel-defination"><span class="nav-number">1.2.1.</span> <span class="nav-text">1.2.1 Channel defination</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-1-1-Write-and-read-request-channels"><span class="nav-number">1.2.1.1.</span> <span class="nav-text">1.2.1.1 Write and read request channels</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-1-2-Write-data-channel"><span class="nav-number">1.2.1.2.</span> <span class="nav-text">1.2.1.2 Write data channel</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-1-3Write-response-channel"><span class="nav-number">1.2.1.3.</span> <span class="nav-text">1.2.1.3Write response channel</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-1-4-Read-data-channel"><span class="nav-number">1.2.1.4.</span> <span class="nav-text">1.2.1.4 Read data channel</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-2-Interface-and-interconnect"><span class="nav-number">1.2.2.</span> <span class="nav-text">1.2.2 Interface and interconnect</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#1-2-2-1-Typical-system-topologies"><span class="nav-number">1.2.2.1.</span> <span class="nav-text">1.2.2.1 Typical system topologies</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-3-Rigister-slices"><span class="nav-number">1.2.3.</span> <span class="nav-text">1.2.3 Rigister slices</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-3-Terminology"><span class="nav-number">1.3.</span> <span class="nav-text">1.3 Terminology</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CH2-Signal-list"><span class="nav-number">2.</span> <span class="nav-text">CH2 Signal list</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#2-1-Write-Channel"><span class="nav-number">2.1.</span> <span class="nav-text">2.1 Write Channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-1-Write-request-channel"><span class="nav-number">2.1.1.</span> <span class="nav-text">2.1.1 Write request channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-2-Write-channel"><span class="nav-number">2.1.2.</span> <span class="nav-text">2.1.2 Write channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-3-Write-respense-channel"><span class="nav-number">2.1.3.</span> <span class="nav-text">2.1.3 Write respense channel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-2-Read-channel"><span class="nav-number">2.2.</span> <span class="nav-text">2.2 Read channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-1-Read-request-Channel"><span class="nav-number">2.2.1.</span> <span class="nav-text">2.2.1 Read request Channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-2-Read-channel"><span class="nav-number">2.2.2.</span> <span class="nav-text">2.2.2 Read channel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-3-Snoop-channel"><span class="nav-number">2.3.</span> <span class="nav-text">2.3 Snoop channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-1-Snoop-request-channel"><span class="nav-number">2.3.1.</span> <span class="nav-text">2.3.1 Snoop request channel</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-2-Snoop-resopnse-channel"><span class="nav-number">2.3.2.</span> <span class="nav-text">2.3.2 Snoop resopnse channel</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-4-Interface-Level-Signals"><span class="nav-number">2.4.</span> <span class="nav-text">2.4 Interface Level Signals</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-1-clock-and-reset-signals"><span class="nav-number">2.4.1.</span> <span class="nav-text">2.4.1 clock and reset signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-2-Weakup-signals"><span class="nav-number">2.4.2.</span> <span class="nav-text">2.4.2 Weakup signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-3-QoS-Quality-of-Service-Accept-signals"><span class="nav-number">2.4.3.</span> <span class="nav-text">2.4.3 QoS(Quality of Service) Accept signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-4-Coherency-Connection-signals"><span class="nav-number">2.4.4.</span> <span class="nav-text">2.4.4 Coherency Connection signals</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-5-Interface-control-signals"><span class="nav-number">2.4.5.</span> <span class="nav-text">2.4.5 Interface control signals</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CH3-AXI-Transport"><span class="nav-number">3.</span> <span class="nav-text">CH3 AXI Transport</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#3-1-Clock-and-reset"><span class="nav-number">3.1.</span> <span class="nav-text">3.1 Clock and reset</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-1-Clock"><span class="nav-number">3.1.1.</span> <span class="nav-text">3.1.1 Clock</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-2-Reset"><span class="nav-number">3.1.2.</span> <span class="nav-text">3.1.2 Reset</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-2-Channel-handshake"><span class="nav-number">3.2.</span> <span class="nav-text">3.2 Channel handshake</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-3-Write-and-read-channel"><span class="nav-number">3.3.</span> <span class="nav-text">3.3 Write and read channel</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-1-Write-Request-channel-AW"><span class="nav-number">3.3.1.</span> <span class="nav-text">3.3.1 Write Request channel (AW)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-2-Write-data-channel-W"><span class="nav-number">3.3.2.</span> <span class="nav-text">3.3.2 Write data channel (W)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-3-Write-response-channel-B"><span class="nav-number">3.3.3.</span> <span class="nav-text">3.3.3 Write response channel (B)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-4-Read-request-channel-AR"><span class="nav-number">3.3.4.</span> <span class="nav-text">3.3.4 Read request channel(AR)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-5-Read-data-channel-R"><span class="nav-number">3.3.5.</span> <span class="nav-text">3.3.5 Read data channel (R)</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-4-Relationships-between-the-channels"><span class="nav-number">3.4.</span> <span class="nav-text">3.4 Relationships between the channels</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-5-Dependencies-between-channel-handshake-signals"><span class="nav-number">3.5.</span> <span class="nav-text">3.5 Dependencies between channel handshake signals</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-1-Write-transaction-dependencies"><span class="nav-number">3.5.1.</span> <span class="nav-text">3.5.1 Write transaction dependencies</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-2-Read-transaction-dependencies"><span class="nav-number">3.5.2.</span> <span class="nav-text">3.5.2 Read transaction dependencies</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Snoop-channels"><span class="nav-number">3.6.</span> <span class="nav-text">Snoop channels</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#CH4-AXI-Transaction"><span class="nav-number">4.</span> <span class="nav-text">CH4 AXI Transaction</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-1-Transaction-request"><span class="nav-number">4.1.</span> <span class="nav-text">4.1 Transaction request</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-1-Size-attribute"><span class="nav-number">4.1.1.</span> <span class="nav-text">4.1.1 Size attribute</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-2-Length-attribute"><span class="nav-number">4.1.2.</span> <span class="nav-text">4.1.2 Length attribute</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-3-Maximum-nubmer-of-bytes-in-a-transaction"><span class="nav-number">4.1.3.</span> <span class="nav-text">4.1.3 Maximum nubmer of bytes in a transaction</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-4-Burst-attribute"><span class="nav-number">4.1.4.</span> <span class="nav-text">4.1.4 Burst attribute</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#FIXED"><span class="nav-number">4.1.4.1.</span> <span class="nav-text">FIXED</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#INCR"><span class="nav-number">4.1.4.2.</span> <span class="nav-text">INCR</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#WRAP-wrapping"><span class="nav-number">4.1.4.3.</span> <span class="nav-text">WRAP(wrapping)</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-5-Transaction-address"><span class="nav-number">4.1.5.</span> <span class="nav-text">4.1.5 Transaction address</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#Address-Width"><span class="nav-number">4.1.5.1.</span> <span class="nav-text">Address Width</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-6-Transaction-equation"><span class="nav-number">4.1.6.</span> <span class="nav-text">4.1.6 Transaction equation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-7-Pseudocode-description-of-the-transfers"><span class="nav-number">4.1.7.</span> <span class="nav-text">4.1.7 Pseudocode description of the transfers</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-8-Regular-transaction"><span class="nav-number">4.1.8.</span> <span class="nav-text">4.1.8 Regular transaction</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-2-Write-and-read-data"><span class="nav-number">4.2.</span> <span class="nav-text">4.2 Write and read data</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-1-Write-Strobe"><span class="nav-number">4.2.1.</span> <span class="nav-text">4.2.1 Write Strobe</span></a></li></ol></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 
@@ -698,12 +714,12 @@
     <span class="post-meta-item-icon">
       <i class="fa fa-chart-area"></i>
     </span>
-    <span title="站点总字数">190k</span>
+    <span title="站点总字数">191k</span>
     <span class="post-meta-divider">|</span>
     <span class="post-meta-item-icon">
       <i class="fa fa-coffee"></i>
     </span>
-    <span title="站点阅读时长">5:45</span>
+    <span title="站点阅读时长">5:47</span>
 </div>
 
         
